@@ -32,15 +32,18 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
 
   val client: ElasticClient = ElasticClient(JavaClient(eProps))
   val clientFullmatch: ElasticClient = ElasticClient(JavaClient(eProps))
+  val clientSpecialCensus: ElasticClient = ElasticClient(JavaClient(eProps))
 
   val testClient: ElasticClient = client.copy()
   val testClient2: ElasticClient = clientFullmatch.copy()
+  val testClient3: ElasticClient = clientSpecialCensus.copy()
 
  //  injections
    val elasticClientProvider: ElasticClientProvider = new ElasticClientProvider {
       override def client: ElasticClient = testClient
-  /* Not currently used in tests as it doesn't look like you can have two test ES instances */
-   override def clientFullmatch: ElasticClient = testClient2
+      /* Not currently used in tests as it doesn't look like you can have two test ES instances */
+      override def clientFullmatch: ElasticClient = testClient2
+      override def clientSpecialCensus: ElasticClient = testClient3
    }
 
   val defaultLat = "50.705948"

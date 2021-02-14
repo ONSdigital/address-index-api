@@ -3086,7 +3086,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, "", "", historical = true, epoch = "", 5F), Duration.Inf)
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, "", "", historical = true, epoch = "", 5F, auth=""), Duration.Inf)
 
       // Then
       result.successfulBulkAddresses.size mustBe 2

@@ -95,7 +95,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           uprn = uprn,
           historical = hist,
           epoch = epochVal,
-          includeAuxiliarySearch = auxiliary
+          includeAuxiliarySearch = auxiliary,
+          auth = req.headers.get("authorization").getOrElse("Anon")
         )
 
         val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
