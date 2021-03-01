@@ -110,6 +110,7 @@ val commonDeps = Seq(
   "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
   "org.apache.commons" % "commons-lang3" % "3.3.2",
+  "com.softwaremill.retry" %% "retry" % "0.3.3",
   "org.apache.httpcomponents" % "httpcore" % "4.4.11",
   "org.apache.httpcomponents" % "httpclient" % "4.5.7",
   "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.2",
