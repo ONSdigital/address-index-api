@@ -3,7 +3,8 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
-import uk.gov.ons.addressIndex.model.db.index.HybridAddress
+import retry.Success
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHUprnResponse, AddressByRHUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -11,7 +12,8 @@ import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
-
+import scala.concurrent.duration.DurationInt
+import odelay.Timer.default
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -103,9 +105,14 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
           epoch = epochVal,
         )
 
-        val request: Future[Option[HybridAddress]] = overloadProtection.breaker.withCircuitBreaker(
-          esRepo.runUPRNQuery(args)
-        )
+        implicit val success = Success[Option[HybridAddress]](_ != null)
+
+        val request: Future[Option[HybridAddress]] =
+          retry.Pause(3, 1.seconds).apply { ()  =>
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.runUPRNQuery(args)
+            )
+          }
 
         request.map {
           case Some(hybridAddress) =>
