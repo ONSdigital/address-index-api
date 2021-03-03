@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHUprnResponse, AddressByRHUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
