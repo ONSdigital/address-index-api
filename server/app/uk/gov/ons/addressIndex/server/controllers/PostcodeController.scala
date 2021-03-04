@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
+import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
@@ -11,7 +12,8 @@ import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerRespons
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
-
+import odelay.Timer.default
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -142,10 +144,14 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           wboost = wboostDouble
         )
 
+        implicit val success = Success[HybridAddressCollection](_ != null)
+
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(
-            esRepo.runMultiResultQuery(args)
-          )
+          retry.Pause(3, 1.seconds).apply { ()  =>
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.runMultiResultQuery(args)
+            )
+          }
 
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
