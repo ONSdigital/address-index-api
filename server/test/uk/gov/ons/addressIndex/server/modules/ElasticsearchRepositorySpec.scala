@@ -848,6 +848,50 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
       result shouldBe expected
     }
 
+    "generate a valid query from partial address, including StartNumber fields when a number less than 6 digits is entered" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"12345","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"match":{"lpi.paoStartNumber":{"query":"12345","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"lpi.saoStartNumber":{"query":"12345","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.paoStartNumber":{"query":"12345","boost":2,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}},{"match":{"nisra.saoStartNumber":{"query":"12345","boost":1,"fuzzy_transpositions":false,"max_expansions":10,"prefix_length":"1"}}}]}},{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"12345","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"12345","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"12345","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"12345","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"12345","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
+        """.stripMargin
+      )
+
+      // When
+      val args = PartialArgs(
+        input = "12345",
+        filters = "residential",
+        limit = 1,
+      )
+      val query = repository.makeQuery(args)
+      val result = Json.parse(SearchBodyBuilderFn(query).string())
+
+      // Then
+      result shouldBe expected
+    }
+
+    "generate a valid query from partial address, excluding StartNumber fields when a number greater than 5 digits is entered" in {
+      // Given
+      val repository = new AddressIndexRepository(config, elasticClientProvider)
+      val expected = Json.parse(
+        s"""
+          {"query":{"function_score":{"query":{"bool":{"must":[{"multi_match":{"query":"123456","fields":["mixedPartial"],"type":"phrase","slop":25}}],"should":[{"dis_max":{"queries":[{"prefix":{"lpi.mixedNagStart":{"value":"123456","boost":1.25}}},{"prefix":{"lpi.mixedWelshNagStart":{"value":"123456","boost":1.25}}},{"prefix":{"paf.mixedPafStart":{"value":"123456","boost":1.25}}},{"prefix":{"paf.mixedWelshPafStart":{"value":"123456","boost":1.25}}},{"prefix":{"nisra.mixedNisraStart":{"value":"123456","boost":1.25}}}]}}],"filter":[{"bool":{"should":[{"prefix":{"classificationCode":{"value":"RD"}}},{"prefix":{"classificationCode":{"value":"RH"}}},{"prefix":{"classificationCode":{"value":"RI"}}}],"minimum_should_match":"1"}}]}},"min_score":1,"boost_mode":"replace","functions":[{"script_score":{"script":{"source":"Math.round(_score/1.8)"}}}]}},"from":0,"size":1,"sort":[{"_score":{"order":"desc"}},{"postcodeStreetTown":{"order":"asc"}},{"lpi.paoStartNumber":{"order":"asc"}},{"lpi.paoStartSuffix.keyword":{"order":"asc"}},{"lpi.secondarySort":{"order":"asc"}},{"nisra.paoStartNumber":{"order":"asc"}},{"nisra.secondarySort":{"order":"asc"}},{"uprn":{"order":"asc"}}],"highlight":{"number_of_fragments":0,"fields":{"mixedPartial":{}}}}
+        """.stripMargin
+      )
+
+      // When
+      val args = PartialArgs(
+        input = "123456",
+        filters = "residential",
+        limit = 1,
+      )
+      val query = repository.makeQuery(args)
+      val result = Json.parse(SearchBodyBuilderFn(query).string())
+
+      // Then
+      result shouldBe expected
+    }
+
     "generate valid fallback query from partial address" in {
       // Given
       val repository = new AddressIndexRepository(config, elasticClientProvider)
