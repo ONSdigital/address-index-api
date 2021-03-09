@@ -13,8 +13,10 @@ import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValid
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
 import odelay.Timer.default
+
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
+import scala.math.Ordering
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -156,9 +158,27 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
 
-            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+            val addresses1: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verb)
             )
+
+            val hits = addresses1.size
+
+            val addresses2: Seq[AddressResponseAddress] = addresses1.zipWithIndex.map{pair =>
+     //       1) Sort addresses with a UPRN starting with 900 to the top
+     //       2) Sort addresses with a estabtype of SITE and addresstype of CE to the absolute top
+              val uprn = pair._1.uprn
+              val estabtype = pair._1.census.estabType
+              val addresstype = pair._1.census.addressType
+              val ceboost: Int = if (estabtype.equalsIgnoreCase("SITE") && addresstype.equalsIgnoreCase("CE")) 100000 else 0
+              val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
+              val newscore: Double = ceboost + uprnboost + hits - pair._2
+              pair._1.copy(confidenceScore=newscore)
+            }
+
+            val addresses3 = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
+
+            val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
 
             writeLog(activity = "postcode_request")
 
