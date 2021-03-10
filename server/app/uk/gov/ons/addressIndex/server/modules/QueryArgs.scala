@@ -250,7 +250,7 @@ final case class PartialArgs(input: String,
 
   override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 
-  def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.nonEmpty).toList
+  def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.matches("\\d{1,5}")).filter(_.nonEmpty).toList
 }
 
 /**
