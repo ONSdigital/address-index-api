@@ -19,7 +19,8 @@ case class AddressResponseAddressPostcodeRH(uprn: String,
                                             addressType: String,
                                             censusAddressType: String,
                                             censusEstabType: String,
-                                            countryCode:String)
+                                            countryCode:String,
+                                            confidenceScore:Double = 100)
 
 object AddressResponseAddressPostcodeRH {
   implicit lazy val addressResponseAddressRHFormat: Format[AddressResponseAddressPostcodeRH] = Json.format[AddressResponseAddressPostcodeRH]
