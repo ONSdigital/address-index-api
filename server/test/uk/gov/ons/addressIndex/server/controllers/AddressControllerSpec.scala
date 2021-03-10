@@ -788,6 +788,90 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply on a found address in concise format where input is less than 6 digits (by partial)" in {
+
+      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+
+      val sortAddresses = partialAddressController.boostAtStart(addresses, input="12345", favourPaf = true, favourWelsh = false, highVerbose = false)
+
+      // Given
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPartialAddressResponse(
+          input = "12345",
+          addresses = sortAddresses,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = partialAddressController.partialAddressQuery(input = "12345", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply on a found address in concise format where input is greater than 5 digits (by partial)" in {
+
+      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+
+      val sortAddresses = partialAddressController.boostAtStart(addresses, input="123456", favourPaf = true, favourWelsh = false, highVerbose = false)
+
+      // Given
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByPartialAddressResponse(
+          input = "123456",
+          addresses = sortAddresses,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 1,
+          maxScore = 1.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1
+        ),
+        OkAddressResponseStatus
+      ))
+
+      // When
+      val result: Future[Result] = partialAddressController.partialAddressQuery(input = "123456", verbose = Some("false")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
     "reply with a postcode list when a postcode is supplied to EQController" in {
       // Given
       val controller = eqController
