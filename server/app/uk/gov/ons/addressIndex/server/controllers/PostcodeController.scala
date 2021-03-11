@@ -132,8 +132,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case _ =>
         val args = PostcodeArgs(
           postcode = postcode,
-          start = offsetInt,
-          limit = limitInt,
+          start = (if (auxiliary) 0 else offsetInt),
+          limit = (if (auxiliary) 5000 else limitInt),
           filters = filterString,
           historical = hist,
           verbose = verb,
@@ -164,7 +164,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
             val hits = addresses1.size
 
-            val addresses2: Seq[AddressResponseAddress] = addresses1.zipWithIndex.map{pair =>
+            val addresses2: Seq[AddressResponseAddress] = if (auxiliary) addresses1.zipWithIndex.map{pair =>
               //        addresstype=CE and not (estabtype = 'Household' or 'NA' or 'Other' or 'Residential Caravaner' or 'Residential Boat' or 'Sheltered Accommodation') 1000000
               //        E or W countrycode 100000
               //        900x uprn 10000
@@ -185,10 +185,11 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
               val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
               val newscore: Double = ceboost + countboost + uprnboost + hits - pair._2
               pair._1.copy(confidenceScore=newscore)
-            }
+            } else Seq.empty
 
-            val addresses = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
+            val addresses3 = if (auxiliary) addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse) else Seq.empty
 
+            val addresses = if (auxiliary) addresses3.slice(offsetInt, offsetInt + limitInt) else addresses1
     //        val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
 
             writeLog(activity = "postcode_request")
