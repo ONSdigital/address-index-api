@@ -165,20 +165,31 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             val hits = addresses1.size
 
             val addresses2: Seq[AddressResponseAddress] = addresses1.zipWithIndex.map{pair =>
-     //       1) Sort addresses with a UPRN starting with 900 to the top
-     //       2) Sort addresses with a estabtype of SITE and addresstype of CE to the absolute top
+              //        addresstype=CE and not (estabtype = 'Household' or 'NA' or 'Other' or 'Residential Caravaner' or 'Residential Boat' or 'Sheltered Accommodation') 1000000
+              //        E or W countrycode 100000
+              //        900x uprn 10000
+              //        Ranking from ES query 0-9999
               val uprn = pair._1.uprn
               val estabtype = pair._1.census.estabType
               val addresstype = pair._1.census.addressType
-              val ceboost: Int = if (estabtype.equalsIgnoreCase("SITE") && addresstype.equalsIgnoreCase("CE")) 100000 else 0
+              val countrycode = pair._1.census.countryCode
+              val ceboost: Int = if (addresstype.equalsIgnoreCase("CE") &&
+                !(estabtype.equalsIgnoreCase("Household")
+                  || estabtype.equalsIgnoreCase("NA")
+                  || estabtype.equalsIgnoreCase("Other")
+                  || estabtype.equalsIgnoreCase("Residential Caravaner")
+                  || estabtype.equalsIgnoreCase("Residential Boat")
+                  || estabtype.equalsIgnoreCase("Sheltered Accommodation")
+                  )) 1000000 else 0
+              val countboost: Int = if(countrycode.equals("E") || countrycode.equals("W")) 100000 else 0
               val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
-              val newscore: Double = ceboost + uprnboost + hits - pair._2
+              val newscore: Double = ceboost + countboost + uprnboost + hits - pair._2
               pair._1.copy(confidenceScore=newscore)
             }
 
-            val addresses3 = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
+            val addresses = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
-            val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
+    //        val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
 
             writeLog(activity = "postcode_request")
 
