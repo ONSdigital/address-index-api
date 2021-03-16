@@ -16,7 +16,6 @@ import odelay.Timer.default
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
-import scala.math.Ordering
 import scala.util.Try
 import scala.util.control.NonFatal
 
