@@ -163,11 +163,8 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
 
             val hits = addresses1.size
 
+            // post-query sorting to boost CEs, E/W country, 900x UPRNs
             val addresses2: Seq[AddressResponseAddressPostcodeRH] = addresses1.zipWithIndex.map{pair =>
-      //        addresstype=CE and not (estabtype = 'Household' or 'NA' or 'Other' or 'Residential Caravaner' or 'Residential Boat' or 'Sheltered Accommodation') 1000000
-      //        E or W countrycode 100000
-      //        900x uprn 10000
-      //        Ranking from ES query 0-9999
               val uprn = pair._1.uprn
               val estabtype = pair._1.censusEstabType
               val addresstype = pair._1.censusAddressType
@@ -180,7 +177,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                   || estabtype.equalsIgnoreCase("Residential Boat")
                   || estabtype.equalsIgnoreCase("Sheltered Accommodation")
                   )) 1000000 else 0
-              val countboost: Int = if(countrycode.equals("E") || countrycode.equals("W")) 100000 else 0
+              val countboost: Int = if (countrycode.equals("E") || countrycode.equals("W")) 100000 else 0
               val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
               val newscore: Double = ceboost + countboost + uprnboost + hits - pair._2
               pair._1.copy(confidenceScore=newscore)
@@ -188,7 +185,6 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
 
             val addresses = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
-        //    val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
             writeLog(activity = "eq_postcode_request")
 
             jsonOk(
