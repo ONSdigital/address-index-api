@@ -132,8 +132,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       case _ =>
         val args = PostcodeArgs(
           postcode = postcode,
-//          start = (if (auxiliary) 0 else offsetInt),
-//          limit = (if (auxiliary) 5000 else limitInt),
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
@@ -163,36 +161,6 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verb)
             )
-
-//            val hits = addresses1.size
-//
-//            val addresses2: Seq[AddressResponseAddress] = if (auxiliary) addresses1.zipWithIndex.map{pair =>
-//              //        addresstype=CE and not (estabtype = 'Household' or 'NA' or 'Other' or 'Residential Caravaner' or 'Residential Boat' or 'Sheltered Accommodation') 1000000
-//              //        E or W countrycode 100000
-//              //        900x uprn 10000
-//              //        Ranking from ES query 0-9999
-//              val uprn = pair._1.uprn
-//              val estabtype = pair._1.census.estabType
-//              val addresstype = pair._1.census.addressType
-//              val countrycode = pair._1.census.countryCode
-//              val ceboost: Int = if (addresstype.equalsIgnoreCase("CE") &&
-//                !(estabtype.equalsIgnoreCase("Household")
-//                  || estabtype.equalsIgnoreCase("NA")
-//                  || estabtype.equalsIgnoreCase("Other")
-//                  || estabtype.equalsIgnoreCase("Residential Caravaner")
-//                  || estabtype.equalsIgnoreCase("Residential Boat")
-//                  || estabtype.equalsIgnoreCase("Sheltered Accommodation")
-//                  )) 1000000 else 0
-//              val countboost: Int = if(countrycode.equals("E") || countrycode.equals("W")) 100000 else 0
-//              val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
-//              val newscore: Double = ceboost + countboost + uprnboost + hits - pair._2
-//              pair._1.copy(confidenceScore=newscore)
-//            } else Seq.empty
-//
-//            val addresses3 = if (auxiliary) addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse) else Seq.empty
-//
-//            val addresses = if (auxiliary) addresses3.slice(offsetInt, offsetInt + limitInt) else addresses1
-    //        val addresses = addresses3.map(add => add.copy(confidenceScore = 100))
 
             writeLog(activity = "postcode_request")
 
