@@ -157,9 +157,33 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
 
-            val addresses: Seq[AddressResponseAddressPostcodeRH] = hybridAddresses.map(
+            val addresses1: Seq[AddressResponseAddressPostcodeRH] = hybridAddresses.map(
               AddressResponseAddressPostcodeRH.fromHybridAddress(_, favourPaf, favourWelsh)
             )
+
+            val hits = addresses1.size
+
+            // post-query sorting to boost CEs, E/W country, 900x UPRNs
+            val addresses2: Seq[AddressResponseAddressPostcodeRH] = addresses1.zipWithIndex.map{pair =>
+              val uprn = pair._1.uprn
+              val estabtype = pair._1.censusEstabType
+              val addresstype = pair._1.censusAddressType
+              val countrycode = pair._1.countryCode
+              val ceboost: Int = if (addresstype.equalsIgnoreCase("CE") &&
+                !(estabtype.equalsIgnoreCase("Household")
+                  || estabtype.equalsIgnoreCase("NA")
+                  || estabtype.equalsIgnoreCase("Other")
+                  || estabtype.equalsIgnoreCase("Residential Caravaner")
+                  || estabtype.equalsIgnoreCase("Residential Boat")
+                  || estabtype.equalsIgnoreCase("Sheltered Accommodation")
+                  )) 1000000 else 0
+              val countboost: Int = if (countrycode.equals("E") || countrycode.equals("W")) 100000 else 0
+              val uprnboost: Int = if (uprn.mkString.take(3).equals("900")) 10000 else 0
+              val newscore: Double = ceboost + countboost + uprnboost + hits - pair._2
+              pair._1.copy(confidenceScore=newscore)
+            }
+
+            val addresses = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
             writeLog(activity = "eq_postcode_request")
 

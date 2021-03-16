@@ -1170,7 +1170,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByRHPostcodeResponse(
           postcode = "Po155Rr",
-          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false)),
+          addresses = Seq(AddressResponseAddressPostcodeRH.fromHybridAddress(validHybridAddressSkinny, favourPaf = true, favourWelsh = false).copy(confidenceScore=100001)),
           filter = "",
           limit = 100,
           offset = 0,
