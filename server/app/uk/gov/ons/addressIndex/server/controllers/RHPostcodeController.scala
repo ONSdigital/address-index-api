@@ -46,7 +46,8 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     eboost: Option[String] = None,
                     nboost: Option[String] = None,
                     sboost: Option[String] = None,
-                    wboost: Option[String] = None
+                    wboost: Option[String] = None,
+                    newdata: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
@@ -128,8 +129,10 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
         res // a validation error
 
       case _ =>
+        val foundpostcode = Try(newdata.getOrElse("").split("\\|")(0)).getOrElse("")
+        val uprnsToNuke = Try(newdata.getOrElse("").split("\\|")(1)).getOrElse("").split(",").toList
         val args = PostcodeArgs(
-          postcode = postcode,
+          postcode = if (foundpostcode.isEmpty) postcode else foundpostcode,
           start = offsetInt,
           limit = limitInt,
           filters = filterString,
@@ -164,7 +167,7 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
             val hits = addresses1.size
 
             // post-query sorting to boost CEs, E/W country, 900x UPRNs
-            val addresses2: Seq[AddressResponseAddressPostcodeRH] = addresses1.zipWithIndex.map{pair =>
+            val addresses2: Seq[AddressResponseAddressPostcodeRH] = addresses1.filter(add => !uprnsToNuke.contains(add.uprn)).zipWithIndex.map{pair =>
               val uprn = pair._1.uprn
               val estabtype = pair._1.censusEstabType
               val addresstype = pair._1.censusAddressType
@@ -192,13 +195,13 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByRHPostcodeResponse(
-                  postcode = postcode,
+                  postcode = if (foundpostcode.isEmpty) postcode else foundpostcode,
                   addresses = addresses,
                   filter = filterString,
                   epoch = epochVal,
                   limit = limitInt,
                   offset = offsetInt,
-                  total = total,
+                  total = total - uprnsToNuke.size,
                   maxScore = maxScore
                 ),
                 status = OkAddressResponseStatus
