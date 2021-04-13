@@ -188,6 +188,33 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
 
             val addresses = addresses2.sortBy(_.confidenceScore)(Ordering[Double].reverse)
 
+            if (!foundpostcode.isEmpty) {
+              val myJson = Json.toJson((
+                AddressByRHPostcodeResponseContainer(
+                  apiVersion = apiVersion,
+                  dataVersion = dataVersion,
+                  response = AddressByRHPostcodeResponse(
+                    postcode = if (foundpostcode.isEmpty) postcode else foundpostcode,
+                    addresses = addresses,
+                    filter = filterString,
+                    epoch = epochVal,
+                    limit = limitInt,
+                    offset = offsetInt,
+                    total = total - uprnsToNuke.size,
+                    maxScore = maxScore
+                  ),
+                  status = OkAddressResponseStatus
+                )
+                ))
+
+              import java.io.FileWriter
+              import java.io.PrintWriter
+              val fileWriter: FileWriter = new FileWriter("logs/"+foundpostcode)
+              val printWriter: PrintWriter = new PrintWriter(fileWriter)
+              printWriter.print(myJson)
+              printWriter.close
+            }
+
             writeLog(activity = "eq_postcode_request")
 
             jsonOk(
