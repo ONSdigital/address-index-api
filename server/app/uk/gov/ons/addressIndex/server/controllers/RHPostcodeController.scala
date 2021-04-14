@@ -129,8 +129,10 @@ class RHPostcodeController @Inject()(val controllerComponents: ControllerCompone
         res // a validation error
 
       case _ =>
-        val foundpostcode = Try(newdata.getOrElse("").split("\\|")(0)).getOrElse("")
-        val uprnsToNuke = Try(newdata.getOrElse("").split("\\|")(1)).getOrElse("").split(",").toList
+        val jbody = req.body.asJson
+        val inputstring:String = jbody.toList(0)("data").toString().replaceAll("\"","")
+        val foundpostcode = Try(inputstring.split("\\|")(0)).getOrElse("")
+        val uprnsToNuke = Try(inputstring.split("\\|")(1)).getOrElse("").split(",").toList
         val args = PostcodeArgs(
           postcode = if (foundpostcode.isEmpty) postcode else foundpostcode,
           start = offsetInt,
