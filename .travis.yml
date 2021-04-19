@@ -21,7 +21,6 @@ branches:
     # We're only building these branches and pull requests.
     - master
     - develop
-    - travis-test
 before_cache:
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
