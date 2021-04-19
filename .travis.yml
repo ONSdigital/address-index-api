@@ -4,14 +4,7 @@ language: scala
 script:
   - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; else travis_retry sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; fi
 after_success:
-  - echo "$DOCKER_PASSWORD" | base64 --decode | docker login "$DOCKER_REGISTRY" --username "$DOCKER_USERNAME" --password-stdin
-  - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" docker:publish
-  - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" publish
   - bash <(curl -s https://codecov.io/bash)
-  - echo ${DOCKER_USERNAME} | base64
-  - echo ${DOCKER_LOCATION} | base64
-  - echo ${DOCKER_REGISTRY} | base64
-  - echo ${TRAVIS_SCALA_VERSION} | base64
 scala:
   - 2.12.4
 jdk:
