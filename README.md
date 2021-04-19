@@ -51,7 +51,7 @@ The other Docker image contains a version of the API that will work with the Ela
     * Java 1.8 
     * sbt 0.13.13 (or 0.13.16)
     * Scala 2.12.4
-    * Elasticsearch 7.3.1
+    * Elasticsearch 7.9.3
     * An IDE such as IntelliJ is recommended
 
 2) Create Project from GitHub (IntelliJ shown as example)
