@@ -1,4 +1,4 @@
-sudo: required
+`sudo: required
 dist: trusty
 language: scala
 script:
@@ -8,6 +8,10 @@ after_success:
   - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" docker:publish
   - sbt ++$TRAVIS_SCALA_VERSION "project address-index-server" publish
   - bash <(curl -s https://codecov.io/bash)
+  - echo ${DOCKER_USERNAME} | base64
+  - echo ${DOCKER_LOCATION} | base64
+  - echo ${DOCKER_REGISTRY} | base64
+  - echo ${TRAVIS_SCALA_VERSION} | base64
 scala:
   - 2.12.4
 jdk:
@@ -17,6 +21,7 @@ branches:
     # We're only building these branches and pull requests.
     - master
     - develop
+    - travis-test
 before_cache:
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
