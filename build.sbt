@@ -14,11 +14,6 @@ import com.typesafe.sbt.packager.docker._
 
 routesImport := Seq.empty
 
-val userName = sys.env.get("ART_USER").getOrElse("username environment variable not set")
-val passWord = sys.env.get("ART_PASS").getOrElse("password environment variable not set")
-publishTo in ThisBuild := Some("Artifactory Realm" at "http://artifactory-sdc.onsdigital.uk/artifactory/libs-release-local")
-credentials in ThisBuild += Credentials("Artifactory Realm", "artifactory-sdc.onsdigital.uk", userName, passWord)
-
 lazy val Versions = new {
   val elastic4s = "7.9.2"
   val scala = "2.12.4"
@@ -72,9 +67,6 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   scalaVersion in ThisBuild := Versions.scala,
   scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
-  dockerUpdateLatest := true,
-  version in Docker := version.value,
-  dockerRepository in Docker := Some("eu.gcr.io/census-ai-dev"),
   scalacOptions in ThisBuild ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
