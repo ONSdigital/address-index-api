@@ -292,7 +292,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         else if (result.failedRequests.isEmpty) miniBatchSize
         else math.floor(miniBatchSize * miniBatchDownscale).toInt
 
-      val nextCanUpScale = canUpScale && result.failedRequests.isEmpty
+      val maxScale = conf.config.bulk.batch.perBatchLimit
+      val nextCanUpScale = canUpScale && result.failedRequests.isEmpty && newMiniBatchSize < maxScale
 
       iterateOverRequestsWithBackPressure(
         requestsLeft, newMiniBatchSize, limitPerAddress, configOverwrite, startDate, endDate, historical, epoch, matchThreshold,

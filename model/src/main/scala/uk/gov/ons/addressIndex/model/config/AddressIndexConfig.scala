@@ -236,6 +236,7 @@ case class BulkConfig(batch: BatchConfig,
                       scaleFactor: Int)
 
 case class BatchConfig(perBatch: Int,
+                       perBatchLimit: Int,
                        upscale: Float,
                        downscale: Float,
                        warningThreshold: Float)
