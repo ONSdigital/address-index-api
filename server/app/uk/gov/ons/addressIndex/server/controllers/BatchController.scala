@@ -393,9 +393,14 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val authVal = request.headers.get("authorization").getOrElse("Anon")
 
+    val user = request.headers.get("user").getOrElse("userblank")
+    val userName = request.headers.get("username").getOrElse("usernameblank")
+
+    val networkId = user + "_" + userName
+
     // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
-    val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+ //   val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
     val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
 
     logger.systemLog(
