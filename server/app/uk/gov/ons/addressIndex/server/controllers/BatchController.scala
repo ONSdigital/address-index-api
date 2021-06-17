@@ -392,11 +392,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val responseTime = System.currentTimeMillis() - startingTime
 
     val authVal = request.headers.get("authorization").getOrElse("Anon")
-
-    val user = request.headers.get("user").getOrElse("userblank")
-    val userName = request.headers.get("username").getOrElse("usernameblank")
-
-    val networkId = user + "_" + userName
+    val networkId = request.headers.get("user").getOrElse("userblank")
 
     // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
