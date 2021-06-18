@@ -391,12 +391,13 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val responseTime = System.currentTimeMillis() - startingTime
 
+    // Set the networkId field to the username supplied in the user header
+    // if this is not present, extract the user and organisation from the api key
     val authVal = request.headers.get("authorization").getOrElse("Anon")
-
-    // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
-    val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
-    val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
+    val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+    val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
+    val networkId = request.headers.get("user").getOrElse(keyNetworkId)
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
