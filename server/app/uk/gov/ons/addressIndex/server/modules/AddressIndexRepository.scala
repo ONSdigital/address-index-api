@@ -65,6 +65,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   private val auxiliaryIndex = esConf.indexes.auxiliaryIndex
 
   private val gcp : Boolean = Try(esConf.gcp.toBoolean).getOrElse(false)
+  private val testURi = esConf.uri
+  private val testURi2 = esConf.uriFullmatch
 
   val client: ElasticClient = elasticClientProvider.client
 // clientFullmatch is for GCP deployments - used for fullmatch as it has a lower hardware spec
@@ -1150,6 +1152,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
     logger.trace(query.toString)
     val specialCen = (args.auth == conf.config.masterKey)
+    logger.warn("uprnFull="+uprnFull)
+    logger warn("specialCen"+specialCen)
+    logger warn ("gcp="+gcp)
+    logger warn ("testURI="+testURi)
+    logger warn ("testURIfull="+testURi2)
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
