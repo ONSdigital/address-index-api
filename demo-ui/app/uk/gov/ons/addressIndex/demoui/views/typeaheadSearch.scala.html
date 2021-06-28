@@ -52,7 +52,9 @@ version: DemoUIAddressIndexVersionModule
     function getSingle() {
       var addressPart = document.getElementById("address").value;
       var fallback = document.getElementById("fallback").checked;
-      var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
+ //     var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
+      var singleUrl = "https://whitelodge-eq-ai-api.census-gcp.onsdigital.uk/addresses/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
+
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20" + "&fallback="+fallback;
       if (addressPart.trim().length > 1) {
         if (@{conf.config.gcp}) {
@@ -98,7 +100,7 @@ version: DemoUIAddressIndexVersionModule
           url: durl,
           dataType: 'json',
           headers: {
-            "Authorization": "typeahead_ons+8daf92dc-82e0-408c-8600-ee4a62360c08"
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.5W2EgODHpsts672J4psiGH31H-vJBz1r56_Tr9_8pPU"
           }
         })
 
