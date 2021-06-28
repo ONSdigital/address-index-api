@@ -53,7 +53,7 @@ version: DemoUIAddressIndexVersionModule
       var addressPart = document.getElementById("address").value;
       var fallback = document.getElementById("fallback").checked;
  //     var singleUrl = "@{conf.config.apiURL.ajaxHost + ":" + conf.config.apiURL.ajaxPort + conf.config.apiURL.gatewayPath}/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
-      var singleUrl = "https://whitelodge-eq-ai-api.census-gcp.onsdigital.uk/addresses/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
+      var singleUrl = "https://whitelodge-eq-ai-api.census-gcp.onsdigital.uk/addresses/eq?input=" + addressPart + "&limit=20" + "&fallback="+fallback;
 
       var singleUrlGcp = "/addresses/partial/" + addressPart + "?limit=20" + "&fallback="+fallback;
       if (addressPart.trim().length > 1) {
