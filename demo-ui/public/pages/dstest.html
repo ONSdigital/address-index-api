@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/css/main.css">
+    <script src="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/scripts/main.js"></script>
+    <meta name="msapplication-config" content="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/browserconfig.json">
+    <link rel="icon" type="image/x-icon" href="/favicons/favicon.ico">
+    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/favicon-16x16.png" sizes="16x16">
+    <link rel="mask-icon" color="#5bbad5" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/safari-pinned-tab.svg">
+    <link rel="apple-touch-icon" type="image/png" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="https://cdn.ons.gov.uk/sdc/design-system/34.0.0/favicons/manifest.json">
+    <title>Title</title>
+</head>
+<body>
+<div class="grid grid--gutterless">
+    <div class="grid__col col-8@m js-address-autosuggest">
+        <div class="field">
+            <label class="label js-autosuggest-label " for="address-lookup" id="address-lookup-label">Enter address or postcode and select from results
+            </label>
+            <div id="address-lookup-container" class=" js-address-not-editable  autosuggest-input js-address-not-editable" data-instructions="Use up and down keys to navigate suggestions once you&#39;ve typed more than two characters. Use the enter key to select a suggestion. Touch device users, explore by touch or with swipe gestures." data-aria-you-have-selected="You have selected" data-aria-min-chars="Enter 3 or more characters for suggestions." data-aria-one-result="There is one suggestion available." data-aria-n-results="There are {n} suggestions available." data-aria-limited-results="Results have been limited to 10 suggestions. Type more characters to improve your search" data-more-results="Enter more of the address to improve results" data-results-title="Select an address" data-no-results="No results found. Try entering a different part of the address" data-type-more="Enter more of the address to get results" data-api-domain="https://whitelodge-ai-api.census-gcp.onsdigital.uk" data-error-title="There is a problem with your answer" data-error-enter="Enter an address" data-error-select="Select an address" data-aria-grouped-results="There are {n} addresses for {x}" data-group-count="{n} addresses" data-too-many-results="{n} results found. Enter more of the address to improve results" data-error-api="Sorry, there was a problem loading addresses. We are working to fix the problem. Please try again later.">
+                <input type="text" id="address-lookup" class="input input--text input-type__input js-autosuggest-input " autocomplete="off" />
+                <div class="autosuggest-input__results js-autosuggest-results">
+                    <header class="autosuggest-input__results-title u-fs-s">Select an address</header>
+                    <ul class="autosuggest-input__listbox js-autosuggest-listbox" role="listbox" id="address-lookup-listbox" aria-labelledby="address-lookup-label" tabindex="-1"></ul>
+                </div>
+                <div class="autosuggest-input__instructions u-vh js-autosuggest-instructions" id="address-lookup-instructions" tabindex="-1">Use up and down keys to navigate suggestions once you&#39;ve typed more than two characters. Use the enter key to select a suggestion. Touch device users, explore by touch or with swipe gestures.</div>
+                <div class="autosuggest-input__status u-vh js-autosuggest-aria-status" aria-live="assertive" role="status" tabindex="-1"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
