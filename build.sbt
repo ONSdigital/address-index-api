@@ -55,6 +55,7 @@ lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
 
 lazy val Resolvers: Seq[MavenRepository] = Seq(
   Resolver.typesafeRepo("releases"),
+  Resolver.jcenterRepo,
   "elasticsearch-releases" at "https://maven.elasticsearch.org/releases",
   "Java.net Maven2 Repository" at "https://download.java.net/maven/2/",
   "Twitter Repository" at "https://maven.twttr.com",
@@ -120,6 +121,7 @@ val serverDeps = Seq(
   specs2 % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
+  "com.iheart" %% "play-swagger" % "0.10.0-PLAY2.6",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
   "io.kamon" %% "kamon-bundle" % "2.1.0",

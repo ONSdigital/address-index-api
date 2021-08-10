@@ -1216,6 +1216,9 @@ GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/l
 GET   /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
 
 ### NoDocs ###
+GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.ApiSpecs.specs
+
+### NoDocs ###
 ###
 #  summary: Used in cloud deployments to check the API is up and running correctly.
 #           This includes keeping alive channels between the API and Elasticsearch.
