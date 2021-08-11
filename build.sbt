@@ -4,15 +4,14 @@ import com.typesafe.sbt.packager.universal.ZipHelper
 import com.typesafe.sbt.web.SbtWeb
 import play.sbt.PlayScala
 import play.sbt.routes.RoutesKeys._
-import sbt.Keys.{mappings, _}
+import sbt.Keys.{mappings, packageBin, scalaVersion, _}
 import sbt.Resolver.{file => _, url => _}
 import sbt._
 import sbtassembly.AssemblyPlugin.autoImport._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
-
 import com.typesafe.sbt.packager.docker._
 
-routesImport := Seq.empty
+//routesImport := Seq.empty
 
 lazy val Versions = new {
   val elastic4s = "7.9.2"
@@ -30,14 +29,14 @@ scmInfo := Some(
 )
 
 lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
-  mappings in Universal ++= directory("parsers/src/main/resources"),
-  assemblyJarName in assembly := "ons-ai-api.jar",
-  mainClass in assembly := Some("play.core.server.AkkaHttpServerProvider"),
-  assemblyMergeStrategy in assembly := {
+  Universal / mappings ++= directory("parsers/src/main/resources"),
+  assembly / assemblyJarName := "ons-ai-api.jar",
+  assembly / mainClass := Some("play.core.server.AkkaHttpServerProvider"),
+  assembly / assemblyMergeStrategy := {
     // case PathList("META-INF", "io.netty.versions.properties", xs@_ *) => MergeStrategy.last
     case PathList("org", "joda", "time", "base", "BaseDateTime.class") => MergeStrategy.first // ES shades Joda
     case x =>
-      val oldStrategy = (assemblyMergeStrategy in assembly).value
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   }
 )
@@ -45,29 +44,30 @@ lazy val assemblySettings: Seq[Def.Setting[_]] = Seq(
 lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
   // The following will cause parsers/.../resources directory to be added to the list of mappings recursively
   // excluding .md and .conf files
-  mappings in Universal ++= {
+  Universal / mappings ++= {
     val rootDir = baseDirectory.value.getParentFile
 
     def directoryToAdd = rootDir / "parsers/src/main/resources"
 
-    (directoryToAdd.*** * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
+    ((directoryToAdd.allPaths) * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
   }
 )
 
 lazy val Resolvers: Seq[MavenRepository] = Seq(
   Resolver.typesafeRepo("releases"),
+  Resolver.jcenterRepo,
   "elasticsearch-releases" at "https://maven.elasticsearch.org/releases",
-  "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-  "Twitter Repository" at "http://maven.twttr.com",
-  "Artima Maven Repository" at "http://repo.artima.com/releases",
+  "Java.net Maven2 Repository" at "https://download.java.net/maven/2/",
+  "Twitter Repository" at "https://maven.twttr.com",
+  "Artima Maven Repository" at "https://repo.artima.com/releases",
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 )
 
 
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
-  scalaVersion in ThisBuild := Versions.scala,
-  scapegoatVersion in ThisBuild := Versions.scapegoatVersion,
-  scalacOptions in ThisBuild ++= Seq(
+  ThisBuild / scalaVersion  := Versions.scala,
+  ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
+  ThisBuild / scalacOptions ++= Seq(
     "-target:jvm-1.8",
     "-encoding", "UTF-8",
     "-deprecation", // warning and location for usages of deprecated APIs
@@ -82,8 +82,8 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "-Ywarn-unused" // Warn when local and private vals, vars, defs, and types are unused
   ),
   // TODO: Fix the following errors highlighted by scapegoat. Remove the corresponding overrides below.
-  scalacOptions in Scapegoat += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
-  ivyScala := ivyScala.value map (_.copy(overrideScalaVersion = true)),
+  Scapegoat / scalacOptions += "-P:scapegoat:overrideLevels:TraversableHead=Warning:OptionSize=Warning:ComparingFloatingPointTypes=Warning",
+  scalaModuleInfo ~= (_.map(_.withOverrideScalaVersion(true))),
   resolvers ++= Resolvers,
   coverageExcludedPackages := ".*Routes.*;.*ReverseRoutes.*;.*javascript.*"
 )
@@ -121,6 +121,7 @@ val serverDeps = Seq(
   specs2 % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
+  "com.iheart" %% "play-swagger" % "0.10.0-PLAY2.6",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
   "io.kamon" %% "kamon-bundle" % "2.1.0",
@@ -129,10 +130,10 @@ val serverDeps = Seq(
 
 val uiDeps = Seq(
   jdbc,
-  cache,
+  cacheApi,
   ws,
   specs2 % Test,
-  "com.typesafe.play" %% "play-test" % "2.6.10" % Test,
+  "com.typesafe.play" %% "play-test" % "2.6.23" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "com.github.tototoshi" %% "scala-csv" % "1.3.4"
 ) ++ commonDeps
@@ -178,13 +179,14 @@ lazy val `address-index-server` = project.in(file("server"))
     dockerBaseImage := "openjdk:8",
     dockerCommands += ExecCmd("CMD", "-Dlogger.file=/opt/docker/conf/logback-gcp.xml"),
     routesGenerator := InjectedRoutesGenerator,
+    swaggerV3 := true,
     swaggerDomainNameSpaces := Seq("uk.gov.ons.addressIndex.model.server.response"),
     Revolver.settings ++ Seq(
-      mainClass in reStart := Some("play.core.server.ProdServerStart")
+      reStart / mainClass := Some("play.core.server.ProdServerStart")
     ),
-    packageBin in Universal := {
+    Universal / packageBin := {
       // Get the name of the package being built
-      val originalFileName = (packageBin in Universal).value
+      val originalFileName = ( Universal / packageBin).value
 
       // Create a new temp file name.
       val (base, ext) = originalFileName.baseAndExt
@@ -226,8 +228,8 @@ lazy val `address-index-server` = project.in(file("server"))
 
       originalFileName
     },
-    resourceGenerators in Compile += Def.task {
-      val file = (resourceManaged in Compile).value / "version.app"
+    Compile / resourceGenerators += Def.task {
+      val file = (Compile / resourceManaged).value / "version.app"
       IO.write(file, version.value)
       Seq(file)
     }.taskValue
