@@ -15,9 +15,9 @@ import com.typesafe.sbt.packager.docker._
 
 lazy val Versions = new {
   val elastic4s = "7.9.2"
-  val scala = "2.12.4"
+  val scala = "2.13.6"
   val gatlingVersion = "2.3.1"
-  val scapegoatVersion = "1.3.8"
+  val scapegoatVersion = "1.4.9"
 }
 
 name := "address-index"
@@ -68,16 +68,16 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ThisBuild / scalaVersion  := Versions.scala,
   ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
   ThisBuild / scalacOptions ++= Seq(
-    "-target:jvm-1.8",
+    "-target:jvm-11",
     "-encoding", "UTF-8",
     "-deprecation", // warning and location for usages of deprecated APIs
     "-feature", // warning and location for usages of features that should be imported explicitly
     "-unchecked", // additional warnings where generated code depends on assumptions
     "-Xlint", // recommended additional warnings
     "-Xcheckinit", // runtime error when a val is not initialized due to trait hierarchies (instead of NPE somewhere else)
-    "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
+ //   "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
     "-Ywarn-value-discard", // Warn when non-Unit expression results are unused
-    "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures
+ //   "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures
     "-Ywarn-dead-code", // Warn when dead code is identified
     "-Ywarn-unused" // Warn when local and private vals, vars, defs, and types are unused
   ),
@@ -89,11 +89,11 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 )
 
 val commonDeps = Seq(
-  "org.scalatest" %% "scalatest" % "3.0.0" % Test,
-  "org.scalamock" %% "scalamock" % "4.1.0" % Test,
-  "com.typesafe" % "config" % "1.3.0",
-  "com.github.melrief" %% "pureconfig" % "0.3.3",
-  "com.lihaoyi" %% "pprint" % "0.5.3",
+  "org.scalatest" %% "scalatest" % "3.2.9" % Test,
+  "org.scalamock" %% "scalamock" % "5.1.0" % Test,
+  "com.typesafe" % "config" % "1.4.0",
+  "com.github.pureconfig" %% "pureconfig" % "0.16.0",
+  "com.lihaoyi" %% "pprint" % "0.6.6",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
@@ -119,9 +119,9 @@ val parsersDeps = commonDeps
 val serverDeps = Seq(
   filters,
   specs2 % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
   "org.webjars" % "swagger-ui" % "3.4.4",
-  "com.iheart" %% "play-swagger" % "0.10.0-PLAY2.6",
+  "com.iheart" %% "play-swagger" % "0.10.6-PLAY2.8",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
   "io.kamon" %% "kamon-bundle" % "2.1.0",
@@ -133,9 +133,9 @@ val uiDeps = Seq(
   cacheApi,
   ws,
   specs2 % Test,
-  "com.typesafe.play" %% "play-test" % "2.6.23" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "com.github.tototoshi" %% "scala-csv" % "1.3.4"
+  "com.typesafe.play" %% "play-test" % "2.8.8" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+  "com.github.tototoshi" %% "scala-csv" % "1.3.8"
 ) ++ commonDeps
 
 lazy val `address-index` = project.in(file("."))
