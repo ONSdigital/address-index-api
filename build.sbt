@@ -16,7 +16,7 @@ import com.typesafe.sbt.packager.docker._
 lazy val Versions = new {
   val elastic4s = "7.9.2"
   val scala = "2.13.6"
-  val gatlingVersion = "2.3.1"
+  val gatlingVersion = "3.6.1"
   val scapegoatVersion = "1.4.9"
 }
 
@@ -91,7 +91,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 val commonDeps = Seq(
   "org.scalatest" %% "scalatest" % "3.2.9" % Test,
   "org.scalamock" %% "scalamock" % "5.1.0" % Test,
-  "com.typesafe" % "config" % "1.4.0",
+  "com.typesafe" % "config" % "1.4.1",
   "com.github.pureconfig" %% "pureconfig" % "0.16.0",
   "com.lihaoyi" %% "pprint" % "0.6.6",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
@@ -103,8 +103,8 @@ val commonDeps = Seq(
   "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
   "org.apache.commons" % "commons-lang3" % "3.3.2",
   "com.softwaremill.retry" %% "retry" % "0.3.3",
-  "org.apache.httpcomponents" % "httpcore" % "4.4.11",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.7",
+  "org.apache.httpcomponents" % "httpcore" % "4.4.13",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.10",
   "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.2",
   "org.testcontainers" % "elasticsearch" % "1.15.1" % "test",
   guice
@@ -120,12 +120,12 @@ val serverDeps = Seq(
   filters,
   specs2 % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-  "org.webjars" % "swagger-ui" % "3.4.4",
+  "org.webjars" % "swagger-ui" % "3.51.2",
   "com.iheart" %% "play-swagger" % "0.10.6-PLAY2.8",
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
-  "io.kamon" %% "kamon-bundle" % "2.1.0",
-  "io.kamon" %% "kamon-prometheus" % "2.1.4"
+  "io.kamon" %% "kamon-bundle" % "2.2.3",
+  "io.kamon" %% "kamon-prometheus" % "2.2.3"
 ) ++ commonDeps
 
 val uiDeps = Seq(
