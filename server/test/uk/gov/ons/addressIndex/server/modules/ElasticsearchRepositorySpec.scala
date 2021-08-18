@@ -1224,7 +1224,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.postcode -> secondaryHybridNagPostcodeLocator
       )
 
-      val inputs = Stream(
+      val inputs = LazyList(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
@@ -1260,7 +1260,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.buildingNumber -> "9999"
       )
 
-      val inputs = Stream(
+      val inputs = LazyList(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )

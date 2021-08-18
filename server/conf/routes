@@ -1,5 +1,5 @@
 ### NoDocs ###
-GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index
+GET     /                   uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.index()
 
 ###
 #  summary: Search for an address.
@@ -1031,7 +1031,7 @@ GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.Ra
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery
+GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery()
 
 ###
 #  summary: Post bulk addresses.
@@ -1117,7 +1117,7 @@ POST    /bulk-full          uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    200:
 #      description: success
 ###
-GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest
+GET     /es                 uk.gov.ons.addressIndex.server.controllers.DebugController.elasticTest()
 
 ### NoDocs ###
 ###
@@ -1216,7 +1216,7 @@ GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/l
 GET   /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
 
 ### NoDocs ###
-GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.ApiSpecs.specs
+GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.ApiSpecs.specs()
 
 ### NoDocs ###
 ###
@@ -1226,4 +1226,4 @@ GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.
 #    200:
 #      description: success
 ###
-GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz
+GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz()

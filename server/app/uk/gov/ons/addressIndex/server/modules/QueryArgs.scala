@@ -141,7 +141,7 @@ sealed abstract class QueryArgs {
 
   // other bulk fields
 
-  def requestsDataOpt: Option[Stream[BulkAddressRequestData]] = None
+  def requestsDataOpt: Option[LazyList[BulkAddressRequestData]] = None
 
   def matchThresholdOpt: Option[Float] = None
 
@@ -401,7 +401,7 @@ final case class AddressArgs(input: String,
   * @param requestsData   data that will be used in the multi search request
   * @param matchThreshold required match quality, below which results are discarded
   */
-final case class BulkArgs(requestsData: Stream[BulkAddressRequestData],
+final case class BulkArgs(requestsData: LazyList[BulkAddressRequestData],
                           matchThreshold: Float,
                           includeFullAddress: Boolean = false,
                           epoch: String = "",
@@ -411,7 +411,7 @@ final case class BulkArgs(requestsData: Stream[BulkAddressRequestData],
                           queryParamsConfig: Option[QueryParamsConfig] = None,
                           auth: String = ""
                          ) extends QueryArgs with Limitable with DateFilterable with Configurable {
-  override def requestsDataOpt: Option[Stream[BulkAddressRequestData]] = Some(requestsData)
+  override def requestsDataOpt: Option[LazyList[BulkAddressRequestData]] = Some(requestsData)
 
   override def matchThresholdOpt: Option[Float] = Some(matchThreshold)
 
