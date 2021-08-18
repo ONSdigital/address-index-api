@@ -99,9 +99,9 @@ val commonDeps = Seq(
   // testing
   //"com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % "7.3.1" % "test",
-  "org.apache.logging.log4j" % "log4j-core" % "2.8.2" % "test",
-  "org.apache.logging.log4j" % "log4j-api" % "2.8.2" % "test",
-  "org.apache.commons" % "commons-lang3" % "3.3.2",
+  "org.apache.logging.log4j" % "log4j-core" % "2.14.1" % "test",
+  "org.apache.logging.log4j" % "log4j-api" % "2.14.1" % "test",
+  "org.apache.commons" % "commons-lang3" % "3.12.0",
   "com.softwaremill.retry" %% "retry" % "0.3.3",
   "org.apache.httpcomponents" % "httpcore" % "4.4.13",
   "org.apache.httpcomponents" % "httpclient" % "4.5.10",
