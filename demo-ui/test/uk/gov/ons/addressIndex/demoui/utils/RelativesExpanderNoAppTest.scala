@@ -3,7 +3,8 @@ package uk.gov.ons.addressIndex.demoui.utils
 import org.scalamock.function.FunctionAdapter2
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import uk.gov.ons.addressIndex.client.AddressIndexClient
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock.mockAddressResponseStatus
@@ -15,7 +16,7 @@ import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class RelativesExpanderNoAppTest extends FlatSpec with Matchers with MockFactory with ScalaFutures {
+class RelativesExpanderNoAppTest extends AnyFlatSpec with should.Matchers with MockFactory with ScalaFutures {
   private trait Fixture {
     val someApiKey = "api-key"
     val someLevel = 0

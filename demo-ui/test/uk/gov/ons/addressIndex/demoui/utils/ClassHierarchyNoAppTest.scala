@@ -1,14 +1,16 @@
 package uk.gov.ons.addressIndex.demoui.utils
 
+import org.scalatest.flatspec._
+import org.scalatest.matchers._
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers, OneInstancePerTest}
+import org.scalatest.{BeforeAndAfterEach, OneInstancePerTest}
 import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Langs}
 import uk.gov.ons.addressIndex.client.AddressIndexClient
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModule
 
 import scala.concurrent.ExecutionContext
 
-class ClassHierarchyNoAppTest extends FlatSpec with BeforeAndAfterEach with Matchers with MockFactory with OneInstancePerTest {
+class ClassHierarchyNoAppTest extends AnyFlatSpec with BeforeAndAfterEach with should.Matchers with MockFactory with OneInstancePerTest {
 
   private trait Fixture {
 

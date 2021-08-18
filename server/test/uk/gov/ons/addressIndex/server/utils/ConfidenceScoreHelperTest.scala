@@ -1,6 +1,11 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Logger
 import uk.gov.ons.addressIndex.parsers.Tokens
 
@@ -8,7 +13,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 /**
   * Unit tests for all the methods in the Confidence Score calculation class
   */
-class ConfidenceScoreHelperTest extends FlatSpec with Matchers {
+class ConfidenceScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
   val logger: Logger = Logger("HopperScoreHelperTest")
 

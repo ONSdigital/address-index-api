@@ -2,10 +2,15 @@ package uk.gov.ons.addressIndex.server.modules.presetClassificationFilters
 
 import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, PrefixQuery, Query}
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpec
 
-class WorkplaceClassificationFilterSpec extends WordSpec {
+class WorkplaceClassificationFilterSpec extends AnyWordSpec {
 
   "WorkplaceClassificationFilter" should {
 

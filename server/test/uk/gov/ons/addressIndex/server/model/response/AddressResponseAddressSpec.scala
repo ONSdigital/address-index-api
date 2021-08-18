@@ -1,6 +1,12 @@
 package uk.gov.ons.addressIndex.server.model.response
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQUprnResponse
@@ -10,7 +16,8 @@ import uk.gov.ons.addressIndex.server.utils.HighlightFuncs
 /**
   * Test conversion between ES reply and the model that will be send in the response
   */
-class AddressResponseAddressSpec extends WordSpec with Matchers {
+
+class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
   val givenNag: NationalAddressGazetteerAddress = NationalAddressGazetteerAddress(
     uprn = "n1",

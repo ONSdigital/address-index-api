@@ -6,7 +6,13 @@ import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import org.joda.time.DateTime
-import org.scalatest.WordSpec
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpec
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
@@ -18,7 +24,7 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
+class ElasticsearchRepositorySpec extends AnyWordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
   val container = new ElasticsearchContainer()
   container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")

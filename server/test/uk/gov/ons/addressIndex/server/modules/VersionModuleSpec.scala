@@ -3,14 +3,20 @@ package uk.gov.ons.addressIndex.server.modules
 import com.sksamuel.elastic4s.http.JavaClient
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import com.sksamuel.elastic4s.testkit._
-import org.scalatest.WordSpec
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpec
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 
 import scala.util.Try
 
-class VersionModuleSpec extends WordSpec with SearchMatchers with ClientProvider with ElasticSugar {
+class VersionModuleSpec extends AnyWordSpec with SearchMatchers with ClientProvider with ElasticSugar {
 
   val testConfig = new AddressIndexConfigModule
 

@@ -1,8 +1,13 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
-class TokensTest extends FlatSpec with Matchers {
+class TokensTest extends AnyFlatSpec with should.Matchers {
 
   it should "produce `Tokens` for the given string `31 exeter close` splitting on whitespace" in {
     val input = "31 exeter close"
