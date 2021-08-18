@@ -60,7 +60,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         Ok(viewToRender)
       )
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
     }
   }
 
@@ -168,7 +168,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
     }
   }
 }

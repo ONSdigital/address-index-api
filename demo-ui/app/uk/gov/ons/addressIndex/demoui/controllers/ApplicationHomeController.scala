@@ -52,7 +52,7 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
       // logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
     }.getOrElse {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login())
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login)
     }
   }
 
@@ -75,7 +75,7 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
     if (Try(conf.config.loginRequired.toBoolean).getOrElse(true)) {
       Ok(uk.gov.ons.addressIndex.demoui.views.html.login("", "", version))
     } else {
-      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage())
+      Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.SingleMatchController.showSingleMatchPage)
         .withSession("api-key" -> "")
     }
   }

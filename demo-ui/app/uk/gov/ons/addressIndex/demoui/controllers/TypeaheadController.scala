@@ -55,7 +55,7 @@ class TypeaheadController @Inject()(val controllerComponents: ControllerComponen
       )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
         .withSession("referer" -> request.uri))
     }
   }

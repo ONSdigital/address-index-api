@@ -59,7 +59,7 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
       Future.successful(Ok(viewToRender))
     }.getOrElse {
       Future.successful(
-        Redirect(controllers.routes.ApplicationHomeController.login())
+        Redirect(controllers.routes.ApplicationHomeController.login)
           .withSession("referer" -> request.uri)
       )
     }
@@ -186,7 +186,7 @@ class RadiusController @Inject()(val controllerComponents: ControllerComponents,
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
         .withSession("referer" -> refererUrl))
     }
   }

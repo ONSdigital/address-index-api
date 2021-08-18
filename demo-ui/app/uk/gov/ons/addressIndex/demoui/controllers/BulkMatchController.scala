@@ -47,7 +47,7 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
         )
       )
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
     }
   }
 
@@ -154,7 +154,7 @@ class BulkMatchController @Inject()(val controllerComponents: ControllerComponen
         }
         result.getOrElse(Future.successful(InternalServerError))
       }.getOrElse {
-        Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()))
+        Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login))
       }
     }
 

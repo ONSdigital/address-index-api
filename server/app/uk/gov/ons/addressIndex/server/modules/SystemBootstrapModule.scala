@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.server.utils.{APIThrottle}
   */
 @Singleton
 class SystemBootstrapModule extends AbstractModule {
-  def configure(): Unit = {
+  override def configure(): Unit = {
     bind(classOf[SystemBootstrap]).asEagerSingleton()
     bind(classOf[APIThrottle]).asEagerSingleton()
     bind(classOf[ConfigModule]).to(classOf[AddressIndexConfigModule]).asEagerSingleton()
