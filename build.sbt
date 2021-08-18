@@ -75,6 +75,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "-unchecked", // additional warnings where generated code depends on assumptions
     "-Xlint", // recommended additional warnings
     "-Xlint:-byname-implicit", // scala 2.13.3 introduced, many false positives
+    "-Xlint:-missing-interpolator",
     "-Xcheckinit", // runtime error when a val is not initialized due to trait hierarchies (instead of NPE somewhere else)
  //   "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
     "-Ywarn-value-discard", // Warn when non-Unit expression results are unused

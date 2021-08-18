@@ -10,7 +10,7 @@ case class Link(href: String, label: String, section: String)
 object Links {
   def single(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.SingleMatchController.showSingleMatchPage.toString,
+      href = controllers.routes.SingleMatchController.showSingleMatchPage().toString,
       label = messages("navbar.singlematch"),
       section = "single"
     )
@@ -18,7 +18,7 @@ object Links {
 
   def postcode(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.PostcodeController.showPostcodeMatchPage.toString,
+      href = controllers.routes.PostcodeController.showPostcodeMatchPage().toString,
       label = messages("navbar.postcode"),
       section = "postcode"
     )
@@ -26,7 +26,7 @@ object Links {
 
   def multi(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.BulkMatchController.bulkMatchPage.toString,
+      href = controllers.routes.BulkMatchController.bulkMatchPage().toString,
       label = messages("navbar.multimatch"),
       section = "multi"
     )
@@ -34,7 +34,7 @@ object Links {
 
   def typeahead(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.TypeaheadController.showMatchPartialPage.toString,
+      href = controllers.routes.TypeaheadController.showMatchPartialPage().toString,
       label = messages("navbar.typeahead"),
       section = "typeahead"
     )
@@ -42,7 +42,7 @@ object Links {
 
   def clerical(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.ClericalToolController.showSingleMatchPage.toString,
+      href = controllers.routes.ClericalToolController.showSingleMatchPage().toString,
       label = messages("navbar.clerical"),
       section = "clerical"
     )
@@ -58,7 +58,7 @@ object Links {
 
   def help(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.StaticController.help.toString,
+      href = controllers.routes.StaticController.help().toString,
       label = messages("navbar.help"),
       section = "help"
     )
@@ -66,7 +66,7 @@ object Links {
 
   def radius(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.RadiusController.showRadiusMatchPage.toString,
+      href = controllers.routes.RadiusController.showRadiusMatchPage().toString,
       label = messages("navbar.radius"),
       section = "radius"
     )
@@ -74,7 +74,7 @@ object Links {
 
   def developers(implicit messages: Messages): Link = {
     Link(
-      href = controllers.routes.StaticController.devLanding.toString,
+      href = controllers.routes.StaticController.devLanding().toString,
       label = messages("navbar.developers"),
       section = "developers"
     )
