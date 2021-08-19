@@ -69,7 +69,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
   ThisBuild / scalaVersion  := Versions.scala,
   ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
   ThisBuild / scalacOptions ++= Seq(
-    "-target:jvm-11",
+    "-target:11",
     "-encoding", "UTF-8",
     "-deprecation", // warning and location for usages of deprecated APIs
     "-feature", // warning and location for usages of features that should be imported explicitly

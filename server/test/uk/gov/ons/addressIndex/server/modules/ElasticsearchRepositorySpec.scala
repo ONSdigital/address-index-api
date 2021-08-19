@@ -7,12 +7,7 @@ import com.sksamuel.elastic4s.testkit._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import org.joda.time.DateTime
 import org.scalatest._
-import flatspec._
 import matchers._
-//import org.scalatest.matchers.should.Matchers
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.must.Matchers.be
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpec
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import play.api.libs.json.Json
