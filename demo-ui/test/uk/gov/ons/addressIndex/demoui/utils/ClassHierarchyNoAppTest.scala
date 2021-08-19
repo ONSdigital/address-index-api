@@ -16,7 +16,7 @@ class ClassHierarchyNoAppTest extends AnyFlatSpec with BeforeAndAfterEach with s
 
     implicit val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
     val addressIndexClient: AddressIndexClient = mock[AddressIndexClient]
-    val conf: DemouiConfigModule = mock[DemouiConfigModule]
+ //   val conf: DemouiConfigModule = mock[DemouiConfigModule]
     val messagesApi = new DefaultMessagesApi(
     Map("en" -> Map("category.C" -> "Commercial",
       "category.CL" -> "Leisure - Applicable to recreational sites and enterprises",
