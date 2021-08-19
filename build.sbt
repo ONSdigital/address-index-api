@@ -99,8 +99,8 @@ val commonDeps = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
-  //"com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
-  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % "7.3.1" % "test",
+  "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
+  //"com.sksamuel.elastic4s" %% "elastic4s-testkit" % "7.3.1" % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.14.1" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.14.1" % "test",
   "org.apache.commons" % "commons-lang3" % "3.12.0",

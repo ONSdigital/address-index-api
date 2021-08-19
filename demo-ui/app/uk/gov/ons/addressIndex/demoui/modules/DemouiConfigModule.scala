@@ -4,7 +4,11 @@ import pureconfig.ConfigConvert.fromReaderAndWriter
 
 import javax.inject.Singleton
 import pureconfig._
-import pureconfig.generic.auto.exportReader
+import uk.gov.ons.addressIndex.model.config.DemouiConfig
+//import pureconfig.generic.auto.exportReader
+//import pureconfig._
+import pureconfig.generic.auto._
+import pureconfig.generic.ProductHint
 //import pureconfig.generic.DerivedConfigReader.anyValReader
 //import pureconfig.generic.hlist.hListReader
 import uk.gov.ons.addressIndex.model.config.DemouiConfig
@@ -16,6 +20,8 @@ import scala.util.Try
   */
 @Singleton
 class DemouiConfigModule() {
+
+  implicit def hint[DemouiConfig] = ProductHint[DemouiConfig](ConfigFieldMapping(CamelCase, CamelCase))
   //private val tryConfig: Try[DemouiConfig] = loadConfig[DemouiConfig]("demoui")
   private val tryConfig: ConfigReader.Result[DemouiConfig] = ConfigSource.default.at("demoui").load[DemouiConfig]
  // def loadConfig[A](namespace: String)(implicit reader: ConfigReader[A]): ConfigReader.Result[A]
