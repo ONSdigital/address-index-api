@@ -3,9 +3,6 @@ package uk.gov.ons.addressIndex.parsers
 import org.scalatest._
 import flatspec._
 import matchers._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 
 class TokensTest extends AnyFlatSpec with should.Matchers {
 

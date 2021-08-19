@@ -4,9 +4,6 @@ import java.util.UUID
 import org.scalatest._
 import flatspec._
 import matchers._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.http.Port
 import play.api.libs.ws.WSClient
 import play.api.test.WsTestClient
