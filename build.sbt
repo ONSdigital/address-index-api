@@ -18,6 +18,7 @@ lazy val Versions = new {
   val scala = "2.13.6"
   val gatlingVersion = "3.6.1"
   val scapegoatVersion = "1.4.9"
+  val akkaVersion = "2.6.15"
 }
 
 name := "address-index"
@@ -73,6 +74,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "-deprecation", // warning and location for usages of deprecated APIs
     "-feature", // warning and location for usages of features that should be imported explicitly
     "-unchecked", // additional warnings where generated code depends on assumptions
+    "-Wconf:cat=lint-multiarg-infix:silent", // OK to suppress unless going Dotty
     "-Xlint", // recommended additional warnings
     "-Xlint:-byname-implicit", // scala 2.13.3 introduced, many false positives
     "-Xlint:-missing-interpolator",
@@ -127,7 +129,12 @@ val serverDeps = Seq(
   "io.gatling.highcharts" % "gatling-charts-highcharts" % Versions.gatlingVersion % "it, test",
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
   "io.kamon" %% "kamon-bundle" % "2.2.3",
-  "io.kamon" %% "kamon-prometheus" % "2.2.3"
+  "io.kamon" %% "kamon-prometheus" % "2.2.3",
+  "com.typesafe.akka" %% "akka-actor-typed" % Versions.akkaVersion,
+  "com.typesafe.akka" %% "akka-protobuf-v3" % Versions.akkaVersion,
+  "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion,
+  "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akkaVersion,
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.2"
 ) ++ commonDeps
 
 val uiDeps = Seq(

@@ -7,8 +7,8 @@ import com.sksamuel.elastic4s.testkit._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import org.joda.time.DateTime
 import org.scalatest._
-//import flatspec._
-//import matchers._
+import flatspec._
+import matchers._
 //import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.must.Matchers.be
@@ -25,7 +25,7 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
-class ElasticsearchRepositorySpec extends AnyWordSpec with Matchers with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
+class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
   val container = new ElasticsearchContainer()
   container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")

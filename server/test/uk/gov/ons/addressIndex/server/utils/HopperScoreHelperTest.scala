@@ -3,9 +3,6 @@ package uk.gov.ons.addressIndex.server.utils
 import org.scalatest._
 import flatspec._
 import matchers._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response.address._
