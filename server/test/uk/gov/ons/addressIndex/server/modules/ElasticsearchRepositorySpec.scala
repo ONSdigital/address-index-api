@@ -292,13 +292,13 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
-  val thirdHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+  val thirdHybridPafEs: Map[String, Any] = firstHybridPafEs ++ Map[String, Any](
     "uprn" -> hybridSecondDateUprn,
     "startDate" -> hybridSecondStartDate,
     "endDate" -> hybridCurrentEndDate
   )
 
-  val fourthHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+  val fourthHybridPafEs: Map[String, Any] = firstHybridPafEs ++ Map[String, Any] (
     "uprn" -> hybridThirdDateUprn,
     "startDate" -> hybridThirdStartDate,
     "endDate" -> hybridCurrentEndDate
@@ -387,19 +387,19 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
     "mixedNag" -> hybridMixedNag
   )
 
-  val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridFirstDateUprn,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
   )
 
-  val fourthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val fourthHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpiStartDate" -> hybridSecondStartDate,
     "lpiEndDate" -> hybridCurrentEndDate
   )
 
-  val fifthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val fifthHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
@@ -421,7 +421,8 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
     "countryCode" -> hybridCountryCode
   )
 
-  val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
+  val firstHybridHistEs: Map[String, Any] = firstHybridEs ++ Map[String, Any](
+    "uprn" -> hybridFirstUprnHist)
 
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
@@ -440,17 +441,17 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
     "countryCode" -> hybridCountryCode
   )
 
-  val thirdHybridEs: Map[String, Any] = firstHybridEs + (
+  val thirdHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridFirstDateUprn,
     "lpi" -> Seq(thirdHybridNagEs),
     "paf" -> Seq())
 
-  val fourthHybridEs: Map[String, Any] = firstHybridEs + (
+  val fourthHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpi" -> Seq(fourthHybridNagEs, fifthHybridNagEs),
     "paf" -> Seq(thirdHybridPafEs))
 
-  val fifthHybridEs: Map[String, Any] = firstHybridEs + (
+  val fifthHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridThirdDateUprn,
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))

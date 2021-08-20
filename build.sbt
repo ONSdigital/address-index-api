@@ -66,6 +66,7 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 
 
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
+ // Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
   ThisBuild / scalaVersion  := Versions.scala,
   ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
   ThisBuild / scalacOptions ++= Seq(
