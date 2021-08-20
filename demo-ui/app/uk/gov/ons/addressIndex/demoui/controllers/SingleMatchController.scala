@@ -68,7 +68,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
       )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
     }
   }
@@ -255,7 +255,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
     }
   }
@@ -326,7 +326,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
     }
   }
@@ -345,7 +345,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         limit = limit,
         fallback = fallbackOrDefault
       )
-    ).get.map(_.json) map { resp =>
+    ).get().map(_.json) map { resp =>
       Ok(resp).as("application/json")
     }
   }
@@ -427,7 +427,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
     }
   }
@@ -506,7 +506,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login)
+      Future.successful(Redirect(controllers.routes.ApplicationHomeController.login())
         .withSession("referer" -> request.uri))
     }
   }

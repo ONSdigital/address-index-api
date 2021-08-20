@@ -1,11 +1,7 @@
 package uk.gov.ons.addressIndex.server.model.response
 
 import org.scalatest._
-import flatspec._
 import matchers._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.matchers.must.Matchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._

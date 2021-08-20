@@ -1004,7 +1004,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a filtered list of postcode results via eq bucket endpoint" in {
       // Given
-      val controller = eqBucketController
 
       val expected = Json.toJson(AddressByEQBucketResponseContainer(
         apiVersion = apiVersionExpected,

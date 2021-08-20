@@ -6,7 +6,6 @@ import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 import uk.gov.ons.addressIndex.server.utils.GroupOptions
 
-import scala.util.Try
 import scala.util.matching.Regex
 
 @Singleton

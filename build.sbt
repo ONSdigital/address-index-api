@@ -66,7 +66,6 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 
 
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
- // Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat,
   ThisBuild / scalaVersion  := Versions.scala,
   ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
   ThisBuild / scalacOptions ++= Seq(
@@ -80,9 +79,7 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
     "-Xlint:-byname-implicit", // scala 2.13.3 introduced, many false positives
     "-Xlint:-missing-interpolator",
     "-Xcheckinit", // runtime error when a val is not initialized due to trait hierarchies (instead of NPE somewhere else)
- //   "-Ywarn-adapted-args", // Warn if an argument list is modified to match the receiver
     "-Ywarn-value-discard", // Warn when non-Unit expression results are unused
- //   "-Ywarn-inaccessible", // Warn about inaccessible types in method signatures
     "-Ywarn-dead-code", // Warn when dead code is identified
     "-Ywarn-unused" // Warn when local and private vals, vars, defs, and types are unused
   ),
@@ -103,7 +100,6 @@ val commonDeps = Seq(
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
-  //"com.sksamuel.elastic4s" %% "elastic4s-testkit" % "7.3.1" % "test",
   "org.apache.logging.log4j" % "log4j-core" % "2.14.1" % "test",
   "org.apache.logging.log4j" % "log4j-api" % "2.14.1" % "test",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
@@ -131,6 +127,7 @@ val serverDeps = Seq(
   "io.gatling" % "gatling-test-framework" % Versions.gatlingVersion % "it, test",
   "io.kamon" %% "kamon-bundle" % "2.2.3",
   "io.kamon" %% "kamon-prometheus" % "2.2.3",
+  "io.kamon" % "kanela-agent" % "1.0.11",
   "com.typesafe.akka" %% "akka-actor-typed" % Versions.akkaVersion,
   "com.typesafe.akka" %% "akka-protobuf-v3" % Versions.akkaVersion,
   "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion,

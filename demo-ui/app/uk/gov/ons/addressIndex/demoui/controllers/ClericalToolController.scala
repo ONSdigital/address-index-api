@@ -59,7 +59,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
       // logger info ("Clerial Tool: Rendering Single Match Page")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         title = messagesApi("clerical.sfatext"),
-        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
+        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch(),
         singleSearchForm = SingleMatchController.form,
         warningMessage = None,
         query = "",
@@ -79,7 +79,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
       )
       Future.successful(Ok(viewToRender))
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
@@ -103,7 +103,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
       logger.info("Clerical Tool with Empty input address")
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         title = messagesApi("clerical.sfatext"),
-        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
+        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch(),
         singleSearchForm = SingleMatchController.form,
         warningMessage = Some(messagesApi("single.pleasesupply")),
         query = "",
@@ -158,7 +158,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         logger info "Clerical Tool with expected input address missing"
         val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
           title = messagesApi("clerical.sfatext"),
-          action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
+          action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch(),
           singleSearchForm = SingleMatchController.form,
           warningMessage = Some(messagesApi("single.pleasesupply")),
           query = "",
@@ -213,7 +213,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
 
           Ok(uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
             title = messagesApi("clerical.sfatext"),
-            action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch,
+            action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doMatch(),
             singleSearchForm = filledForm,
             warningMessage = warningMessage,
             query = "",
@@ -234,7 +234,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
@@ -370,7 +370,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         Ok(viewToRender)
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
@@ -434,7 +434,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
@@ -443,7 +443,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
     request.session.get("api-key").map { apiKey =>
       val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
         title = messagesApi("debug.sfatext"),
-        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery,
+        action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery(),
         singleSearchForm = SingleMatchController.form,
         warningMessage = None,
         query = "",
@@ -465,7 +465,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         Ok(viewToRender)
       )
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 
@@ -505,7 +505,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
           logger info "Clerical Tool with expected input address missing"
           val viewToRender = uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
             title = messagesApi("debug.sfatext"),
-            action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery,
+            action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery(),
             singleSearchForm = SingleMatchController.form,
             warningMessage = Some(messagesApi("single.pleasesupply")),
             query = "",
@@ -561,7 +561,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
 
             Ok(uk.gov.ons.addressIndex.demoui.views.html.clericalTool(
               title = messagesApi("debug.sfatext"),
-              action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery,
+              action = uk.gov.ons.addressIndex.demoui.controllers.routes.ClericalToolController.doShowQuery(),
               singleSearchForm = filledForm,
               warningMessage = warningMessage,
               query = query,
@@ -583,7 +583,7 @@ class ClericalToolController @Inject()(val controllerComponents: ControllerCompo
         }
       }
     }.getOrElse {
-      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login).withSession("referer" -> refererUrl))
+      Future.successful(Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login()).withSession("referer" -> refererUrl))
     }
   }
 }

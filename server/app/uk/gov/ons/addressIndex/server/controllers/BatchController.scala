@@ -14,7 +14,6 @@ import uk.gov.ons.addressIndex.server.modules.validation.BatchControllerValidati
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
 
 import scala.annotation.tailrec
-import scala.collection.IterableOnce.iterableOnceExtensionMethods
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
@@ -361,7 +360,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                         epoch: String,
                         matchThreshold: Float,
                         clusterid: String = "",
-                        auth: String = "",
+                        auth: String,
                        )(implicit request: Request[_]): Result = {
 
     val startingTime = System.currentTimeMillis()

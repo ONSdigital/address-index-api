@@ -26,7 +26,7 @@ class DebugController @Inject()(val controllerComponents: ControllerComponents,
     *
     * @return
     */
-  def elasticTest(): Action[AnyContent] = Action async { implicit req =>
+  def elasticTest(): Action[AnyContent] = Action async {
     esRepo.queryHealth().map { resp =>
       val output = "{" + resp.split("\\{")(1).split("\\}")(0) + "}"
       Ok(Json.parse(output))

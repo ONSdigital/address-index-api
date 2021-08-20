@@ -18,7 +18,7 @@ class ApiSpecs @Inject()(cc: ControllerComponents, config: Configuration) extend
   // Get's host configuration.
   val host = config.get[String]("swagger.host")
 
-  lazy val swagger = Action { request =>
+  lazy val swagger = Action {
     generator.generate().map(_ + ("host" -> JsString(host))).fold(
       e => InternalServerError("Couldn't generate swagger."),
       s => Ok(s))
