@@ -1,7 +1,7 @@
 package uk.gov.ons.gatling.simulations
 
 import io.gatling.core.Predef._
-import io.gatling.core.feeder.RecordSeqFeederBuilder
+import io.gatling.core.feeder.BatchableFeederBuilder
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.protocol.HttpProtocolBuilder
@@ -23,7 +23,7 @@ class RegistersEQCustomSimulation extends Simulation {
     s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   val httpProtocol: HttpProtocolBuilder = http
-    .baseURL(baseUrl)
+    .baseUrl(baseUrl)
     .inferHtmlResources()
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .acceptEncodingHeader("gzip, deflate")
@@ -35,7 +35,7 @@ class RegistersEQCustomSimulation extends Simulation {
   val headers: Map[String, String] = Map("Upgrade-Insecure-Requests" -> "1")
 
   // partial addresses from the Random Address Generator
-  val feeder: RecordSeqFeederBuilder[String] = csv("postcodes100K.csv").random
+  val feeder: BatchableFeederBuilder[String] = csv("postcodes100K.csv").random
 
   // user pause of 100ms between postcodes, then get next one from file
   // requestRelpath is addresses/postcode/ (no further)

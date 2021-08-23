@@ -215,7 +215,7 @@ object AddressIndexClientMock {
     localCouncil = "BELFAST"
   )
 
-  val mockAuxiliaryAddress = AddressResponseAuxiliary(
+  val mockAuxiliaryAddress: AddressResponseAuxiliary = AddressResponseAuxiliary(
     uprn = "1",
     organisationName = "2",
     subBuildingName = "3",

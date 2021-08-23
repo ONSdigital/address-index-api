@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 import uk.gov.ons.addressIndex.parsers.Parser.CrfLineData
 
-class ParserTest extends FlatSpec with Matchers {
+class ParserTest extends AnyFlatSpec with should.Matchers {
 
   it should "transform a single token into CRF input string" in {
     // Given

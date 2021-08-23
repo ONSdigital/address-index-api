@@ -26,8 +26,8 @@
                 <h1 class="jupiter">@messages("login.heading")</h1>
 
                 <section class='@if(errorMessage != ""){login-error}else{searchbox-initial}'>
-                    <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
-                    <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
+                    <form action="@{routes.ApplicationHomeController.doLogin}" method="post"></form>
+                    <form action="@{routes.ApplicationHomeController.doLogin}" method="post">
                         <div id="search-form" class="search-bar-active">
                             <fieldset class="searchfield">
                                 <dl id="loginbox">

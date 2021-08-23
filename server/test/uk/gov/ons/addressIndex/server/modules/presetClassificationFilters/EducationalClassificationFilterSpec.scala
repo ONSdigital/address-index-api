@@ -1,10 +1,11 @@
 package uk.gov.ons.addressIndex.server.modules.presetClassificationFilters
 
 import com.sksamuel.elastic4s.requests.searches.queries.PrefixQuery
-import org.scalatest.Matchers._
-import org.scalatest.WordSpec
+import org.scalatest._
+import matchers._
+import org.scalatest.wordspec.AnyWordSpec
 
-class EducationalClassificationFilterSpec extends WordSpec {
+class EducationalClassificationFilterSpec extends AnyWordSpec with should.Matchers {
 
   "EducationalClassificationFilter" should {
 

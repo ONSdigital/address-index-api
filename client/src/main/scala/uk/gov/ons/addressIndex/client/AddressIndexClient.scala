@@ -38,7 +38,7 @@ trait AddressIndexClient {
   def addressQuery(request: AddressIndexSearchRequest)
                   (implicit ec: ExecutionContext): Future[AddressBySearchResponseContainer] = {
     addressQueryWSRequest(request)
-      .get
+      .get()
       .map(_.json.as[AddressBySearchResponseContainer])
   }
 
@@ -79,7 +79,7 @@ trait AddressIndexClient {
   def postcodeQuery(request: AddressIndexPostcodeRequest)
                    (implicit ec: ExecutionContext): Future[AddressByPostcodeResponseContainer] = {
     postcodeQueryWSRequest(request)
-      .get
+      .get()
       .map(_.json.as[AddressByPostcodeResponseContainer])
   }
 
@@ -114,7 +114,7 @@ trait AddressIndexClient {
   def partialQuery(request: AddressIndexPartialRequest)
                   (implicit ec: ExecutionContext): Future[AddressByPartialAddressResponseContainer] = {
     partialQueryWSRequest(request)
-      .get
+      .get()
       .map(_.json.as[AddressByPartialAddressResponseContainer])
   }
 
@@ -193,7 +193,7 @@ trait AddressIndexClient {
         "verbose" -> request.verbose.toString,
         "epoch" -> request.epoch.toString
       )
-      .get
+      .get()
       .map(_.json.as[AddressByUprnResponseContainer])
   }
 
@@ -218,11 +218,11 @@ trait AddressIndexClient {
         "classificationfilter" -> filter,
         "startdate" -> startdate,
         "enddate" -> enddate
-      ).get.map(response => Json.prettyPrint(response.json))
+      ).get().map(response => Json.prettyPrint(response.json))
   }
 
   def versionQuery()(implicit ec: ExecutionContext): Future[AddressResponseVersion] = {
-    VersionQuery.toReq.get.map(_.json.as[AddressResponseVersion])
+    VersionQuery.toReq.get().map(_.json.as[AddressResponseVersion])
   }
 
 }

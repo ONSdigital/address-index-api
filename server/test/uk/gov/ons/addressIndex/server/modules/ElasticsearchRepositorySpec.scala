@@ -6,7 +6,9 @@ import com.sksamuel.elastic4s.requests.searches.SearchBodyBuilderFn
 import com.sksamuel.elastic4s.testkit._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
 import org.joda.time.DateTime
-import org.scalatest.WordSpec
+import org.scalatest._
+import matchers._
+import org.scalatest.wordspec.AnyWordSpec
 import org.testcontainers.elasticsearch.ElasticsearchContainer
 import play.api.libs.json.Json
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
@@ -18,7 +20,7 @@ import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Try
 
-class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
+class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with SearchMatchers with ElasticClientProvider with ClientProvider with ElasticSugar {
 
   val container = new ElasticsearchContainer()
   container.setDockerImageName("docker.elastic.co/elasticsearch/elasticsearch-oss:7.3.1")
@@ -290,13 +292,13 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "mixedWelshPaf" -> hybridMixedWelshPaf
   )
 
-  val thirdHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+  val thirdHybridPafEs: Map[String, Any] = firstHybridPafEs ++ Map[String, Any](
     "uprn" -> hybridSecondDateUprn,
     "startDate" -> hybridSecondStartDate,
     "endDate" -> hybridCurrentEndDate
   )
 
-  val fourthHybridPafEs: Map[String, Any] = firstHybridPafEs + (
+  val fourthHybridPafEs: Map[String, Any] = firstHybridPafEs ++ Map[String, Any] (
     "uprn" -> hybridThirdDateUprn,
     "startDate" -> hybridThirdStartDate,
     "endDate" -> hybridCurrentEndDate
@@ -385,19 +387,19 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "mixedNag" -> hybridMixedNag
   )
 
-  val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val thirdHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridFirstDateUprn,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
   )
 
-  val fourthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val fourthHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpiStartDate" -> hybridSecondStartDate,
     "lpiEndDate" -> hybridCurrentEndDate
   )
 
-  val fifthHybridNagEs: Map[String, Any] = firstHybridNagEs + (
+  val fifthHybridNagEs: Map[String, Any] = firstHybridNagEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpiStartDate" -> hybridStartDate,
     "lpiEndDate" -> hybridEndDate
@@ -419,7 +421,8 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "countryCode" -> hybridCountryCode
   )
 
-  val firstHybridHistEs: Map[String, Any] = firstHybridEs + ("uprn" -> hybridFirstUprnHist)
+  val firstHybridHistEs: Map[String, Any] = firstHybridEs ++ Map[String, Any](
+    "uprn" -> hybridFirstUprnHist)
 
   // This one is used to create a "concurrent" for the first one (the first one should be always on top)
   val secondHybridEs: Map[String, Any] = Map(
@@ -438,17 +441,17 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
     "countryCode" -> hybridCountryCode
   )
 
-  val thirdHybridEs: Map[String, Any] = firstHybridEs + (
+  val thirdHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridFirstDateUprn,
     "lpi" -> Seq(thirdHybridNagEs),
     "paf" -> Seq())
 
-  val fourthHybridEs: Map[String, Any] = firstHybridEs + (
+  val fourthHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridSecondDateUprn,
     "lpi" -> Seq(fourthHybridNagEs, fifthHybridNagEs),
     "paf" -> Seq(thirdHybridPafEs))
 
-  val fifthHybridEs: Map[String, Any] = firstHybridEs + (
+  val fifthHybridEs: Map[String, Any] = firstHybridEs ++ Map[String, Any] (
     "uprn" -> hybridThirdDateUprn,
     "lpi" -> Seq(),
     "paf" -> Seq(fourthHybridPafEs))
@@ -1224,7 +1227,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.postcode -> secondaryHybridNagPostcodeLocator
       )
 
-      val inputs = Stream(
+      val inputs = LazyList(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )
@@ -1260,7 +1263,7 @@ class ElasticsearchRepositorySpec extends WordSpec with SearchMatchers with Elas
         Tokens.buildingNumber -> "9999"
       )
 
-      val inputs = Stream(
+      val inputs = LazyList(
         BulkAddressRequestData("1", "i1", firstAddressTokens),
         BulkAddressRequestData("2", "i2", secondAddressTokens)
       )

@@ -6,9 +6,9 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 scala:
-  - 2.12.4
+  - 2.13.6
 jdk:
-  - oraclejdk8
+  - oraclejdk11
 branches:
   only:
     # We're only building these branches and pull requests.

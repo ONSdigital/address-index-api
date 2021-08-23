@@ -5,7 +5,7 @@ import com.sksamuel.elastic4s.requests.searches.queries.PrefixQuery
 
 object ResidentialClassificationFilter extends PresetClassificationFilter {
 
-  override val queryFilter = Seq(boolQuery.should(
+  override val queryFilter = Seq(boolQuery().should(
     Seq(PrefixQuery("classificationCode", "RD"),
       PrefixQuery("classificationCode", "RH"),
       PrefixQuery("classificationCode", "RI"),
