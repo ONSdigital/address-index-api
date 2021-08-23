@@ -18,4 +18,8 @@ addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "3.0.3")
 
 addSbtPlugin("io.kamon" % "sbt-kanela-runner-play-2.8" % "2.0.10.15")
 
-addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % "0.1.6")
+//addSbtPlugin("com.lightbend.sbt" % "sbt-javaagent" % "0.1.6")
+
+addDependencyTreePlugin
+
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.0")

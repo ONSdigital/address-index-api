@@ -14,7 +14,7 @@ import com.typesafe.sbt.packager.docker._
 //routesImport := Seq.empty
 
 lazy val Versions = new {
-  val elastic4s = "7.9.2"
+  val elastic4s = "7.9.3"
   val scala = "2.13.6"
   val gatlingVersion = "3.6.1"
   val scapegoatVersion = "1.4.9"
@@ -104,10 +104,10 @@ val commonDeps = Seq(
   "org.apache.logging.log4j" % "log4j-api" % "2.14.1" % "test",
   "org.apache.commons" % "commons-lang3" % "3.12.0",
   "com.softwaremill.retry" %% "retry" % "0.3.3",
-  "org.apache.httpcomponents" % "httpcore" % "4.4.13",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.10",
-  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.2",
-  "org.testcontainers" % "elasticsearch" % "1.15.1" % "test",
+  "org.apache.httpcomponents" % "httpcore" % "4.4.14",
+  "org.apache.httpcomponents" % "httpclient" % "4.5.13",
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.3",
+  "org.testcontainers" % "elasticsearch" % "1.15.3" % "test",
   guice
 )
 
@@ -132,7 +132,7 @@ val serverDeps = Seq(
   "com.typesafe.akka" %% "akka-protobuf-v3" % Versions.akkaVersion,
   "com.typesafe.akka" %% "akka-stream" % Versions.akkaVersion,
   "com.typesafe.akka" %% "akka-serialization-jackson" % Versions.akkaVersion,
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.2"
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.12.4"
 ) ++ commonDeps
 
 val uiDeps = Seq(
