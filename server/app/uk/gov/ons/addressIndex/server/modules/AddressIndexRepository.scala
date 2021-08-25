@@ -7,7 +7,7 @@ import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
 import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchRequest, SearchType}
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -112,8 +112,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sboost = args.sboost
     val wboost = args.wboost
 
-    val niFactor = "^" + esConf.queryParams.nisra.partialAllBoost
-
     val fieldsToSearch =  Seq("mixedPartial")
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
@@ -200,7 +198,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val scriptText: String = "Math.round(_score/1.8)"
 
     val partialScript: Script = new Script(script = scriptText)
-    val hOpts = new HighlightOptions(numOfFragments=Some(0))
+    val hOpts = HighlightOptions(numOfFragments=Some(0))
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
@@ -212,7 +210,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       )
       .highlighting(hOpts,hFields)
       .sortBy(
-        FieldSort("_score").order(SortOrder.DESC),
+        FieldSort("_score").order(SortOrder.Desc),
+     //     .order(SortOrder.DESC),
         FieldSort("postcodeStreetTown").asc(),
         FieldSort("lpi.paoStartNumber").asc(),
         FieldSort("lpi.paoStartSuffix.keyword").asc(),
@@ -1116,7 +1115,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       search(searchIndicies)
         .query(query)
         .sortBy(
-          FieldSort("_score").order(SortOrder.DESC), FieldSort("uprn").order(SortOrder.ASC)
+          FieldSort("_score").order(SortOrder.Desc), FieldSort("uprn").order(SortOrder.Asc)
         )
         .trackScores(true)
         .searchType(SearchType.DfsQueryThenFetch)
@@ -1149,7 +1148,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = {
     val query = makeQuery(args)
     logger.trace(query.toString)
-    val specialCen = (args.auth == conf.config.masterKey)
+    val specialCen = args.auth == conf.config.masterKey
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
@@ -1181,7 +1180,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           else partResult
         }.flatten
       case addressArgs: AddressArgs =>
-        val specialCen = (addressArgs.auth == conf.config.masterKey)
+        val specialCen = addressArgs.auth == conf.config.masterKey
         if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)
@@ -1204,7 +1203,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
   }
 
-  override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+  override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val scaleFactor = conf.config.bulk.scaleFactor
     val addressRequests = args.requestsData.map { requestData =>

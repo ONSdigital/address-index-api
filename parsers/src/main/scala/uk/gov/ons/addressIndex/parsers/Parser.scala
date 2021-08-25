@@ -224,6 +224,9 @@ object Parser {
     case first :: second :: (middleTokens :+ penultimate :+ last) =>
       (first + tokensSeparator + "rawstring.start:1.0") :: (second + tokensSeparator + "previous\\:rawstring.start:1.0") ::
         (middleTokens :+ (penultimate + tokensSeparator + "next\\:rawstring.end:1.0") :+ last + tokensSeparator + "rawstring.end:1.0")
+
+    case _ => Nil
+
   }
 
   /**
@@ -267,7 +270,7 @@ object Parser {
       labels
         .zip(initialTokens) // now we have Array( (label1, token1.1), (label1, token1.2), (label2, token2) )
         .groupBy { case (label, _) => label } // now we have Array( (label1, Array((label1, token1.1), (label1, token1.2))), (label2, Array((label2, token2))) )
-        .mapValues(_.map { case (_, token) => token }) // finally we have Array( (label1, Array(token1.1, token1.2)), (label2, Array(token2)) )
+        .view.mapValues(_.map { case (_, token) => token }).toMap // finally we have Array( (label1, Array(token1.1, token1.2)), (label2, Array(token2)) )
 
     groupedTokens.map { case (label, tokens) =>
       label -> tokens.mkString(" ")

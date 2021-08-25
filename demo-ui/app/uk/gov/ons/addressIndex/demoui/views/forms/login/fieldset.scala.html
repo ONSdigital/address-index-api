@@ -11,9 +11,9 @@
         <link href="/assets/stylesheets/login.css" rel="stylesheet" />
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <div id="userbox">
-            <form action="@{routes.ApplicationHomeController.doLogin()}" method="post"></form>
+            <form action="@{routes.ApplicationHomeController.doLogin}" method="post"></form>
 
-            <form action="@{routes.ApplicationHomeController.doLogin()}" method="post">
+            <form action="@{routes.ApplicationHomeController.doLogin}" method="post">
                 <div style="color: red">@errorMessage</div>
                 <h1 id="logintxt" style="background-color: rgb(11, 146, 9);
                     background-position: initial;

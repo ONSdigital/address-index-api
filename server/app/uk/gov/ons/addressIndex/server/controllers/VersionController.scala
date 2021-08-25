@@ -18,7 +18,7 @@ class VersionController @Inject()(val controllerComponents: ControllerComponents
   // lazy to avoid application crash at startup if ES is down
   lazy val versionResults = new AddressResponseVersion(apiVersion, dataVersion)
 
-  def versionQuery(): Action[AnyContent] = Action { implicit req =>
+  def versionQuery(): Action[AnyContent] = Action {
     Ok(Json.toJson(versionResults))
   }
 

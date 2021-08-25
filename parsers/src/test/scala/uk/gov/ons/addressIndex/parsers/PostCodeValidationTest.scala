@@ -1,8 +1,10 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 
-class PostCodeValidationTest extends FlatSpec with Matchers {
+class PostCodeValidationTest extends AnyFlatSpec with should.Matchers {
 
   it should "BD176QL -> BD17 6QL" in {
     // Given

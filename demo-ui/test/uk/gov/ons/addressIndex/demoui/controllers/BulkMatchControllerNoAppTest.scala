@@ -1,10 +1,11 @@
 package uk.gov.ons.addressIndex.demoui.controllers
 
+import akka.stream.testkit.NoMaterializer
 import org.scalatestplus.play.PlaySpec
 import org.specs2.execute.Results
 import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Langs}
 import play.api.libs.ws.WSClient
-import play.api.test.{FakeRequest, NoMaterializer, WsTestClient}
+import play.api.test.{FakeRequest, WsTestClient}
 import play.api.mvc.{ControllerComponents, Result}
 import play.api.test.Helpers.{contentAsString, defaultAwaitTimeout, status}
 import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock

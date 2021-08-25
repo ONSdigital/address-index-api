@@ -85,7 +85,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
       case _ =>
         val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
-        val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
+        val requestsData: LazyList[BulkAddressRequestData] = requestDataFromRequest(request)
         val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
         bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = false,
@@ -148,7 +148,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         res
 
       case _ =>
-        val requestsData: Stream[BulkAddressRequestData] = requestDataFromRequest(request)
+        val requestsData: LazyList[BulkAddressRequestData] = requestDataFromRequest(request)
         val configOverwrite: Option[QueryParamsConfig] = request.body.config
 
         bulkQuery(requestsData, configOverwrite, Some(limitInt), includeFullAddress = true, startDate = startDateVal, endDate = endDateVal, historical = hist, epoch = epochVal, matchThreshold = thresholdFloat, auth=authVal)
@@ -212,7 +212,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
         res
 
       case _ =>
-        val requestsData: Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+        val requestsData: LazyList[BulkAddressRequestData] = request.body.addresses.to(LazyList).map {
           row => BulkAddressRequestData(row.id, row.tokens.values.mkString(" "), row.tokens)
         }
 
@@ -240,7 +240,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return Queried addresses
     */
   @tailrec
-  final def iterateOverRequestsWithBackPressure(requests: Stream[BulkAddressRequestData],
+  final def iterateOverRequestsWithBackPressure(requests: LazyList[BulkAddressRequestData],
                                                 miniBatchSize: Int,
                                                 limitPerAddress: Option[Int] = None,
                                                 configOverwrite: Option[QueryParamsConfig] = None,
@@ -253,7 +253,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                                                 clusterid: String = "",
                                                 auth: String = "",
                                                 canUpScale: Boolean = true,
-                                                successfulResults: Stream[Seq[AddressBulkResponseAddress]] = Stream.empty): Stream[Seq[AddressBulkResponseAddress]] = {
+                                                successfulResults: LazyList[Seq[AddressBulkResponseAddress]] = LazyList.empty): LazyList[Seq[AddressBulkResponseAddress]] = {
 
     logger.systemLog(batchSize = miniBatchSize.toString)
 
@@ -311,7 +311,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     *               typically a result of a parser applied to `Source.fromFile("/path").getLines`
     * @return BulkAddresses containing successful addresses and other information
     */
-  def queryBulkAddresses(inputs: Stream[BulkAddressRequestData],
+  def queryBulkAddresses(inputs: LazyList[BulkAddressRequestData],
                          limitperaddress: Int,
                          configOverwrite: Option[QueryParamsConfig] = None,
                          startDate: String,
@@ -334,10 +334,10 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       auth = auth
     )
 
-    val bulkAddresses: Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.runBulkQuery(bulkArgs)
+    val bulkAddresses: Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = esRepo.runBulkQuery(bulkArgs)
 
-    val successfulAddresses: Future[Stream[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
-    val failedAddresses: Future[Stream[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
+    val successfulAddresses: Future[LazyList[Seq[AddressBulkResponseAddress]]] = bulkAddresses.map(collectSuccessfulAddresses)
+    val failedAddresses: Future[LazyList[BulkAddressRequestData]] = bulkAddresses.map(collectFailedAddresses)
 
     // transform (Future[X], Future[Y]) into Future[Z[X, Y]]
     for {
@@ -346,11 +346,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     } yield BulkAddresses(successful, failed)
   }
 
-  private def requestDataFromRequest(request: Request[BulkBody]): Stream[BulkAddressRequestData] = request.body.addresses.toStream.map {
+  private def requestDataFromRequest(request: Request[BulkBody]): LazyList[BulkAddressRequestData] = request.body.addresses.to(LazyList).map {
     row => BulkAddressRequestData(row.id, row.address, parser.parse(row.address))
   }
 
-  private def bulkQuery(requestData: Stream[BulkAddressRequestData],
+  private def bulkQuery(requestData: LazyList[BulkAddressRequestData],
                         configOverwrite: Option[QueryParamsConfig],
                         limitperaddress: Option[Int],
                         includeFullAddress: Boolean,
@@ -360,14 +360,14 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
                         epoch: String,
                         matchThreshold: Float,
                         clusterid: String = "",
-                        auth: String = "",
+                        auth: String,
                        )(implicit request: Request[_]): Result = {
 
     val startingTime = System.currentTimeMillis()
 
     val defaultBatchSize = conf.config.bulk.batch.perBatch
     val resultLimit = limitperaddress.getOrElse(conf.config.bulk.limitperaddress)
-    val results: Stream[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(
+    val results: LazyList[Seq[AddressBulkResponseAddress]] = iterateOverRequestsWithBackPressure(
       requestData, defaultBatchSize, Some(resultLimit), configOverwrite, startDate, endDate,
       historical, epoch, matchThreshold, includeFullAddress, clusterid, auth
     )
@@ -391,12 +391,13 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     val responseTime = System.currentTimeMillis() - startingTime
 
+    // Set the networkId field to the username supplied in the user header
+    // if this is not present, extract the user and organisation from the api key
     val authVal = request.headers.get("authorization").getOrElse("Anon")
-
-    // TODO this quantity needs to be explained and given a better name
     val authHasPlus = authVal.indexOf("+") > 0
-    val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
-    val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
+    val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+    val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
+    val networkId = request.headers.get("user").getOrElse(keyNetworkId)
 
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
@@ -407,14 +408,14 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     response
   }
 
-  private def collectSuccessfulAddresses(addresses: Stream[Either[BulkAddressRequestData,
-    Seq[AddressBulkResponseAddress]]]): Stream[Seq[AddressBulkResponseAddress]] =
+  private def collectSuccessfulAddresses(addresses: LazyList[Either[BulkAddressRequestData,
+    Seq[AddressBulkResponseAddress]]]): LazyList[Seq[AddressBulkResponseAddress]] =
     addresses.collect {
       case Right(bulkAddresses) => bulkAddresses
     }
 
-  private def collectFailedAddresses(addresses: Stream[Either[BulkAddressRequestData,
-    Seq[AddressBulkResponseAddress]]]): Stream[BulkAddressRequestData] =
+  private def collectFailedAddresses(addresses: LazyList[Either[BulkAddressRequestData,
+    Seq[AddressBulkResponseAddress]]]): LazyList[BulkAddressRequestData] =
     addresses.collect {
       case Left(address) => address
     }

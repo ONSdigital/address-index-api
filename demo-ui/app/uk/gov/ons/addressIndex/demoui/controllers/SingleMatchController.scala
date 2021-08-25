@@ -345,7 +345,7 @@ class SingleMatchController @Inject()(val controllerComponents: ControllerCompon
         limit = limit,
         fallback = fallbackOrDefault
       )
-    ).get.map(_.json) map { resp =>
+    ).get().map(_.json) map { resp =>
       Ok(resp).as("application/json")
     }
   }

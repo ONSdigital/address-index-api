@@ -25,7 +25,7 @@ class RegistersTypeaheadRandomSimulation extends Simulation {
     s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   val httpProtocol: HttpProtocolBuilder = http
-    .baseURL(baseUrl)
+    .baseUrl(baseUrl)
     .inferHtmlResources()
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .acceptEncodingHeader("gzip, deflate")

@@ -1,6 +1,8 @@
 package uk.gov.ons.addressIndex.server.utils
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.db.index.{CrossRef, Relative}
 import uk.gov.ons.addressIndex.model.server.response.address._
@@ -9,7 +11,7 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 /**
   * Unit tests for all the methods in the hopperScore calculation class
   */
-class HopperScoreHelperTest extends FlatSpec with Matchers {
+class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
   val logger: Logger = Logger("HopperScoreHelperTest")
 

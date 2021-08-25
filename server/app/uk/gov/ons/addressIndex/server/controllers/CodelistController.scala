@@ -22,7 +22,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     *
     * @return Json response with codelist
     */
-  def codeList(): Action[AnyContent] = Action async { implicit req =>
+  def codeList(): Action[AnyContent] = Action async {
     val codList = Tokens.codeList.map { clVal =>
       val fields = clVal.split("=")
 
@@ -42,7 +42,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     *
     * @return Json response with codelist
     */
-  def codeListClassification(): Action[AnyContent] = Action async { implicit req =>
+  def codeListClassification(): Action[AnyContent] = Action async {
     val classList = Tokens.classList.map { classVal =>
       val fields = classVal.split("=")
 
@@ -61,7 +61,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     *
     * @return Json response with codelist
     */
-  def codeListCustodian(): Action[AnyContent] = Action async { implicit req =>
+  def codeListCustodian(): Action[AnyContent] = Action async {
     val custList = Tokens.custodianList.map { custVal =>
       val fields = custVal.split(",")
 
@@ -84,7 +84,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     *
     * @return Json response with codelist
     */
-  def codeListSource(): Action[AnyContent] = Action async { implicit req =>
+  def codeListSource(): Action[AnyContent] = Action async {
 
     val sourceList = Tokens.sourceList.map { sourceVal =>
       val fields = sourceVal.split("=")
@@ -104,7 +104,7 @@ class CodelistController @Inject()(val controllerComponents: ControllerComponent
     *
     * @return Json response with codelist
     */
-  def codeListLogicalStatus(): Action[AnyContent] = Action async { implicit req =>
+  def codeListLogicalStatus(): Action[AnyContent] = Action async {
 
     val logicalList = Tokens.logicalStatusList.map { logStatVal =>
       val fields = logStatVal.split("=")

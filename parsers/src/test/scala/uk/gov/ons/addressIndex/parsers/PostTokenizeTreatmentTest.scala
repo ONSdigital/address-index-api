@@ -1,8 +1,10 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 
-class PostTokenizeTreatmentTest extends FlatSpec with Matchers {
+class PostTokenizeTreatmentTest extends AnyFlatSpec with should.Matchers {
 
   it should "transform buildingName into paoStartNumber and paoStartSuffix" in {
     // Given

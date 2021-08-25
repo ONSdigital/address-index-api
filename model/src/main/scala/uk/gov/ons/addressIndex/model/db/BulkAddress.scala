@@ -60,6 +60,6 @@ case class BulkAddressRequestData(id: String,
   * @param successfulBulkAddresses successful results of address requests
   * @param failedRequests          stream containing the data used to create failed requests
   */
-case class BulkAddresses(successfulBulkAddresses: Stream[Seq[AddressBulkResponseAddress]],
-                         failedRequests: Stream[BulkAddressRequestData])
+case class BulkAddresses(successfulBulkAddresses: LazyList[Seq[AddressBulkResponseAddress]],
+                         failedRequests: LazyList[BulkAddressRequestData])
 

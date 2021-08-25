@@ -6,47 +6,47 @@
 GET         /assets/*file                       controllers.Assets.versioned(path="/public", file: Asset)
 
 # ONS-Address Login page
-GET         /                                   uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.login
-POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin
+GET         /                                   uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.login()
+POST        /login                              uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.doLogin()
 
 # GCP Health Check
-GET         /healthz                            uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.healthz
+GET         /healthz                            uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.healthz()
 
 # ONS-Address Index home page
-GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home
+GET         /home                               uk.gov.ons.addressIndex.demoui.controllers.ApplicationHomeController.home()
 
 # ONS-Address Index home page
-GET         /help                               uk.gov.ons.addressIndex.demoui.controllers.StaticController.help
+GET         /help                               uk.gov.ons.addressIndex.demoui.controllers.StaticController.help()
 
 # ONS-Address Index home page
-GET         /help/forgot-password               uk.gov.ons.addressIndex.demoui.controllers.StaticController.helpForgotPassword
+GET         /help/forgot-password               uk.gov.ons.addressIndex.demoui.controllers.StaticController.helpForgotPassword()
 
 # ONS-Address Index home page
-GET         /developers                         uk.gov.ons.addressIndex.demoui.controllers.StaticController.devLanding
+GET         /developers                         uk.gov.ons.addressIndex.demoui.controllers.StaticController.devLanding()
 
 # ONS-Address Index home page
-GET         /developers/type-ahead              uk.gov.ons.addressIndex.demoui.controllers.StaticController.devTypeAhead
+GET         /developers/type-ahead              uk.gov.ons.addressIndex.demoui.controllers.StaticController.devTypeAhead()
 
 # ONS-Address Index home page
-GET         /developers/version                 uk.gov.ons.addressIndex.demoui.controllers.StaticController.devVersion
+GET         /developers/version                 uk.gov.ons.addressIndex.demoui.controllers.StaticController.devVersion()
 
 # ONS-Address Index home page
-GET         /developers/single-match            uk.gov.ons.addressIndex.demoui.controllers.StaticController.devSingleMatch
+GET         /developers/single-match            uk.gov.ons.addressIndex.demoui.controllers.StaticController.devSingleMatch()
 
 # ONS-Address Index home page
-GET         /developers/uprn                    uk.gov.ons.addressIndex.demoui.controllers.StaticController.devUprn
+GET         /developers/uprn                    uk.gov.ons.addressIndex.demoui.controllers.StaticController.devUprn()
 
 # ONS-Address Index home page
-GET         /developers/postcode                uk.gov.ons.addressIndex.demoui.controllers.StaticController.devPostcode
+GET         /developers/postcode                uk.gov.ons.addressIndex.demoui.controllers.StaticController.devPostcode()
 
 # ONS-Address Index Single Search View
-GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
+GET         /addresses                          uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage()
 
 # ONS-Address Index Single Search Request
-POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch
+POST        /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatch()
 
 # ONS-Address Index Single Search Request
-GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage
+GET         /addresses/search                   uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.showSingleMatchPage()
 
 # ONS-Address Index Single Search Request
 GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], partial: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String])
@@ -55,16 +55,16 @@ GET         /addresses/search/:input            uk.gov.ons.addressIndex.demoui.c
 GET         /addresses/partial/:input           uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doMatchPartial(input: String, filter: Option[String], fallback: Option[String])
 
 # ONS-Address Index Typeahead View
-GET         /typeahead                          uk.gov.ons.addressIndex.demoui.controllers.TypeaheadController.showMatchPartialPage
+GET         /typeahead                          uk.gov.ons.addressIndex.demoui.controllers.TypeaheadController.showMatchPartialPage()
 
 # ONS-Address Index Single Search Request
 GET         /addresses/uprn/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetUprn(input: String, filter: Option[String], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String], epoch: Option[String])
 
 # ONS-Address Index Single Search Request
-POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch
+POST        /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatch()
 
 # ONS-Address Index Single Search Request
-GET         /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage
+GET         /clerical/search                    uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showSingleMatchPage()
 
 # ONS-Address Index Single Search Request
 GET         /clerical/search/:input             uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doMatchWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], startdate: Option[String], enddate: Option[String], epoch: Option[String])
@@ -82,24 +82,24 @@ GET         /clerical/query-debug               uk.gov.ons.addressIndex.demoui.c
 GET         /clerical/query-debug/:input        uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.showQueryWithInput(input: String, filter: Option[String], page: Option[Int], expand: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], fromsource: Option[String], startdate: Option[String], enddate: Option[String], epoch: Option[String])
 
 # ONS-Address Index Single Search Request
-POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery
+POST        /clerical/query-debug               uk.gov.ons.addressIndex.demoui.controllers.ClericalToolController.doShowQuery()
 
 # ONS-Address Index Bulk Mimic Upload
-POST        /bulkUpload                         uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileVisualise
+POST        /bulkUpload                         uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileVisualise()
 
-POST        /bulkUploadDownloadCsv              uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileDownloadCsv
-
-# ONS-Address Index Single Search View
-GET         /bulkAddresses                      uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage
+POST        /bulkUploadDownloadCsv              uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.uploadFileDownloadCsv()
 
 # ONS-Address Index Single Search View
-GET         /postcode                          uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage
+GET         /bulkAddresses                      uk.gov.ons.addressIndex.demoui.controllers.BulkMatchController.bulkMatchPage()
+
+# ONS-Address Index Single Search View
+GET         /postcode                          uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage()
 
 # ONS-Address Index Single Search Request
-POST        /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatch
+POST        /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatch()
 
 # ONS-Address Index Single Search Request
-GET         /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage
+GET         /postcode/search                   uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.showPostcodeMatchPage()
 
 # ONS-Address Index Single Search Request
 GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui.controllers.PostcodeController.doMatchWithInput(postcode: String, filter: Option[String], page: Option[Int], historical: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String])
@@ -108,13 +108,13 @@ GET         /postcode/search/:postcode            uk.gov.ons.addressIndex.demoui
 GET         /addresses/result/:input              uk.gov.ons.addressIndex.demoui.controllers.SingleMatchController.doGetResult(input: String, historical: Option[Boolean], startdate: Option[String], enddate: Option[String], epoch: Option[String])
 
 # ONS-Address Index Single Search View
-GET         /radius                             uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
+GET         /radius                             uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage()
 
 # ONS-Address Index Single Search Request
-POST        /radius/search                     uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatch
+POST        /radius/search                     uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatch()
 
 # ONS-Address Index Single Search Request
-GET         /radius/search                   uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage
+GET         /radius/search                   uk.gov.ons.addressIndex.demoui.controllers.RadiusController.showRadiusMatchPage()
 
 # ONS-Address Index Single Search Request
 GET         /radius/search/:input            uk.gov.ons.addressIndex.demoui.controllers.RadiusController.doMatchWithInput(input: String, filter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], page: Option[Int], historical: Option[Boolean], matchthreshold: Option[Int], startdate: Option[String], enddate: Option[String])

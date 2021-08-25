@@ -1,8 +1,10 @@
 package uk.gov.ons.addressIndex.parsers
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 
-class FeaturesTest extends FlatSpec with Matchers {
+class FeaturesTest extends AnyFlatSpec with should.Matchers {
 
   it should "produce the correct `length` feature output for token `MANSION`" in {
     // Given

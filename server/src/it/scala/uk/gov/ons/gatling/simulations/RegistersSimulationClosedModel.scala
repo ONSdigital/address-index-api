@@ -22,7 +22,7 @@ class RegistersSimulationClosedModel extends Simulation {
     s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   private val httpProtocol: HttpProtocolBuilder = http
-    .baseURL(baseUrl)
+    .baseUrl(baseUrl)
     .inferHtmlResources()
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .acceptEncodingHeader("gzip, deflate")
@@ -40,7 +40,7 @@ class RegistersSimulationClosedModel extends Simulation {
     http(requestName)
       .post(requestRelPath)
       .headers(headers)
-      .body(RawFileBody(postRequestBody)).asJSON
+      .body(RawFileBody(postRequestBody)).asJson
   } else {
     http(requestName)
       .get(requestRelPath)

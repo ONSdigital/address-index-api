@@ -254,7 +254,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       }
     }
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+    override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
       val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map(requestData => {
@@ -291,7 +291,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1)
     }
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+    override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
 
     val scaleFactor = testConfig.config.bulk.scaleFactor
     Future {
@@ -322,7 +322,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+    override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
       val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map(requestData => {
@@ -345,7 +345,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
+    override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
       val scaleFactor = testConfig.config.bulk.scaleFactor
       Future.successful {
         args.requestsData.map {
@@ -370,7 +370,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 
-    override def runBulkQuery(args: BulkArgs): Future[Stream[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("test exception"))
+    override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = Future.failed(new Exception("test exception"))
   }
 
   val parser: ParserModule = (_: String) => Map.empty
@@ -1004,7 +1004,6 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a filtered list of postcode results via eq bucket endpoint" in {
       // Given
-      val controller = eqBucketController
 
       val expected = Json.toJson(AddressByEQBucketResponseContainer(
         apiVersion = apiVersionExpected,
@@ -3163,7 +3162,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
-      val requestsData: Stream[BulkAddressRequestData] = Stream(
+      val requestsData: LazyList[BulkAddressRequestData] = LazyList(
         BulkAddressRequestData("", "1", Map("first" -> "success")),
         BulkAddressRequestData("", "2", Map("second" -> "success")),
         BulkAddressRequestData("", "3", Map("third" -> "failed"))
@@ -3181,7 +3180,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
-      val requestsData: Stream[BulkAddressRequestData] = Stream(
+      val requestsData: LazyList[BulkAddressRequestData] = LazyList(
         BulkAddressRequestData("", "1", Map("first" -> "success")),
         BulkAddressRequestData("", "2", Map("second" -> "success")),
         BulkAddressRequestData("", "3", Map("third" -> "success")),
@@ -3204,7 +3203,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       // Given
       val controller = new BatchController(components, sometimesFailingRepositoryMock, parser, testConfig, versions, batchValidation)
 
-      val requestsData: Stream[BulkAddressRequestData] = Stream(
+      val requestsData: LazyList[BulkAddressRequestData] = LazyList(
         BulkAddressRequestData("", "1", Map("first" -> "success")),
         BulkAddressRequestData("", "2", Map("second" -> "success")),
         BulkAddressRequestData("", "3", Map("third" -> "failed"))

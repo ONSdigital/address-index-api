@@ -23,7 +23,7 @@ class RegistersSimulationOpenModel extends Simulation {
     s"baseUrl : $baseUrl, $requestType Request : $requestRelPath")
 
   val httpProtocol: HttpProtocolBuilder = http
-    .baseURL(baseUrl)
+    .baseUrl(baseUrl)
     .inferHtmlResources()
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .acceptEncodingHeader("gzip, deflate")
@@ -46,7 +46,7 @@ class RegistersSimulationOpenModel extends Simulation {
 
   val scn: ScenarioBuilder = if (requestType == "POST") {
     val postRequestBody = ConfigLoader.getPOSTRequestBodyJSONPath
-    scenario(requestName).exec(httpRequestBuilder.body(RawFileBody(postRequestBody)).asJSON)
+    scenario(requestName).exec(httpRequestBuilder.body(RawFileBody(postRequestBody)).asJson)
   } else {
     scenario(requestName).exec(httpRequestBuilder)
   }

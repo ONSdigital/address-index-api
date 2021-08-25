@@ -1,8 +1,9 @@
 package uk.gov.ons.addressIndex.client
 
 import java.util.UUID
-
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest._
+import flatspec._
+import matchers._
 import play.api.http.Port
 import play.api.libs.ws.WSClient
 import play.api.test.WsTestClient
@@ -24,7 +25,7 @@ object Resources {
   }
 }
 
-class AddressIndexClientTest extends FlatSpec with Matchers {
+class AddressIndexClientTest extends AnyFlatSpec with should.Matchers {
 
   it should "construct a correct uprn WSRequest" in {
     val actual = apiClient.uprnQueryWSRequest(

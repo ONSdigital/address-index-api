@@ -1,0 +1,5 @@
+---
+- type: math\.bigdecimal
+  specAsParameter:
+    - type: number
+      format: decimal

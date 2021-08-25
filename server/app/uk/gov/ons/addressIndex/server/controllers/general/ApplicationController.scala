@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents,
                                       postcodeController: PostcodeController,
                                       uprnController: UPRNController) (implicit ec: ExecutionContext) extends BaseController {
-  def index(): Action[AnyContent] = Action { implicit req =>
+  def index(): Action[AnyContent] = Action {
     Ok("hello world")
   }
 

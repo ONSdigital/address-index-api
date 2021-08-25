@@ -49,7 +49,6 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
     */
   def home(): Action[AnyContent] = Action { implicit req =>
     req.session.get("api-key").map { apiKey =>
-      // logger info ("ApplicationHome: Rendering Index page")
       Ok(uk.gov.ons.addressIndex.demoui.views.html.index(version))
     }.getOrElse {
       Redirect(uk.gov.ons.addressIndex.demoui.controllers.routes.ApplicationHomeController.login())
@@ -92,7 +91,7 @@ class ApplicationHomeController @Inject()(val controllerComponents: ControllerCo
     * @return
     */
   def doLogin: Action[AnyContent] = Action { implicit req =>
-    val formValidationResult = loginForm.bindFromRequest.data
+    val formValidationResult = loginForm.bindFromRequest().data
     (for {
       userName <- formValidationResult.get("userName") if userName.nonEmpty
       password <- formValidationResult.get("password") if userName.nonEmpty
