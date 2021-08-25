@@ -270,7 +270,7 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(
     libraryDependencies ++= uiDeps,
     routesGenerator := InjectedRoutesGenerator,
-    dockerBaseImage := "openjdk:8"
+    dockerBaseImage := "openjdk:11"
   )
   .dependsOn(
     `address-index-client`
