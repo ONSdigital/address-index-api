@@ -66,6 +66,9 @@ lazy val Resolvers: Seq[MavenRepository] = Seq(
 
 
 lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
+ // javaOptions in Universal ++= Seq(
+ //   "-Dpidfile.path=/dev/null"
+  //)
   ThisBuild / scalaVersion  := Versions.scala,
   ThisBuild / scapegoatVersion := Versions.scapegoatVersion,
   ThisBuild / scalacOptions ++= Seq(
