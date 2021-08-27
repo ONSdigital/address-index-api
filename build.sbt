@@ -111,8 +111,6 @@ val commonDeps = Seq(
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.3",
   "org.testcontainers" % "elasticsearch" % "1.15.3" % "test",
-//  "net.codingwell" %% "scala-guice" % "5.0.1",
- // "com.google.inject" % "guice" % "5.0.1",
   guice
 )
 
