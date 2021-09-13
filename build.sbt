@@ -187,7 +187,7 @@ lazy val `address-index-server` = project.in(file("server"))
     libraryDependencies ++= serverDeps,
     // "-Dlogback.debug=true" can be set to show which logfile is being used.
     dockerChmodType := DockerChmodType.UserGroupWriteExecute,
-    dockerBaseImage := "openjdk:11",
+    dockerBaseImage := "openjdk:15",
     dockerCommands += ExecCmd("CMD", "-Dlogger.file=/opt/docker/conf/logback-gcp.xml"),
     routesGenerator := InjectedRoutesGenerator,
     swaggerV3 := true,
@@ -270,7 +270,7 @@ lazy val `address-index-demo-ui` = project.in(file("demo-ui"))
   .settings(
     libraryDependencies ++= uiDeps,
     routesGenerator := InjectedRoutesGenerator,
-    dockerBaseImage := "openjdk:11"
+    dockerBaseImage := "openjdk:15"
   )
   .dependsOn(
     `address-index-client`
