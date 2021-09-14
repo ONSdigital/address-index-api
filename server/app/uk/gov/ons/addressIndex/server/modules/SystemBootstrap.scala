@@ -18,6 +18,8 @@ class SystemBootstrap @Inject()() {
     }
   }
 
+  Logger("address-index") warn s"${new java.io.File(".").getCanonicalPath}/${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName"
+
   System.load(
     new File(
       s"${new java.io.File(".").getCanonicalPath}/${ConfigFactory.load().getString("addressIndex.parserLibPath")}/$osSharedObjectName"
