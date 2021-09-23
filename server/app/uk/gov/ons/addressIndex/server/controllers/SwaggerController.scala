@@ -15,11 +15,11 @@ class ApiSpecs @Inject()(cc: ControllerComponents, config: Configuration) extend
   val domainPackage = "uk.gov.ons.addressIndex.model.server.response"
   lazy val generator = SwaggerSpecGenerator(true,domainNameSpaces = domainPackage)
 
-  // Get's host configuration.
-  val host = config.get[String]("swagger.host")
+// it is possible to modify the swagger output and items can be drawn from config
+// the code below appends a space but could do more
 
   lazy val swagger = Action {
-    generator.generate().map(_ + ("host" -> JsString(host))).fold(
+      generator.generate().map(_ + (" ")).fold(
       e => InternalServerError("Couldn't generate swagger."),
       s => Ok(s))
   }
