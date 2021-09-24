@@ -16,10 +16,9 @@ class ApiSpecs @Inject()(cc: ControllerComponents, config: Configuration) extend
   lazy val generator = SwaggerSpecGenerator(true,domainNameSpaces = domainPackage)
 
 // it is possible to modify the swagger output and items can be drawn from config
-// the code below appends a space but could do more
 
   lazy val swagger = Action {
-      generator.generate().map(_ + (" ")).fold(
+      generator.generate().fold(
       e => InternalServerError("Couldn't generate swagger."),
       s => Ok(s))
   }
