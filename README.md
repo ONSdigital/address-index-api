@@ -6,9 +6,9 @@
 
 ### What is this repository for? ###
 
-Address Index is a Play Framework (2.6) application which matches addresses. 
+Address Index is a Play Framework (2.8.8) application which matches addresses. 
 
-The system works via large Elasticsearch (7.3) indices build primarily from AddressBase Premium data.
+The system works via large Elasticsearch (7.9.3) indices build primarily from AddressBase Premium data.
 
 The input can be a complete address (from any source), and the system uses advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
 
@@ -36,9 +36,9 @@ The other Docker image contains a version of the API that will work with the Ela
 
         http://localhost:9001/
         
-    Endpoints can be found in the Swagger documentation which is not set to run from the API currently. View the Swagger documentation here: 
+    Endpoints can be found in the Swagger definition /openapi/swagger.json. View as HTML with examples here: 
     
-    https://github.com/ONSdigital/address-index-api/blob/master/api-definitions/ai-swagger.json
+    https://github.com/ONSdigital/address-index-api/blob/develop/api-definitions
     
     The ```ai-swagger.json``` can be copied into the Swagger Editor to view it: 
     
@@ -48,9 +48,9 @@ The other Docker image contains a version of the API that will work with the Ela
 
 1) Required Installations
 
-    * Java 1.8 
-    * sbt 0.13.13 (or 0.13.16)
-    * Scala 2.12.4
+    * Java 11 
+    * sbt 1.5.5
+    * Scala 2.13.6
     * Elasticsearch 7.9.3
     * An IDE such as IntelliJ is recommended
 
