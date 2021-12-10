@@ -135,9 +135,10 @@ object Tokens {
   def postTokenizeTreatmentPostCode(tokens: Map[String, String]): Map[String, String] = {
 
 
-    val dedupPostCode: String = tokens.getOrElse(postcode, "").split(" ").distinct.mkString.replaceAll("\\s", "")
+    val dedupPostCode: String = tokens.getOrElse(postcode, "").split(" ").distinct.mkString(" ")
+    val dedupPostCodeFinal: String = removeConcatenatedDuplicatePostcode(dedupPostCode).replaceAll("\\s", "")
     // Before analyzing the postcode, we also remove whitespaces so that they don't influence the outcome
-    val postcodeToken: Option[String] = if (dedupPostCode.equals("")) None else Option(dedupPostCode)
+    val postcodeToken: Option[String] = if (dedupPostCodeFinal.equals("")) None else Option(dedupPostCodeFinal)
 
     postcodeToken match {
       case Some(concatenatedPostcode) if concatenatedPostcode.length >= 5 =>
@@ -157,6 +158,21 @@ object Tokens {
       case _ => tokens
     }
   }
+
+  /**
+    * Check for hidden duplicate postcode e.g PO155RR and P015 5RR
+    *
+    * @param string postcode tokens with possible duplicate
+    * @return string postcode parts without duplicate
+    */
+  def removeConcatenatedDuplicatePostcode(postcodeParts: String): String = {
+    val pcList = postcodeParts.split(" ")
+    if (pcList.length < 3) postcodeParts
+    else
+      if (pcList(0) == (pcList(1).concat(pcList(2)))) postcodeParts.replace(pcList(0),"")
+      else if (pcList(2) == (pcList(0).concat(pcList(1)))) postcodeParts.replace(pcList(2),"")
+      else postcodeParts
+    }
 
   /**
     * Some London street names contain boroughs that are not useful for search inside street name
