@@ -288,4 +288,22 @@ class TokensTest extends AnyFlatSpec with should.Matchers {
     val actual = Tokens.removeCounties(input)
     actual shouldBe expected
   }
+
+  it should "remove hidden duplicate postcode where spaceless version comes first " in {
+    // Given
+    val tokens = List("EX44SW", "EX4", "4SW")
+    val postcodeBits = tokens.distinct.mkString(" ")
+    val expected = "EX44SW"
+    val actual = Tokens.removeConcatenatedDuplicatePostcode(postcodeBits).replaceAll("\\s", "")
+    actual shouldBe expected
+  }
+
+  it should "remove hidden duplicate postcode where spaceless version comes third " in {
+    // Given
+    val tokens = List("EX4", "4SW", "EX44SW")
+    val postcodeBits = tokens.distinct.mkString(" ")
+    val expected = "EX44SW"
+    val actual = Tokens.removeConcatenatedDuplicatePostcode(postcodeBits).replaceAll("\\s", "")
+    actual shouldBe expected
+  }
 }
