@@ -734,7 +734,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -816,7 +817,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -858,7 +860,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -1214,7 +1217,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -2554,7 +2558,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -2594,7 +2599,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -3055,7 +3061,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)

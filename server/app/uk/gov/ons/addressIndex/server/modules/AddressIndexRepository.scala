@@ -7,7 +7,8 @@ import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
 import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -17,7 +18,8 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.math._
 import scala.util.Try
 
@@ -112,6 +114,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val sboost = args.sboost
     val wboost = args.wboost
 
+    val timeout = args.timeout
+    val timeDur: FiniteDuration = new FiniteDuration(timeout,duration.MILLISECONDS)
+
     val fieldsToSearch =  Seq("mixedPartial")
 
     val queryBase = multiMatchQuery(args.input).fields(fieldsToSearch)
@@ -203,6 +208,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
     search(searchIndicies)
+      .timeout(timeDur)
       .query(
           functionScoreQuery(query).functions(
           scriptScore(partialScript))

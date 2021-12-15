@@ -28,6 +28,10 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(queryValues, OffsetNotNumericAddressResponseError)
   }
 
+  def TimeoutNotNumericPartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, TimeoutNotNumericAddressResponseError)
+  }
+
   def LimitTooSmallPartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, LimitTooSmallAddressResponseError)
   }
@@ -36,12 +40,20 @@ trait PartialAddressControllerResponse extends AddressResponse {
     BadRequestPartialTemplate(queryValues, OffsetTooSmallAddressResponseError)
   }
 
+  def TimeoutTooSmallPartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, TimeoutTooSmallAddressResponseError)
+  }
+
   def LimitTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, LimitTooLargeAddressResponseError)
   }
 
   def OffsetTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, OffsetTooLargeAddressResponseError)
+  }
+
+  def TimeoutTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, TimeoutTooLargeAddressResponseError)
   }
 
   def PartialEpochInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
@@ -105,7 +117,8 @@ trait PartialAddressControllerResponse extends AddressResponse {
       eboost = queryValues.eboostOrDefault,
       nboost = queryValues.nboostOrDefault,
       sboost = queryValues.sboostOrDefault,
-      wboost = queryValues.wboostOrDefault
+      wboost = queryValues.wboostOrDefault,
+      timeout = queryValues.timeoutOrDefault
     )
   }
 

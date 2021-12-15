@@ -48,6 +48,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     BadRequestPartialTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
+  override def TimeoutTooLargePartial(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
+    BadRequestPartialTemplate(queryValues, TimeoutTooLargeAddressResponseErrorCustom)
+  }
+
   override def PartialEpochInvalid(queryValues: QueryValues): AddressByPartialAddressResponseContainer = {
     BadRequestPartialTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
@@ -94,6 +98,28 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
           Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
       }
       case None => inner(defaultOffset)
+    }
+  }
+
+  def validatePartialTimeout(timeout: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+    def inner(timeout: Int): Option[Future[Result]] = timeout match {
+      case l if l < 50 =>
+        logger.systemLog(badRequestMessage = TimeoutTooSmallAddressResponseError.message)
+        Some(futureJsonBadRequest(TimeoutTooSmallPartial(queryValues)))
+      case l if maximumTimeout < l =>
+        logger.systemLog(badRequestMessage = TimeoutTooLargeAddressResponseErrorCustom.message)
+        Some(futureJsonBadRequest(TimeoutTooLargePartial(queryValues)))
+      case _ => None
+    }
+
+    timeout match {
+      case Some(l) => Try(l.toInt) match {
+        case Success(lInt) => inner(lInt)
+        case Failure(_) =>
+          logger.systemLog(badRequestMessage = TimeoutNotNumericAddressResponseError.message)
+          Some(futureJsonBadRequest(TimeoutNotNumericPartial(queryValues)))
+      }
+      case None => inner(defaultTimeout)
     }
   }
 

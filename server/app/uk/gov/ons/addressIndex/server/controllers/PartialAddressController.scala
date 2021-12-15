@@ -53,7 +53,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           eboost: Option[String] = None,
                           nboost: Option[String] = None,
                           sboost: Option[String] = None,
-                          wboost: Option[String] = None
+                          wboost: Option[String] = None,
+                          timeout: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
     val startingTime = System.currentTimeMillis()
@@ -63,9 +64,11 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPartial
     val defOffset = conf.config.elasticSearch.defaultOffset
+    val defTimeout = conf.config.elasticSearch.defaultTimeoutPartial
 
     val limval = limit.getOrElse(defLimit.toString)
     val offval = offset.getOrElse(defOffset.toString)
+    val timeoutval = timeout.getOrElse(defTimeout.toString)
 
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
@@ -116,6 +119,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+    val timeoutInt = Try(timeoutval.toInt).toOption.getOrElse(defTimeout)
 
     val queryValues = QueryValues(
       input = Some(inputVal),
@@ -133,12 +137,14 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
-      wboost = Some(wboostDouble)
+      wboost = Some(wboostDouble),
+      timeout = Some(timeoutInt)
     )
 
     val result: Option[Future[Result]] =
       partialAddressValidation.validatePartialLimit(limit, queryValues)
         .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
+        .orElse(partialAddressValidation.validatePartialTimeout(timeout, queryValues))
         .orElse(partialAddressValidation.validateSource(queryValues))
         .orElse(partialAddressValidation.validateKeyStatus(queryValues))
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
@@ -169,7 +175,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
-          wboost = wboostDouble
+          wboost = wboostDouble,
+          timeout = timeoutInt
         )
 
         val request: Future[HybridAddressCollection] =
@@ -210,7 +217,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,
-                  wboost = wboostDouble
+                  wboost = wboostDouble,
+                  timeout = timeoutInt
                 ),
                 status = OkAddressResponseStatus
               )

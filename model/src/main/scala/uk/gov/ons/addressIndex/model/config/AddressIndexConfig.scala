@@ -52,7 +52,9 @@ case class ElasticSearchConfig(local: Boolean,
                                minimumFallback: Int,
                                defaultStartBoost: Int,
                                validEpochs: String,
-                               scaleFactor: Int)
+                               scaleFactor: Int,
+                               defaultTimeoutPartial: Int,
+                               maximumTimeoutPartial: Int)
 
 case class QueryParamsConfig(// the number of cases has to be at most 22
                              subBuildingName: SubBuildingNameConfig,

@@ -30,7 +30,8 @@ case class AddressByPartialAddressResponse(input: String,
                                            eboost: Double,
                                            nboost: Double,
                                            sboost: Double,
-                                           wboost: Double)
+                                           wboost: Double,
+                                           timeout: Int)
 
 object AddressByPartialAddressResponse {
   implicit lazy val addressByPartialAddressResponseFormat: Format[AddressByPartialAddressResponse] = Json.format[AddressByPartialAddressResponse]

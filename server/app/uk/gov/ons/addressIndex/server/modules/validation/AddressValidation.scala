@@ -18,6 +18,8 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   val maximumLimit: Int = conf.config.elasticSearch.maximumLimitPostcode
   val defaultOffset: Int = conf.config.elasticSearch.defaultOffset
   val maximumOffset: Int = conf.config.elasticSearch.maximumOffsetPostcode
+  val defaultTimeout: Int = conf.config.elasticSearch.defaultTimeoutPartial
+  val maximumTimeout: Int = conf.config.elasticSearch.maximumTimeoutPartial
 
   // set minimum string length from config
   val validEpochs: String = conf.config.elasticSearch.validEpochs
@@ -33,6 +35,11 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   object OffsetTooLargeAddressResponseErrorCustom extends AddressResponseError(
     code = 9,
     message = OffsetTooLargeAddressResponseError.message.replace("*", maximumOffset.toString)
+  )
+
+  object TimeoutTooLargeAddressResponseErrorCustom extends AddressResponseError(
+    code = 45,
+    message = TimeoutTooLargeAddressResponseError.message.replace("*", maximumTimeout.toString)
   )
 
   override def LimitTooLarge(queryValues: QueryValues): AddressBySearchResponseContainer = {
