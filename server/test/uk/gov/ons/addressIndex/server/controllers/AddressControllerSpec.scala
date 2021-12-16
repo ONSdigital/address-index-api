@@ -1995,6 +1995,129 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if a non-numeric timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 250
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(TimeoutNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("wibble")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a too small timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 3
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(TimeoutTooSmallAddressResponseError)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("3")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a too large timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 9999999
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(partialAddressValidation.TimeoutTooLargeAddressResponseErrorCustom)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("9999999")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply with a 400 error if an offset parameter greater than the maximum allowed is supplied" in {
       // Given
       val controller = addressController
