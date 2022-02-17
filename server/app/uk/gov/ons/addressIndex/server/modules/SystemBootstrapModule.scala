@@ -19,6 +19,7 @@ class SystemBootstrapModule extends AbstractModule {
     bind(classOf[ParserModule]).to(classOf[AddressParserModule]).asEagerSingleton()
     bind(classOf[ConfigModule]).to(classOf[AddressIndexConfigModule]).asEagerSingleton()
     bind(classOf[VersionModule]).to(classOf[AddressIndexVersionModule]).asEagerSingleton()
+    bind(classOf[EpochOptionsModule]).to(classOf[AddressIndexEpochOptionsModule]).asEagerSingleton()
     bind(classOf[ElasticClientProvider]).to(classOf[AddressIndexElasticClientProvider]).asEagerSingleton()
 
   }
