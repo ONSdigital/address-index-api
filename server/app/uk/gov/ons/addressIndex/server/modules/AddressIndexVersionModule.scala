@@ -22,6 +22,14 @@ class AddressIndexVersionModule @Inject()
   val client: ElasticClient = elasticClientProvider.client
   val termsAndConditions = configProvider.config.termsAndConditionsLink
 
+  lazy val epochList: List[String] = {
+    List ("39")
+  }
+
+  lazy val epochDates: Map[String,String] = {
+    Map("AL" -> "Alabama", "AK" -> "Alaska")
+  }
+
   lazy val apiVersion: String = {
     val filename = "version.app"
     val path = configProvider.config.pathToResources + filename

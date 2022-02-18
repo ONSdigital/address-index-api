@@ -10,5 +10,7 @@ abstract class PlayHelperController(versionProvider: VersionModule) extends Base
   override lazy val dataVersion: String = versionProvider.dataVersion
   override lazy val apiVersion: String = versionProvider.apiVersion
   override lazy val termsAndConditions = versionProvider.termsAndConditions
+  override lazy val epochList: List[String] = versionProvider.epochList
+  override lazy val epochDates: Map[String,String] = versionProvider.epochDates
 
 }

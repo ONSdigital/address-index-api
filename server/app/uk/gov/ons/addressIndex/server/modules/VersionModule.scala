@@ -6,4 +6,8 @@ trait VersionModule {
   def dataVersion: String
 
   def termsAndConditions: String
+
+  def epochList: List[String]
+
+  def epochDates: Map[String,String]
 }
