@@ -81,6 +81,18 @@ class VersionModuleSpec extends AnyWordSpec with should.Matchers with SearchMatc
     "extract epoch version from a correct alias->index" in {
       // Given
       val versionModule = new AddressIndexVersionModule(testConfig, elasticClientProvider)
+      val expected = List("33","34","35")
+
+      // When
+      val result = versionModule.epochList
+
+      // Then
+      result shouldBe expected
+    }
+
+    "extract all epoch versions from a correct alias->index" in {
+      // Given
+      val versionModule = new AddressIndexVersionModule(testConfig, elasticClientProvider)
       val expected = "34"
 
       // When
