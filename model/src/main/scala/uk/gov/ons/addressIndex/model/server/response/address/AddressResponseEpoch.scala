@@ -11,7 +11,7 @@ import play.api.libs.json.{Format, Json}
 case class AddressResponseEpoch(epochList: List[String],
                                 epochDates: Map[String,String])
 
-object AddressResponseVersion {
+object AddressResponseEpoch {
   implicit lazy val addressResponseEpochFormat: Format[AddressResponseEpoch] = Json.format[AddressResponseEpoch]
 }
 
