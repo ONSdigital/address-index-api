@@ -49,6 +49,9 @@ class VersionModuleSpec extends AnyWordSpec with should.Matchers with SearchMatc
   val hybridIndex2 = "hybrid_34_202020"
   val hybridIndex3 = "hybrid_35_202020"
   val hybridAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_current"
+  val firstAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_33"
+  val secondAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_34"
+  val thirdAlias: String = testConfig.config.elasticSearch.indexes.hybridIndex + "_35"
 
   def blockUntilCountLocal(expected: Long, index: String): Unit = {
     blockUntil(s"Expected count of $expected") { () =>
@@ -76,9 +79,17 @@ class VersionModuleSpec extends AnyWordSpec with should.Matchers with SearchMatc
     addAlias(hybridAlias, hybridIndex2)
   }.await
 
+  testClient.execute {
+       addAlias(firstAlias, hybridIndex1)
+  }.await
+
+  testClient.execute {
+    addAlias(thirdAlias, hybridIndex3)
+  }.await
+
   "Version module" should {
 
-    "extract epoch version from a correct alias->index" in {
+    "extract all epoch versions from a correct alias->index" in {
       // Given
       val versionModule = new AddressIndexVersionModule(testConfig, elasticClientProvider)
       val expected = List("33","34","35")
@@ -90,7 +101,7 @@ class VersionModuleSpec extends AnyWordSpec with should.Matchers with SearchMatc
       result shouldBe expected
     }
 
-    "extract all epoch versions from a correct alias->index" in {
+    "extract default epoch version from a correct alias->index" in {
       // Given
       val versionModule = new AddressIndexVersionModule(testConfig, elasticClientProvider)
       val expected = "34"

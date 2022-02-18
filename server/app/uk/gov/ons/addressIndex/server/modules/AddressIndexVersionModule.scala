@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, Index}
+import com.sksamuel.elastic4s.requests.indexes.alias.Alias
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
@@ -76,18 +77,25 @@ class AddressIndexVersionModule @Inject()
     // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
     val indexes = Try(Await.result(requestForIndexes, 10 seconds)).toEither
 
-    val index: String = indexes match {
+    val message: String = indexes match {
       case Left(l) => l.getMessage
-      case Right(r) => r.result.mappings.keys.toString()
+      case Right(r) => "OK"
     }
 
-    logger.warn("index name(s) = " + index)
+    val indexMap: Map[Index, Seq[Alias]] = indexes match {
+      case Left(l) => null
+      case Right(r) => r.result.mappings
+    }
 
-    List(Option(index).map(removeBaseIndexName)
-      .map(removeLetters)
-      .filter(_.length >= 2) // epoch number should contain at least 2 numbers
-      .map(_.substring(0, 2))
-      .getOrElse("NA"))
+    if (indexMap == null) List("NA")
+    else
+    indexMap.map{case (key, value) =>
+      Option(key.toString()).map(removeBaseIndexName)
+        .map(removeLetters)
+        .filter(_.length >= 2) // epoch number should contain at least 2 numbers
+        .map(_.substring(0, 2))
+        .getOrElse("NA")
+    }.toList
   }
 
   // lazy to avoid application crash at startup if ES is down
