@@ -1058,7 +1058,7 @@ GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionCo
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /epoch              uk.gov.ons.addressIndex.server.controllers.EpochOptionsController.epochQuery()
+GET     /epochs              uk.gov.ons.addressIndex.server.controllers.EpochOptionsController.epochQuery()
 
 ###
 #  summary: Post bulk addresses.

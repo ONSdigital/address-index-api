@@ -79,17 +79,17 @@ class AddressIndexVersionModule @Inject()
 
     val message: String = indexes match {
       case Left(l) => l.getMessage
-      case Right(r) => "OK"
+      case Right(_) => "NA"
     }
 
     val indexMap: Map[Index, Seq[Alias]] = indexes match {
-      case Left(l) => null
+      case Left(_) => null
       case Right(r) => r.result.mappings
     }
 
-    if (indexMap == null) List("NA")
+    if (indexMap == null) List(message)
     else
-    indexMap.map{case (key, value) =>
+    indexMap.map{case (key, _) =>
       Option(key.toString()).map(removeBaseIndexName)
         .map(removeLetters)
         .filter(_.length >= 2) // epoch number should contain at least 2 numbers

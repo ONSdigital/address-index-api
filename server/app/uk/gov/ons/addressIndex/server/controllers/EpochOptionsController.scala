@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseEpoch, AddressResponseEpochList, AddressResponseVersion}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseEpoch, AddressResponseEpochList}
 import uk.gov.ons.addressIndex.server.modules.VersionModule
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 

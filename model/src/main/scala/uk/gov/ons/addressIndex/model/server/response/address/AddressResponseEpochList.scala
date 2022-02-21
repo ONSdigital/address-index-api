@@ -5,10 +5,10 @@ import play.api.libs.json.{Format, Json}
 /**
   * Container for version info
   *
-  * @param epochsLoaded
+  * @param epochs
   *
   */
-case class AddressResponseEpochList(epochsLoaded: Seq[AddressResponseEpoch])
+case class AddressResponseEpochList(epochs: Seq[AddressResponseEpoch])
 
 object AddressResponseEpochList {
   implicit lazy val addressResponseEpochListFormat: Format[AddressResponseEpochList] = Json.format[AddressResponseEpochList]
