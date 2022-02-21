@@ -1233,3 +1233,6 @@ GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.
 #      description: success
 ###
 GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz()
+
+### NoDocs ###
+POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
