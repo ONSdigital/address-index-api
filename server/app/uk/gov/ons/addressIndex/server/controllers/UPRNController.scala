@@ -95,6 +95,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         // TODO do we even need `verbose` any more? Is it still used?
         val args = UPRNArgs(
           uprn = uprn,
+          uprns = null,
           historical = hist,
           epoch = epochVal,
           includeAuxiliarySearch = auxiliary,

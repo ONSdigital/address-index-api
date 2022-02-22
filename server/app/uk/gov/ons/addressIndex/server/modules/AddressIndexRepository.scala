@@ -77,7 +77,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
-    val query = termQuery("uprn", args.uprn)
+    val query = if (args.uprns == null)
+      termQuery("uprn", args.uprn)
+    else
+      termsQuery("uprn",args.uprns)
     val special = if (args.epochParam == "_80N") "special_" else ""
     val source = special + (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
 
@@ -1158,6 +1161,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
+  }
+
+  override def runMultiUPRNQuery(args: UPRNArgs):  Future[HybridAddressCollection] = {
+    val query = makeQuery(args)
+      val searchString = SearchBodyBuilderFn(query).string()
+      println(searchString)
+    logger.trace(query.toString)
+    val specialCen = args.auth == conf.config.masterKey
+    if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
+      if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        client.execute(query).map(HybridAddressCollection.fromResponse)
   }
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {

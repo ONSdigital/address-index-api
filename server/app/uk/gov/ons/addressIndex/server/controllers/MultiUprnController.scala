@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
-import uk.gov.ons.addressIndex.model.db.index.HybridAddress
+import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressCollection}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
@@ -104,23 +104,23 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           auth = req.headers.get("authorization").getOrElse("Anon")
         )
 
-        implicit val success = Success[Option[HybridAddress]](_ != null)
+        implicit val success = Success[HybridAddressCollection](_ != null)
 
-        val request: Future[Option[HybridAddress]] =
+        val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runUPRNQuery(args)
+              esRepo.runMultiUPRNQuery(args)
             )
           }
 
         request.map {
-          case Some(hybridAddress) =>
+          case HybridAddressCollection(hybridAddresses,_,_,_) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddresses.head, verb)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
-              score = hybridAddress.score.toString, activity = "address_request"
+              score = "100", activity = "address_request"
             )
 
             jsonOk(
@@ -138,7 +138,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
               )
             )
 
-          case None =>
+          case _ =>
             writeLog(notFound = true)
             jsonNotFound(NoAddressFoundUprn(queryValues))
 

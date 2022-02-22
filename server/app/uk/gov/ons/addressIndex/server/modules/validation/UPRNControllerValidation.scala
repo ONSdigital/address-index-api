@@ -32,12 +32,13 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
   }
 
   def validateUprns(uprns: List[String], queryValues: QueryValues): Option[Future[Result]] = {
-    Try(uprns.head.toLong) match {
-      case Success(_) => None
-      case Failure(_) =>
-        logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
-        Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
-    }
+//    Try(uprns.head.toLong) match {
+//      case Success(_) => None
+//      case Failure(_) =>
+//        logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
+//        Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
+//    }
+    None
   }
 
   def validateUprn(uprn: String, queryValues: QueryValues): Option[Future[Result]] = {

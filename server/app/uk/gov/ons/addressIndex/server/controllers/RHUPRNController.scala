@@ -101,6 +101,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
       case _ =>
         val args = UPRNArgs(
           uprn = uprn,
+          uprns = null,
           historical = hist,
           epoch = epochVal,
         )
