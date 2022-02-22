@@ -14,6 +14,8 @@ trait Response {
   val dataVersion: String
   val apiVersion: String
   val termsAndConditions: String
+  val epochList: List[String]
+  val epochDates: Map[String,String]
 
   def BadRequestTemplate(queryValues: QueryValues, errors: AddressResponseError*): AddressBySearchResponseContainer = {
     AddressBySearchResponseContainer(

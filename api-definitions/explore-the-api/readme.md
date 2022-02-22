@@ -155,5 +155,12 @@
             Get version information.
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell">/epochs</td>
+        <td class="table--cell">
+            Get list of available epochs.
+        </td>
+    </tr>
     </tbody>
 </table>
