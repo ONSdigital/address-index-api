@@ -395,11 +395,30 @@ class AddressControllerSpec extends PlaySpec with Results {
   val apiVersionExpected = "testApi"
   val dataVersionExpected = "testData"
   val termsAndConditionsExpected = "https://census.gov.uk/terms-and-conditions"
+  val epochListExpected = List ("39","89","NA")
+  val epochDatesEpected = {
+    Map("39" -> "Exeter Sample",
+      "87" -> "September 2021",
+      "88" -> "October 2021",
+      "89" -> "December 2021",
+      "90" -> "January 2022",
+      "91" -> "March 2022",
+      "92" -> "April 2022",
+      "93" -> "June 2022",
+      "94" -> "July 2022",
+      "95" -> "August 2022",
+      "80" -> "Census no extras",
+      "80C" -> "Census with extras",
+      "80N" -> "Census with extras and NISRA",
+      "NA" -> "test index")
+  }
 
   val versions: VersionModule = new VersionModule {
     val apiVersion: String = apiVersionExpected
     val dataVersion: String = dataVersionExpected
     val termsAndConditions: String = termsAndConditionsExpected
+    val epochList: List[String] = epochListExpected
+    val epochDates: Map[String,String] = epochDatesEpected
   }
 
   val overloadProtection: APIThrottle = new APIThrottle(tweakedCBConfig)

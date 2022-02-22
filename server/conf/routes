@@ -1040,6 +1040,27 @@ GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.Ra
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery()
 
 ###
+#  summary: Get Epoch information.
+#  description: Returns epoch information for the api and the data (AddressBase).
+#  responses:
+#    200:
+#      description: Success. A json return of epoch information.
+#      content:
+#        application/json:
+#          schema:
+#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /epochs              uk.gov.ons.addressIndex.server.controllers.EpochOptionsController.epochQuery()
+
+###
 #  summary: Post bulk addresses.
 #  description: Will process all `BulkQuery` items in the `BulkBody` returns reduced information on found addresses (uprn, formatted address).
 #  parameters:

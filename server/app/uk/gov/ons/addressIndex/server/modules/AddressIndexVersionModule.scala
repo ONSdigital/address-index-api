@@ -2,7 +2,8 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.{Inject, Singleton}
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.ElasticClient
+import com.sksamuel.elastic4s.{ElasticClient, Index}
+import com.sksamuel.elastic4s.requests.indexes.alias.Alias
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
 
@@ -22,6 +23,27 @@ class AddressIndexVersionModule @Inject()
   val client: ElasticClient = elasticClientProvider.client
   val termsAndConditions = configProvider.config.termsAndConditionsLink
 
+//  lazy val epochList: List[String] = {
+//    List ("39","89","NA")
+//  }
+
+  lazy val epochDates: Map[String,String] = {
+    Map("39" -> "Exeter Sample",
+      "87" -> "September 2021",
+      "88" -> "October 2021",
+      "89" -> "December 2021",
+      "90" -> "January 2022",
+      "91" -> "March 2022",
+      "92" -> "April 2022",
+      "93" -> "June 2022",
+      "94" -> "July 2022",
+      "95" -> "August 2022",
+      "80" -> "Census no extras",
+      "80C" -> "Census with extras",
+      "80N" -> "Census with extras and NISRA",
+      "NA" -> "test index")
+  }
+
   lazy val apiVersion: String = {
     val filename = "version.app"
     val path = configProvider.config.pathToResources + filename
@@ -34,6 +56,46 @@ class AddressIndexVersionModule @Inject()
       .getOrElse(Source.fromFile(currentDirectory + path))
 
     resource.getLines().mkString("")
+  }
+
+  // lazy to avoid application crash at startup if ES is down
+  lazy val epochList: List[String] = {
+    val alias: String = configProvider.config.elasticSearch.indexes.hybridIndex + "*"
+    logger.warn("alias) = " + alias)
+    val aliaseq: Seq[String] = Seq {
+      alias
+    }
+
+    val requestForIndexes =
+      if (gcp) clientFullmatch.execute {
+        getAliases(Nil, aliaseq)
+      }
+      else client.execute {
+        getAliases(Nil, aliaseq)
+      }
+
+    // yes, it is blocking, but it only does this request once and there is also timeout in case it goes wrong
+    val indexes = Try(Await.result(requestForIndexes, 10 seconds)).toEither
+
+    val message: String = indexes match {
+      case Left(l) => l.getMessage
+      case Right(_) => "NA"
+    }
+
+    val indexMap: Map[Index, Seq[Alias]] = indexes match {
+      case Left(_) => null
+      case Right(r) => r.result.mappings
+    }
+
+    if (indexMap == null) List(message)
+    else
+    indexMap.map{case (key, _) =>
+      Option(key.toString()).map(removeBaseIndexName)
+        .map(removeLetters)
+        .filter(_.length >= 2) // epoch number should contain at least 2 numbers
+        .map(_.substring(0, 2))
+        .getOrElse("NA")
+    }.toList
   }
 
   // lazy to avoid application crash at startup if ES is down
