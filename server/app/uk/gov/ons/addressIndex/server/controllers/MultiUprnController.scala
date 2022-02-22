@@ -43,12 +43,9 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           ): Action[MultiUprnBody] = Action(parse.json[MultiUprnBody]) async { implicit req =>
 
     logger.info(s"#multi UPRN query with ${req.body.uprns.size} items")
-    val uprns = req.body.uprns.toString()
-    val uprnList = req.body.uprns.toList
-    val uprn = uprnList.head.uprn
-
-//    val uprn = "123"
-//    val uprns = "123"
+    val uprnString = req.body.uprns.toString()
+    val uprns = req.body.uprns.toList
+    val uprn = uprns.head
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -69,9 +66,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
 
 
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
-        uprn = uprns, isNotFound = notFound, formattedOutput = formattedOutput,
+        uprn = uprnString, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
-        // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
         includeAuxiliary = auxiliary
@@ -79,7 +75,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     }
 
     val queryValues = QueryValues(
-      uprn = Some(uprn),
+      uprns = Some(uprns),
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
@@ -87,7 +83,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     )
 
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprn(uprn, queryValues)
+      uprnValidation.validateUprns(uprns, queryValues)
         .orElse(uprnValidation.validateSource(queryValues))
         .orElse(uprnValidation.validateKeyStatus(queryValues))
         .orElse(uprnValidation.validateEpoch(queryValues))
@@ -99,9 +95,9 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
         res // a validation error
 
       case _ =>
-        // TODO do we even need `verbose` any more? Is it still used?
         val args = UPRNArgs(
-          uprn = uprn,
+          uprn = "",
+          uprns = uprns,
           historical = hist,
           epoch = epochVal,
           includeAuxiliarySearch = auxiliary,

@@ -113,13 +113,13 @@ object BulkBodyDebug {
   */
 case class BulkQueryDebug(id: String, tokens: Map[String, String])
 
-case class BulkQueryUprn(uprn: String)
+//case class BulkQueryUprn(uprn: String)
+//
+//object BulkQueryUprn {
+//  implicit lazy val bulkQueryUprnFormat: Format[BulkQueryUprn] = Json.format[BulkQueryUprn]
+//}
 
-object BulkQueryUprn {
-  implicit lazy val fmt: Format[BulkQueryUprn] = Json.format[BulkQueryUprn]
-}
-
-case class MultiUprnBody(uprns: Seq[BulkQueryUprn])
+case class MultiUprnBody(uprns: Seq[String])
 
 object MultiUprnBody {
   implicit lazy val fmt: Format[MultiUprnBody] = Json.format[MultiUprnBody]
