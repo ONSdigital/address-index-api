@@ -245,6 +245,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] =  Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)),Seq(),1.0f,1))
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
       args.groupFullPostcodesOrDefault match {
         case "no" =>    Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1))
@@ -286,6 +288,11 @@ class AddressControllerSpec extends PlaySpec with Results {
       Some(getHybridAddress(args))
     }
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] =  Future {
+      Thread.sleep(500)
+      HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1)
+    }
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future {
       Thread.sleep(500)
       HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1)
@@ -320,6 +327,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
     override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
@@ -342,6 +351,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
+
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
@@ -367,6 +378,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.failed(new Exception("test failure"))
+
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 

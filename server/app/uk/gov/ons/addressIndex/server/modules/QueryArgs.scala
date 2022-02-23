@@ -195,7 +195,7 @@ sealed abstract class QueryArgs {
   * @param uprn the UPRN to search by
   */
 final case class UPRNArgs(uprn: String,
-                          uprns: List[String],
+                          uprns: List[String] = null,
                           historical: Boolean = true,
                           epoch: String = "",
                           includeAuxiliarySearch: Boolean = false,
