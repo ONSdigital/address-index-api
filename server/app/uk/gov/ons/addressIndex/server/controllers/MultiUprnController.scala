@@ -5,7 +5,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressCollection}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
 import uk.gov.ons.addressIndex.server.modules._
@@ -116,19 +116,22 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
         request.map {
           case HybridAddressCollection(hybridAddresses,_,_,_) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddresses.head, verb)
+          //  val addresses = AddressResponseAddress.fromHybridAddress(hybridAddresses, verb)
+            val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
+              AddressResponseAddress.fromHybridAddress(_, verbose = verb)
+            )
 
             writeLog(
-              formattedOutput = address.formattedAddressNag, numOfResults = "1",
+              formattedOutput = "Mutiple UPRN results", numOfResults = addresses.size.toString,
               score = "100", activity = "address_request"
             )
 
             jsonOk(
-              AddressByUprnResponseContainer(
+              AddressByMultiUprnResponseContainer(
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
-                response = AddressByUprnResponse(
-                  address = Some(address),
+                response = AddressByMultiUprnResponse(
+                  addresses = addresses,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
