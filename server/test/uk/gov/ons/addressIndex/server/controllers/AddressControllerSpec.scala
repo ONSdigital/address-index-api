@@ -5,8 +5,9 @@ import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers._
+import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
@@ -17,7 +18,7 @@ import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPa
 import uk.gov.ons.addressIndex.model.server.response.postcode._
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer, AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.controllers.general.ApplicationController
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
@@ -458,6 +459,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val rhPostcodeController = new RHPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
+  val multiUprnController = new MultiUprnController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
 
   val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController, groupedPostcodeController)
@@ -569,6 +571,42 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("true")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with multiple addresses (by Multiuprn)" in {
+      // Given
+      val controller = multiUprnController
+
+      val expected = Json.toJson(AddressByMultiUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByMultiUprnResponse(
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          historical = true,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      val uprns = Seq(validHybridAddress.uprn,validHybridAddress.uprn)
+      val uBody = new MultiUprnBody(uprns)
+
+      val request = FakeRequest[MultiUprnBody](
+        method = "POST",
+        uri = "/",
+        headers = FakeHeaders(
+          Seq("Content-type"->"application/json")
+        ),
+        body =  uBody
+      )
+      val result = controller.multiUprn().apply(request)
+
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -3287,6 +3325,42 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.uprnQuery("221B").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+     "reply a 400 error if one of the uprns was not numeric (by Multiuprn)" in {
+      // Given
+      val controller = new MultiUprnController(components, emptyElasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = None,
+          historical = true,
+          verbose = false,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(UprnNotNumericAddressResponseError)
+      ))
+
+      val uprns = Seq("100040202477","antidisestablishmentarianism")
+      val uBody = new MultiUprnBody(uprns)
+
+       val request = FakeRequest[MultiUprnBody](
+               method = "POST",
+               uri = "/",
+               headers = FakeHeaders(
+                 Seq("Content-type"->"application/json")
+               ),
+               body =  uBody
+             )
+      val result = controller.multiUprn().apply(request)
       val actual: JsValue = contentAsJson(result)
 
       // Then

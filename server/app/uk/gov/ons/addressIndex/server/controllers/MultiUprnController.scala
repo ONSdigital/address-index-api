@@ -116,7 +116,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
         request.map {
           case HybridAddressCollection(hybridAddresses,_,_,_) =>
 
-          //  val addresses = AddressResponseAddress.fromHybridAddress(hybridAddresses, verb)
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
               AddressResponseAddress.fromHybridAddress(_, verbose = verb)
             )
