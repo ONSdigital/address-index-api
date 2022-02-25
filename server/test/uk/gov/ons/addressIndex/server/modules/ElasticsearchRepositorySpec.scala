@@ -797,7 +797,8 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
             "term" : {
             "uprn" : {"value":"1"}
             }
-          }
+          },
+          "size":1
         }
         """
       )

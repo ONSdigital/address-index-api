@@ -3334,7 +3334,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
      "reply a 400 error if one of the uprns was not numeric (by Multiuprn)" in {
       // Given
-      val controller = new MultiUprnController(components, emptyElasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
+      val controller = multiUprnController
 
       val expected = Json.toJson(AddressByUprnResponseContainer(
         apiVersion = apiVersionExpected,

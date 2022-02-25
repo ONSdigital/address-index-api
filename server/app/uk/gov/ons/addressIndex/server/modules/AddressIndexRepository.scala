@@ -85,8 +85,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val source = special + (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
+    val maxrecs = if (args.uprns == null) 1 else args.uprns.size
 
-    search(searchIndicies).query(query)
+    search(searchIndicies).query(query).size(maxrecs)
   }
 
   /**
@@ -1165,9 +1166,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiUPRNQuery(args: UPRNArgs):  Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-      val searchString = SearchBodyBuilderFn(query).string()
-      println(searchString)
-    logger.trace(query.toString)
+ //     val searchString = SearchBodyBuilderFn(query).string()
+ //   println(searchString)
+ //  logger.trace(query.toString)
     val specialCen = args.auth == conf.config.masterKey
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
       if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
