@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules.presetClassificationFilters
 
-import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, PrefixQuery, Query}
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
+import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
 import uk.gov.ons.addressIndex.parsers.Tokens
 
 object WorkplaceClassificationFilter extends PresetClassificationFilter {
