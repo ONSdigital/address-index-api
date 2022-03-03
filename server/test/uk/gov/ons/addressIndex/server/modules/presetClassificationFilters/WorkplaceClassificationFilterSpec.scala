@@ -1,7 +1,8 @@
 package uk.gov.ons.addressIndex.server.modules.presetClassificationFilters
 
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
-import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, PrefixQuery, Query}
+import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
 import org.scalatest._
 import matchers._
 import org.scalatest.wordspec.AnyWordSpec
