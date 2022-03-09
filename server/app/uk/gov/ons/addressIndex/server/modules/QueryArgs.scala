@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters._

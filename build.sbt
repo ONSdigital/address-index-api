@@ -14,7 +14,7 @@ import com.typesafe.sbt.packager.docker._
 //routesImport := Seq.empty
 
 lazy val Versions = new {
-  val elastic4s = "7.9.3"
+  val elastic4s = "7.17.0"
   val scala = "2.13.6"
   val gatlingVersion = "3.6.1"
   val scapegoatVersion = "1.4.9"
@@ -50,7 +50,7 @@ lazy val serverUniversalMappings: Seq[Def.Setting[_]] = Seq(
 
     def directoryToAdd = rootDir / "parsers/src/main/resources"
 
-    ((directoryToAdd.allPaths) * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
+    (directoryToAdd.allPaths * ("*" -- ("*.md" || "*.conf"))) pair relativeTo(rootDir)
   }
 )
 
@@ -95,22 +95,22 @@ lazy val localCommonSettings: Seq[Def.Setting[_]] = Seq(
 
 val commonDeps = Seq(
   "org.scalatest" %% "scalatest" % "3.2.9" % Test,
-  "org.scalamock" %% "scalamock" % "5.1.0" % Test,
-  "com.typesafe" % "config" % "1.4.1",
-  "com.github.pureconfig" %% "pureconfig" % "0.16.0",
-  "com.lihaoyi" %% "pprint" % "0.6.6",
+  "org.scalamock" %% "scalamock" % "5.2.0" % Test,
+  "com.typesafe" % "config" % "1.4.2",
+  "com.github.pureconfig" %% "pureconfig" % "0.17.1",
+  "com.lihaoyi" %% "pprint" % "0.7.1",
   "com.sksamuel.elastic4s" %% "elastic4s-core" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   "com.sksamuel.elastic4s" %% "elastic4s-client-esjava" % Versions.elastic4s excludeAll ExclusionRule(organization = "org.apache.logging.log4j"),
   // testing
   "com.sksamuel.elastic4s" %% "elastic4s-testkit" % Versions.elastic4s % "test",
-  "org.apache.logging.log4j" % "log4j-core" % "2.16.0" % Test,
-  "org.apache.logging.log4j" % "log4j-api" % "2.16.0" % Test,
+  "org.apache.logging.log4j" % "log4j-core" % "2.17.0" % Test,
+  "org.apache.logging.log4j" % "log4j-api" % "2.17.0" % Test,
   "org.apache.commons" % "commons-lang3" % "3.12.0",
   "com.softwaremill.retry" %% "retry" % "0.3.3",
-  "org.apache.httpcomponents" % "httpcore" % "4.4.14",
+  "org.apache.httpcomponents" % "httpcore" % "4.4.15",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
-  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.9.3",
-  "org.testcontainers" % "elasticsearch" % "1.15.3" % "test",
+  "org.elasticsearch.client" % "elasticsearch-rest-client" % "7.16.3",
+  "org.testcontainers" % "elasticsearch" % "1.16.3" % "test",
   guice
 )
 

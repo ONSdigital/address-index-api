@@ -4,8 +4,9 @@ import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, 
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
-import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
+import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
 
