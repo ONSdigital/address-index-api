@@ -1,14 +1,19 @@
 sudo: required
 dist: trusty
 language: scala
+before_install:
+  - curl -s "https://get.sdkman.io" | bash
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - sdk install java 11.0.12-open
+  - sdk use java 11.0.12-open
 script:
   - if [[ "$TRAVIS_PULL_REQUEST" != false ]]; then sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; else travis_retry sbt ++$TRAVIS_SCALA_VERSION clean coverage test coverageReport; fi
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 scala:
   - 2.13.6
-jdk:
-  - oraclejdk11
+#jdk:
+## - oraclejdk11
 branches:
   only:
     # We're only building these branches and pull requests.

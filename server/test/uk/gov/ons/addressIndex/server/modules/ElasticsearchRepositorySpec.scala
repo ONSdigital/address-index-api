@@ -797,7 +797,8 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
             "term" : {
             "uprn" : {"value":"1"}
             }
-          }
+          },
+          "size":1
         }
         """
       )
@@ -805,6 +806,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
       // When
       val args = UPRNArgs(
         uprn = hybridFirstUprn.toString,
+        uprns = null
       )
       val result = Json.parse(SearchBodyBuilderFn(repository.makeQuery(args)).string())
 
@@ -820,6 +822,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
       // When
       val args = UPRNArgs(
         uprn = hybridFirstUprn.toString,
+        uprns = null
       )
       val result = repository.runUPRNQuery(args).await
 
@@ -926,6 +929,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
       // When
       val args = UPRNArgs(
         uprn = hybridFirstUprn.toString,
+        uprns = null,
         historical = true,
       )
       val result = repository.runUPRNQuery(args).await

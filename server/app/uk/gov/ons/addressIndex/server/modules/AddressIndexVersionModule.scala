@@ -23,10 +23,6 @@ class AddressIndexVersionModule @Inject()
   val client: ElasticClient = elasticClientProvider.client
   val termsAndConditions = configProvider.config.termsAndConditionsLink
 
-//  lazy val epochList: List[String] = {
-//    List ("39","89","NA")
-//  }
-
   lazy val epochDates: Map[String,String] = {
     Map("39" -> "Exeter Sample",
       "87" -> "September 2021",
@@ -87,6 +83,7 @@ class AddressIndexVersionModule @Inject()
       case Right(r) => r.result.mappings
     }
 
+    // TODO what about 80C and 80N indices?
     if (indexMap == null) List(message)
     else
     indexMap.map{case (key, _) =>
