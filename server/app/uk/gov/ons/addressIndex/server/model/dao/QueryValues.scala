@@ -6,6 +6,7 @@ case class QueryValues(input: Option[String] = None,
                        streetname: Option[String] = None,
                        townname: Option[String] = None,
                        uprn: Option[String] = None,
+                       uprns: Option[List[String]] = None,
                        epoch: Option[String] = None,
                        filter: Option[String] = None,
                        historical: Option[Boolean] = None,
@@ -28,7 +29,8 @@ case class QueryValues(input: Option[String] = None,
                        nboost: Option[Double] = None,
                        sboost: Option[Double] = None,
                        wboost: Option[Double] = None,
-                       groupFullPostcodes: Option[String] = None
+                       groupFullPostcodes: Option[String] = None,
+                       timeout: Option[Int] = None
                       )
 {
   def inputOrDefault: String = this.input.getOrElse("")
@@ -52,6 +54,8 @@ case class QueryValues(input: Option[String] = None,
   def limitOrDefault: Int = this.limit.getOrElse(0)
 
   def offsetOrDefault: Int = this.offset.getOrElse(0)
+
+  def timeoutOrDefault: Int = this.timeout.getOrElse(0)
 
   def startDateOrDefault: String = this.startDate.getOrElse("")
 

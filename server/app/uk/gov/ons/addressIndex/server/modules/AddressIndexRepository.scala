@@ -4,10 +4,12 @@ import com.sksamuel.elastic4s.ElasticDsl.{functionScoreQuery, geoDistanceQuery, 
 import com.sksamuel.elastic4s.ElasticClient
 import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
-import com.sksamuel.elastic4s.requests.searches.queries.{BoolQuery, ConstantScore, Query}
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
+import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -17,7 +19,8 @@ import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
 import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.math._
 import scala.util.Try
 
@@ -75,13 +78,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
   private def makeUprnQuery(args: UPRNArgs): SearchRequest = {
-    val query = termQuery("uprn", args.uprn)
+    val query = if (args.uprns == null)
+      termQuery("uprn", args.uprn)
+    else
+      termsQuery("uprn",args.uprns)
     val special = if (args.epochParam == "_80N") "special_" else ""
     val source = special + (if (args.historical) hybridIndexHistoricalUprn else hybridIndexUprn) + args.epochParam
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
+    val maxrecs = if (args.uprns == null) 1 else args.uprns.size
 
-    search(searchIndicies).query(query)
+    search(searchIndicies).query(query).size(maxrecs)
   }
 
   /**
@@ -111,6 +118,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+
+    val timeout = args.timeout
+    val timeDur: FiniteDuration = new FiniteDuration(timeout,duration.MILLISECONDS)
 
     val fieldsToSearch =  Seq("mixedPartial")
 
@@ -203,6 +213,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
     search(searchIndicies)
+      .timeout(timeDur)
       .query(
           functionScoreQuery(query).functions(
           scriptScore(partialScript))
@@ -1152,6 +1163,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
     if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption) else
       client.execute(query).map(HybridAddressCollection.fromResponse).map(_.addresses.headOption)
+  }
+
+  override def runMultiUPRNQuery(args: UPRNArgs):  Future[HybridAddressCollection] = {
+    val query = makeQuery(args)
+ //     val searchString = SearchBodyBuilderFn(query).string()
+ //   println(searchString)
+ //  logger.trace(query.toString)
+    val specialCen = args.auth == conf.config.masterKey
+    if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
+      if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        client.execute(query).map(HybridAddressCollection.fromResponse)
   }
 
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {

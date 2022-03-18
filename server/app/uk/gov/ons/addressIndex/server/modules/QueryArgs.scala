@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.server.modules
 
 import com.sksamuel.elastic4s.requests.searches.queries.{PrefixQuery, Query}
-import com.sksamuel.elastic4s.requests.searches.queries.term.TermsQuery
+import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
 import uk.gov.ons.addressIndex.model.config.QueryParamsConfig
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.server.modules.presetClassificationFilters._
@@ -195,6 +195,7 @@ sealed abstract class QueryArgs {
   * @param uprn the UPRN to search by
   */
 final case class UPRNArgs(uprn: String,
+                          uprns: List[String] = null,
                           historical: Boolean = true,
                           epoch: String = "",
                           includeAuxiliarySearch: Boolean = false,
@@ -236,7 +237,8 @@ final case class PartialArgs(input: String,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
-                             wboost: Double = 1.0
+                             wboost: Double = 1.0,
+                             timeout: Int = 250
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
 

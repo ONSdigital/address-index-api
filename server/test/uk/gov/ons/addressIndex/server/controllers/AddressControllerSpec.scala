@@ -5,8 +5,9 @@ import com.sksamuel.elastic4s.requests.searches.SearchRequest
 import org.scalatestplus.play._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers._
+import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
@@ -17,7 +18,7 @@ import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPa
 import uk.gov.ons.addressIndex.model.server.response.postcode._
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.model.server.response.rh.{AddressByRHPartialAddressResponse, AddressByRHPartialAddressResponseContainer, AddressByRHPostcodeResponse, AddressByRHPostcodeResponseContainer}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.controllers.general.ApplicationController
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.validation._
@@ -245,6 +246,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(Some(getHybridAddress(args)))
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] =  Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)),Seq(),1.0f,1))
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
       args.groupFullPostcodesOrDefault match {
         case "no" =>    Future.successful(HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1))
@@ -286,6 +289,11 @@ class AddressControllerSpec extends PlaySpec with Results {
       Some(getHybridAddress(args))
     }
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] =  Future {
+      Thread.sleep(500)
+      HybridAddressCollection(Seq(getHybridAddress(args)), Seq(), 1.0f, 1)
+    }
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future {
       Thread.sleep(500)
       HybridAddressCollection(Seq(getHybridAddress(args)), validBuckets, 1.0f, 1)
@@ -320,6 +328,8 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
 
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
+
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
     override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
@@ -342,6 +352,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.successful(None)
+
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.successful(HybridAddressCollection(Seq.empty, Seq.empty, 1.0f, 0))
 
@@ -367,6 +379,8 @@ class AddressControllerSpec extends PlaySpec with Results {
     override def makeQuery(queryArgs: QueryArgs): SearchRequest = SearchRequest(Indexes(Seq()))
 
     override def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]] = Future.failed(new Exception("test failure"))
+
+    override def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 
     override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = Future.failed(new Exception("test failure"))
 
@@ -395,11 +409,30 @@ class AddressControllerSpec extends PlaySpec with Results {
   val apiVersionExpected = "testApi"
   val dataVersionExpected = "testData"
   val termsAndConditionsExpected = "https://census.gov.uk/terms-and-conditions"
+  val epochListExpected = List ("39","89","NA")
+  val epochDatesEpected = {
+    Map("39" -> "Exeter Sample",
+      "87" -> "September 2021",
+      "88" -> "October 2021",
+      "89" -> "December 2021",
+      "90" -> "January 2022",
+      "91" -> "March 2022",
+      "92" -> "April 2022",
+      "93" -> "June 2022",
+      "94" -> "July 2022",
+      "95" -> "August 2022",
+      "80" -> "Census no extras",
+      "80C" -> "Census with extras",
+      "80N" -> "Census with extras and NISRA",
+      "NA" -> "test index")
+  }
 
   val versions: VersionModule = new VersionModule {
     val apiVersion: String = apiVersionExpected
     val dataVersion: String = dataVersionExpected
     val termsAndConditions: String = termsAndConditionsExpected
+    val epochList: List[String] = epochListExpected
+    val epochDates: Map[String,String] = epochDatesEpected
   }
 
   val overloadProtection: APIThrottle = new APIThrottle(tweakedCBConfig)
@@ -426,6 +459,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val rhPostcodeController = new RHPostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
   val randomController = new RandomController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
   val uprnController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
+  val multiUprnController = new MultiUprnController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
   val codelistController = new CodelistController(components, versions)
 
   val eqController = new EQController(components, eqPartialAddressController, versions, eqPostcodeController, groupedPostcodeController)
@@ -537,6 +571,42 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result: Future[Result] = controller.uprnQuery(validHybridAddress.uprn, verbose = Some("true")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe OK
+      actual mustBe expected
+    }
+
+    "reply with multiple addresses (by Multiuprn)" in {
+      // Given
+      val controller = multiUprnController
+
+      val expected = Json.toJson(AddressByMultiUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByMultiUprnResponse(
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          historical = true,
+          verbose = false,
+          epoch = ""
+        ),
+        OkAddressResponseStatus
+      ))
+
+      val uprns = Seq(validHybridAddress.uprn,validHybridAddress.uprn)
+      val uBody = new MultiUprnBody(uprns)
+
+      val request = FakeRequest[MultiUprnBody](
+        method = "POST",
+        uri = "/",
+        headers = FakeHeaders(
+          Seq("Content-type"->"application/json")
+        ),
+        body =  uBody
+      )
+      val result = controller.multiUprn().apply(request)
+
       val actual: JsValue = contentAsJson(result)
 
       // Then
@@ -734,7 +804,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -816,7 +887,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -858,7 +930,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -1214,7 +1287,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         OkAddressResponseStatus
       ))
@@ -1991,6 +2065,129 @@ class AddressControllerSpec extends PlaySpec with Results {
       actual mustBe expected
     }
 
+    "reply with a 400 error if a non-numeric timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 250
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(TimeoutNotNumericAddressResponseError)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("wibble")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a too small timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 3
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(TimeoutTooSmallAddressResponseError)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("3")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+    "reply with a 400 error if a too large timeout parameter is supplied (partial)" in {
+      // Given
+      val controller = partialAddressController
+
+      val expected = Json.toJson(AddressByPartialAddressResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        AddressByPartialAddressResponse(
+          input = "mon repo",
+          addresses = Seq.empty,
+          filter = "",
+          fallback = false,
+          historical = false,
+          limit = 20,
+          offset = 0,
+          total = 0,
+          maxScore = 0.0f,
+          verbose = false,
+          epoch = "",
+          highlight = "on",
+          favourpaf = true,
+          favourwelsh = false,
+          eboost = 1,
+          nboost = 1,
+          sboost = 1,
+          wboost = 1,
+          timeout = 9999999
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(partialAddressValidation.TimeoutTooLargeAddressResponseErrorCustom)
+      ))
+
+      // When
+      val result = controller.partialAddressQuery(input = "mon repo",timeout=Some("9999999")).apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
     "reply with a 400 error if an offset parameter greater than the maximum allowed is supplied" in {
       // Given
       val controller = addressController
@@ -2554,7 +2751,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.ShortQueryAddressResponseErrorCustom)
@@ -2594,7 +2792,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(partialAddressValidation.EpochNotAvailableErrorCustom)
@@ -3055,7 +3254,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          timeout = 250
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -3125,6 +3325,42 @@ class AddressControllerSpec extends PlaySpec with Results {
 
       // When
       val result = controller.uprnQuery("221B").apply(FakeRequest())
+      val actual: JsValue = contentAsJson(result)
+
+      // Then
+      status(result) mustBe BAD_REQUEST
+      actual mustBe expected
+    }
+
+     "reply a 400 error if one of the uprns was not numeric (by Multiuprn)" in {
+      // Given
+      val controller = multiUprnController
+
+      val expected = Json.toJson(AddressByUprnResponseContainer(
+        apiVersion = apiVersionExpected,
+        dataVersion = dataVersionExpected,
+        response = AddressByUprnResponse(
+          address = None,
+          historical = true,
+          verbose = false,
+          epoch = ""
+        ),
+        BadRequestAddressResponseStatus,
+        errors = Seq(UprnNotNumericAddressResponseError)
+      ))
+
+      val uprns = Seq("100040202477","antidisestablishmentarianism")
+      val uBody = new MultiUprnBody(uprns)
+
+       val request = FakeRequest[MultiUprnBody](
+               method = "POST",
+               uri = "/",
+               headers = FakeHeaders(
+                 Seq("Content-type"->"application/json")
+               ),
+               body =  uBody
+             )
+      val result = controller.multiUprn().apply(request)
       val actual: JsValue = contentAsJson(result)
 
       // Then

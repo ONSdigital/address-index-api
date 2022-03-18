@@ -351,6 +351,12 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #         format: decimal
 #         default: 1.0
 #      description: Weighting for addresses in Wales as a decimal from 0 to 10
+#    - name: timeout
+#      schema:
+#         type: integer
+#         default: 250
+#         maximum: 5000
+#      description: Number of milliseconds to allow query to run before bailing out with results so far
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -367,7 +373,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], timeout: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version
@@ -1034,6 +1040,27 @@ GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.Ra
 GET     /version            uk.gov.ons.addressIndex.server.controllers.VersionController.versionQuery()
 
 ###
+#  summary: Get Epoch information.
+#  description: Returns epoch information for the api and the data (AddressBase).
+#  responses:
+#    200:
+#      description: Success. A json return of epoch information.
+#      content:
+#        application/json:
+#          schema:
+#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseVersion"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+GET     /epochs              uk.gov.ons.addressIndex.server.controllers.EpochOptionsController.epochQuery()
+
+###
 #  summary: Post bulk addresses.
 #  description: Will process all `BulkQuery` items in the `BulkBody` returns reduced information on found addresses (uprn, formatted address).
 #  parameters:
@@ -1227,3 +1254,6 @@ GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.
 #      description: success
 ###
 GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz()
+
+### NoDocs ###
+POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])

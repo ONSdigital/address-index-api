@@ -222,3 +222,19 @@ object CountryDeprecationError extends AddressResponseError(
   code = 42,
   message = "The use of fromsource is deprecated and cannot be used in conjuction with eboost, nboost, sboost and wboost."
 )
+
+object TimeoutNotNumericAddressResponseError extends AddressResponseError(
+  code = 43,
+  message = "Timeout parameter is not numeric"
+)
+
+object TimeoutTooSmallAddressResponseError extends AddressResponseError(
+  code = 44,
+  message = "Timeout parameter is too small, minimum (milliseconds) = 50"
+)
+
+object TimeoutTooLargeAddressResponseError extends AddressResponseError(
+  code = 45,
+  message = "Timeout parameter is too large, maximum (milliseconds) = *"
+)
+

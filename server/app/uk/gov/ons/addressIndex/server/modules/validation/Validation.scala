@@ -19,7 +19,8 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
   override lazy val dataVersion: String = versionProvider.dataVersion
   override lazy val apiVersion: String = versionProvider.apiVersion
   override lazy val termsAndConditions: String = versionProvider.termsAndConditions
-
+  override lazy val epochList: List[String] = versionProvider.epochList
+  override lazy val epochDates: Map[String,String] = versionProvider.epochDates
   lazy val logger = AddressAPILogger("address-index-server:Validation")
 
   val missing: String = "missing"

@@ -31,6 +31,18 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     BadRequestUprnTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
+  def validateUprns(uprns: List[String], queryValues: QueryValues): Option[Future[Result]] = {
+   uprns.foreach { uprn =>
+     Try(uprn.toLong) match {
+       case Success(_) => None
+       case Failure(_) =>
+         logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
+         return Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
+     }
+   }
+   None
+  }
+
   def validateUprn(uprn: String, queryValues: QueryValues): Option[Future[Result]] = {
     Try(uprn.toLong) match {
       case Success(_) => None
@@ -39,6 +51,7 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
         Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
     }
   }
+
 
   def validateAddressType(addressType: String, queryValues: QueryValues): Option[Future[Result]] = {
 

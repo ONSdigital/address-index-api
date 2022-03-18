@@ -35,6 +35,14 @@ trait ElasticsearchRepository {
   def runUPRNQuery(args: UPRNArgs): Future[Option[HybridAddress]]
 
   /**
+    * Query the address index by UPRN - query that runs a list of UPRNs
+    *
+    * @param args the query arguments, including a list of UPRNs
+    * @return Future containing a address or `None` if not in the index
+    */
+  def runMultiUPRNQuery(args: UPRNArgs): Future[HybridAddressCollection]
+
+  /**
     * Query the address index by partial address, randomness, postcode, or full address.
     *
     * @param args the query arguments
