@@ -3,6 +3,7 @@ package uk.gov.ons.addressIndex.server.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
+import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
@@ -11,6 +12,7 @@ import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValida
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
 import scala.util.Try
@@ -213,8 +215,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
           isBlank = input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != ""
         )
 
+        implicit val success = Success[HybridAddressCollection](_ != null)
+
         val request: Future[HybridAddressCollection] =
-          overloadProtection.breaker.withCircuitBreaker(esRepo.runMultiResultQuery(finalArgs))
+          retry.Pause(3, 1.seconds).apply { ()  =>
+            overloadProtection.breaker.withCircuitBreaker(
+              esRepo.runMultiResultQuery(finalArgs)
+            )
+          }
 
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total@_) =>
