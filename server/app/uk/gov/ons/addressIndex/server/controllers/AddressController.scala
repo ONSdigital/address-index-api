@@ -102,10 +102,15 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+
+      // Set the networkId field to the username supplied in the user header
+      // if this is not present, extract the user and organisation from the api key
       val authVal = req.headers.get("authorization").getOrElse("Anon")
       val authHasPlus = authVal.indexOf("+") > 0
-      val networkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
-      val organisation = Try(if (authHasPlus) networkId.split("_")(1) else "not set").getOrElse("")
+      val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+      val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
+      val networkId = req.headers.get("user").getOrElse(keyNetworkId)
+
 
       logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offVal, limit = limVal, filter = filterString,
