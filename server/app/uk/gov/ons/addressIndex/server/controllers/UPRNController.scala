@@ -57,13 +57,17 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
-      val networkid = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0) else req.headers.get("authorization").getOrElse("Anon").split("_")(0)).getOrElse("")
-      val organisation = Try(if (req.headers.get("authorization").getOrElse("Anon").indexOf("+") > 0) req.headers.get("authorization").getOrElse("Anon").split("\\+")(0).split("_")(1) else "not set").getOrElse("")
-
+      // Set the networkId field to the username supplied in the user header
+      // if this is not present, extract the user and organisation from the api key
+      val authVal = req.headers.get("authorization").getOrElse("Anon")
+      val authHasPlus = authVal.indexOf("+") > 0
+      val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
+      val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
+      val networkId = req.headers.get("user").getOrElse(keyNetworkId)
 
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
-        numOfResults = numOfResults, score = score, networkid = networkid, organisation = organisation,
+        numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
