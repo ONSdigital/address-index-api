@@ -13,7 +13,8 @@ import play.api.libs.json.{Format, Json}
   * @param townName the determined town name
   * @param postcode the determined postcode
   */
-case class AddressResponseAddressUPRNEQ(uprn: String,
+case class AddressResponseAddressUPRNEQ(onsAddressId: String,
+                                        uprn: String,
                                         formattedAddress: String,
                                         addressLine1: String,
                                         addressLine2: String,

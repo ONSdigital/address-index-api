@@ -122,26 +122,26 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None, auxiliary = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
     }
 
-    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
-      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
-      if (extractedAuxiliaryAddresses.isEmpty) addresses
-      else {
-        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
-        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
-        else {
-          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
-          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
-          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
-            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
-            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
-          }
-          extractedMainAddresses ++ adjustedAuxAddresses
-        }
-      }
-    }
+//    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
+//      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
+//      if (extractedAuxiliaryAddresses.isEmpty) addresses
+//      else {
+//        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
+//        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
+//        else {
+//          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
+//          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
+//          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
+//            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
+//            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
+//          }
+//          extractedMainAddresses ++ adjustedAuxAddresses
+//        }
+//      }
+//    }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
@@ -236,7 +236,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             )
 
             // ensure that auxiliary index results are scored appropriately
-            val auxAdjustedAddresses =  adjustWithAuxiliaryResults(addresses)
+            val auxAdjustedAddresses =  addresses
 
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator =
@@ -258,12 +258,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             val newTotal = sortedAddresses.length
 
             // trim the result list according to offset and limit paramters
-            val limitedSortedAddresses = if (!auxiliary) {
-              sortedAddresses.slice(offsetInt, offsetInt + limitInt)
-            } else {
-              sortedAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
-                sortedAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
-            }
+//            val limitedSortedAddresses = if (!auxiliary) {
+//              sortedAddresses.slice(offsetInt, offsetInt + limitInt)
+//            } else {
+//              sortedAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
+//                sortedAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
+//            }
+
+            val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
             // if verbose is false, strip out full address details (these are needed for score so must be
             // removed retrospectively)

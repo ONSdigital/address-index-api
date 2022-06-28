@@ -133,6 +133,7 @@ object AddressByRHUprnResponse {
     }
 
     AddressResponseAddressUPRNRH(
+      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressLine1 = addressLines.getOrElse("addressLine1", ""),
