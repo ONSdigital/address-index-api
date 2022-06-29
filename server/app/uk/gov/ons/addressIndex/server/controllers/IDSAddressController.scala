@@ -1,17 +1,17 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
@@ -19,13 +19,13 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class AddressController @Inject()(val controllerComponents: ControllerComponents,
-                                  esRepo: ElasticsearchRepository,
-                                  parser: ParserModule,
-                                  conf: ConfigModule,
-                                  versionProvider: VersionModule,
-                                  overloadProtection: APIThrottle,
-                                  addressValidation: AddressControllerValidation
+class IDSAddressController @Inject()(val controllerComponents: ControllerComponents,
+                                     esRepo: ElasticsearchRepository,
+                                     parser: ParserModule,
+                                     conf: ConfigModule,
+                                     versionProvider: VersionModule,
+                                     overloadProtection: APIThrottle,
+                                     addressValidation: AddressControllerValidation
                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
@@ -42,7 +42,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(implicit input: String,
+  def addressQueryIDS(implicit input: String,
                    offset: Option[String] = None,
                    limit: Option[String] = None,
                    classificationfilter: Option[String] = None,
