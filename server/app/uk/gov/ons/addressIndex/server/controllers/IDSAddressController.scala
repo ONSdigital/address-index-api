@@ -11,6 +11,8 @@ import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -123,6 +125,14 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
+    }
+
+    def addressesToIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressIDS] = {
+      normalAddresses.map {address => transformToIDS(address)}
+      }
+
+    def transformToIDS(addressIn: AddressResponseAddress): AddressResponseAddressIDS = {
+      AddressResponseAddressIDS(addressIn.onsAddressId,addressIn.confidenceScore)
     }
 
 //    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
@@ -273,31 +283,18 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
             writeLog(activity = "address_request")
 
+            val epochOrDefault = if (epochVal.isEmpty) dataVersion else epochVal
+
             jsonOk(
-              AddressBySearchResponseContainer(
+              AddressBySearchResponseContainerIDS(
                 apiVersion = apiVersion,
-                dataVersion = dataVersion,
-                response = AddressBySearchResponse(
-                  tokens = tokens,
-                  addresses = finalAddresses,
-                  filter = filterString,
-                  historical = hist,
-                  epoch = epochVal,
-                  rangekm = rangeVal,
-                  latitude = latVal,
-                  longitude = lonVal,
+                matchDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.now),
+                response = AddressBySearchResponseIDS(
+                  addresses = addressesToIDS(finalAddresses),
+                  epoch = epochOrDefault,
                   limit = limitInt,
-                  offset = offsetInt,
                   total = newTotal,
-                  maxScore = maxScore,
-                  sampleSize = limitExpanded,
-                  matchthreshold = thresholdFloat,
-                  verbose = verb,
-                  includeauxiliarysearch = auxiliary,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble
+                  matchthreshold = thresholdFloat
                 ),
                 status = OkAddressResponseStatus
               )
