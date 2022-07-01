@@ -30,7 +30,6 @@ case class AddressResponseAddress(onsAddressId: String,
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
                                   nisra: Option[AddressResponseNisra],
-                                //  auxiliary: Option[AddressResponseAuxiliary],
                                   geo: Option[AddressResponseGeo],
                                   classificationCode: String,
                                   census: AddressResponseCensus,
@@ -123,9 +122,6 @@ object AddressResponseAddress {
       nisra = {
         if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None
       },
-     // auxiliary = {
-     //   if (verbose) chosenAuxiliary.map(AddressResponseAuxiliary.fromAuxiliaryAddress) else None
-     // },
       geo = geo,
       classificationCode = other.classificationCode,
       census = AddressResponseCensus(other.censusAddressType.trim,other.censusEstabType, other.countryCode),
