@@ -14,8 +14,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param censusEstabType census bespoke establishment type derived from ABP code
   * @param countryCode E="England" W="Wales" S="Scotland" N="Northern Ireland"
   */
-case class AddressResponseAddressPostcodeRH(onsAddressId: String,
-                                            uprn: String,
+case class AddressResponseAddressPostcodeRH(uprn: String,
                                             formattedAddress: String,
                                             addressType: String,
                                             censusAddressType: String,
@@ -79,7 +78,6 @@ object AddressResponseAddressPostcodeRH {
       }
 
     AddressResponseAddressPostcodeRH(
-      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressType = addressType,

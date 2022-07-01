@@ -109,7 +109,6 @@ object AddressByEQUprnResponse {
     }
 
     AddressResponseAddressUPRNEQ(
-      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressLine1 = addressLines.getOrElse("addressLine1", ""),

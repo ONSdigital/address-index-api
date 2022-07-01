@@ -13,8 +13,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param confidenceScore the confidence score
   * @param underlyingScore the underlying score
   */
-case class AddressResponseAddressEQ(onsAddressId: String,
-                                    uprn: String,
+case class AddressResponseAddressEQ(uprn: String,
                                     formattedAddress: String,
                                     highlights: Option[AddressResponseHighlight],
                                     confidenceScore: Double,
@@ -75,7 +74,6 @@ object AddressResponseAddressEQ {
       }
 
     AddressResponseAddressEQ(
-      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       highlights = if (testHigh) None

@@ -11,8 +11,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param formattedAddress the chosen formatted address
   * @param addressType the type of address (PAF, WELSHPAF, NAG, WELSHNAG & NISRA)
   */
-case class AddressResponseAddressBucketEQ(onsAddressId: String,
-                                          uprn: String,
+case class AddressResponseAddressBucketEQ(uprn: String,
                                           formattedAddress: String,
                                           addressType: String)
 
@@ -72,7 +71,6 @@ object AddressResponseAddressBucketEQ {
       }
 
     AddressResponseAddressBucketEQ(
-      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       formattedAddress = removeConcatenatedPostcode(formattedAddress),
       addressType = addressType

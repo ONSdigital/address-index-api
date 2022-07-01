@@ -135,24 +135,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
       AddressResponseAddressIDS(addressIn.onsAddressId,addressIn.confidenceScore)
     }
 
-//    def adjustWithAuxiliaryResults(addresses: Seq[AddressResponseAddress]) =  {
-//      val extractedAuxiliaryAddresses = addresses.filter(_.auxiliary.isDefined)
-//      if (extractedAuxiliaryAddresses.isEmpty) addresses
-//      else {
-//        val extractedMainAddresses = addresses.filter(_.auxiliary.isEmpty)
-//        if (extractedMainAddresses.isEmpty) extractedAuxiliaryAddresses
-//        else {
-//          val mainIndexMaxUnderlyingScore = extractedMainAddresses.maxBy(_.underlyingScore).underlyingScore
-//          val auxIndexMinUnderlyingScore = extractedAuxiliaryAddresses.minBy(_.underlyingScore).underlyingScore.toInt
-//          val adjustedAuxAddresses = extractedAuxiliaryAddresses.map { auxAddress =>
-//            val increase = ((mainIndexMaxUnderlyingScore + auxAddress.underlyingScore) - auxIndexMinUnderlyingScore) / 1000
-//            auxAddress.copy(underlyingScore = mainIndexMaxUnderlyingScore + increase)
-//          }
-//          extractedMainAddresses ++ adjustedAuxAddresses
-//        }
-//      }
-//    }
-
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
@@ -245,9 +227,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
 
-            // ensure that auxiliary index results are scored appropriately
-            //val auxAdjustedAddresses =  adjustWithAuxiliaryResults(addresses)
-
             //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator =
               Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
@@ -268,13 +247,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
             val newTotal = sortedAddresses.length
 
             // trim the result list according to offset and limit paramters
-//            val limitedSortedAddresses = if (!auxiliary) {
-//              sortedAddresses.slice(offsetInt, offsetInt + limitInt)
-//            } else {
-//              sortedAddresses.filter(_.auxiliary.isDefined).slice(offsetInt, offsetInt + round(limitInt * 0.2).toInt) ++
-//                sortedAddresses.filter(_.auxiliary.isEmpty).take(round(limitInt * 0.8).toInt)
-//            }
-
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
             // if verbose is false, strip out full address details (these are needed for score so must be

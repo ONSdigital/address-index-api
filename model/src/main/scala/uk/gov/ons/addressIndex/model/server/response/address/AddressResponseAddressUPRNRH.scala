@@ -16,8 +16,7 @@ import play.api.libs.json.{Format, Json}
   * @param censusEstabType census bespoke establishment type derived from ABP code
   * @param countryCode E="England" W="Wales" S="Scotland" N="Northern Ireland"
   */
-case class AddressResponseAddressUPRNRH(onsAddressId: String,
-                                        uprn: String,
+case class AddressResponseAddressUPRNRH(uprn: String,
                                         formattedAddress: String,
                                         addressLine1: String,
                                         addressLine2: String,
