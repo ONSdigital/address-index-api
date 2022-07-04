@@ -6,8 +6,6 @@
 
 <p>The API is currently only available within ONS, though there are plans to make the bulk match part of the system available via the new IDS (Integrated Data Service).</p>
 
-<p>The API is deployed to Google Cloud Platform so direct access from other public sector organisations is also possible.</p>
-
 <p>Work is also underway to create a new version of the system using Natural Lanugage Processing.</p>
 
 <h2>Getting data from ONS Address Index API</h2>
