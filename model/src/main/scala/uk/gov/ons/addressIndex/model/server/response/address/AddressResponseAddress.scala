@@ -14,7 +14,8 @@ import uk.gov.ons.addressIndex.model.db.index._
   * @param underlyingScore  score from elastic search
   *
   */
-case class AddressResponseAddress(uprn: String,
+case class AddressResponseAddress(onsAddressId: String,
+                                  uprn: String,
                                   parentUprn: String,
                                   relatives: Option[Seq[AddressResponseRelative]],
                                   crossRefs: Option[Seq[AddressResponseCrossRef]],
@@ -29,7 +30,6 @@ case class AddressResponseAddress(uprn: String,
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
                                   nisra: Option[AddressResponseNisra],
-                                  auxiliary: Option[AddressResponseAuxiliary],
                                   geo: Option[AddressResponseGeo],
                                   classificationCode: String,
                                   census: AddressResponseCensus,
@@ -87,6 +87,7 @@ object AddressResponseAddress {
               else chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
 
     AddressResponseAddress(
+      onsAddressId = other.onsAddressId,
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = {
@@ -120,9 +121,6 @@ object AddressResponseAddress {
       },
       nisra = {
         if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None
-      },
-      auxiliary = {
-        if (verbose) chosenAuxiliary.map(AddressResponseAuxiliary.fromAuxiliaryAddress) else None
       },
       geo = geo,
       classificationCode = other.classificationCode,

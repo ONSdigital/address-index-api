@@ -1,17 +1,19 @@
 package uk.gov.ons.addressIndex.server.controllers
 
-import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 import scala.math._
@@ -19,13 +21,13 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 @Singleton
-class AddressController @Inject()(val controllerComponents: ControllerComponents,
-                                  esRepo: ElasticsearchRepository,
-                                  parser: ParserModule,
-                                  conf: ConfigModule,
-                                  versionProvider: VersionModule,
-                                  overloadProtection: APIThrottle,
-                                  addressValidation: AddressControllerValidation
+class IDSAddressController @Inject()(val controllerComponents: ControllerComponents,
+                                     esRepo: ElasticsearchRepository,
+                                     parser: ParserModule,
+                                     conf: ConfigModule,
+                                     versionProvider: VersionModule,
+                                     overloadProtection: APIThrottle,
+                                     addressValidation: AddressControllerValidation
                                  )(implicit ec: ExecutionContext)
   extends PlayHelperController(versionProvider) with AddressControllerResponse {
 
@@ -42,7 +44,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     * @param input the address query
     * @return Json response with addresses information
     */
-  def addressQuery(implicit input: String,
+  def addressQueryIDS(implicit input: String,
                    offset: Option[String] = None,
                    limit: Option[String] = None,
                    classificationfilter: Option[String] = None,
@@ -123,6 +125,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
+    }
+
+    def addressesToIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressIDS] = {
+      normalAddresses.map {address => transformToIDS(address)}
+      }
+
+    def transformToIDS(addressIn: AddressResponseAddress): AddressResponseAddressIDS = {
+      AddressResponseAddressIDS(addressIn.onsAddressId,addressIn.confidenceScore)
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
@@ -217,7 +227,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               AddressResponseAddress.fromHybridAddress(_, verbose = true)
             )
 
-             //  calculate the elastic denominator value which will be used when scoring each address
+            //  calculate the elastic denominator value which will be used when scoring each address
             val elasticDenominator =
               Try(ConfidenceScoreHelper.calculateElasticDenominator(addresses.map(_.underlyingScore))).getOrElse(1D)
 
@@ -245,31 +255,18 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
             writeLog(activity = "address_request")
 
+            val epochOrDefault = if (epochVal.isEmpty) dataVersion else epochVal
+
             jsonOk(
-              AddressBySearchResponseContainer(
+              AddressBySearchResponseContainerIDS(
                 apiVersion = apiVersion,
-                dataVersion = dataVersion,
-                response = AddressBySearchResponse(
-                  tokens = tokens,
-                  addresses = finalAddresses,
-                  filter = filterString,
-                  historical = hist,
-                  epoch = epochVal,
-                  rangekm = rangeVal,
-                  latitude = latVal,
-                  longitude = lonVal,
+                matchDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.now),
+                response = AddressBySearchResponseIDS(
+                  addresses = addressesToIDS(finalAddresses),
+                  epoch = epochOrDefault,
                   limit = limitInt,
-                  offset = offsetInt,
                   total = newTotal,
-                  maxScore = maxScore,
-                  sampleSize = limitExpanded,
-                  matchthreshold = thresholdFloat,
-                  verbose = verb,
-                  includeauxiliarysearch = auxiliary,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble
+                  matchthreshold = thresholdFloat
                 ),
                 status = OkAddressResponseStatus
               )
