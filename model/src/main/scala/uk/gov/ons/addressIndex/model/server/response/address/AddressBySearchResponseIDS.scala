@@ -12,10 +12,8 @@ import play.api.libs.json.{Format, Json}
   * @param total     total number of found addresses
   */
 case class AddressBySearchResponseIDS(addresses: Seq[AddressResponseAddressIDS],
-                                      epoch: String,
-                                      limit: Int,
-                                      total: Long,
-                                      matchthreshold: Float)
+                                      matchtype: String
+)
 
 object AddressBySearchResponseIDS {
   implicit lazy val addressBySearchResponseIDSFormat: Format[AddressBySearchResponseIDS] = Json.format[AddressBySearchResponseIDS]
