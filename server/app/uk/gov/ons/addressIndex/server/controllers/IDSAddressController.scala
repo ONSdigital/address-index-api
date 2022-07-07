@@ -246,6 +246,13 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
 
+            // assign the match as non-match, single match or multiple match
+            val matchType = newTotal match {
+                 case 0 => "N"
+                 case 1 => "S"
+                 case _ => "M"
+            }
+
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
@@ -263,10 +270,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                 matchDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.now),
                 response = AddressBySearchResponseIDS(
                   addresses = addressesToIDS(finalAddresses),
-                  epoch = epochOrDefault,
-                  limit = limitInt,
-                  total = newTotal,
-                  matchthreshold = thresholdFloat
+                  matchtype = matchType
                 ),
                 status = OkAddressResponseStatus
               )
