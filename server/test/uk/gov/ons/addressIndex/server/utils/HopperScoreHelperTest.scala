@@ -183,6 +183,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
+    onsAddressId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -197,7 +198,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
-    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -209,6 +209,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
 
   val mockAddressResponseAddress1: AddressResponseAddress = AddressResponseAddress(
+    onsAddressId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -223,7 +224,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     paf = Some(mockPafAddress2),
     nag = Some(Seq(mockNagAddress2)),
     nisra = None,
-    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -235,6 +235,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
 
   val mockAddressResponseAddressWithScores: AddressResponseAddress = AddressResponseAddress(
+    onsAddressId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -249,7 +250,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = None,
-    auxiliary = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",

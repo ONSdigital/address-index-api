@@ -249,6 +249,7 @@ object AddressIndexClientMock {
     ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
+    onsAddressId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -263,7 +264,6 @@ object AddressIndexClientMock {
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),
-    auxiliary = Some(mockAuxiliaryAddress),
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",

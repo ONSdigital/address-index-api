@@ -110,6 +110,117 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
+GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAddressController.addressQueryIDS(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+
+###
+#  summary: Search for an address.
+#  description: Returns a ranked list of addresses matching the search query in the specified format.
+#  parameters:
+#    - name: input
+#      schema:
+#         type: string
+#      description: Specifies the address search string (e.g. 14 Acacia Avenue, Ruislip, HA4 8RG). Can only be blank if rangekm, lat, lon and classificationfilter are supplied in which case the underlyingScore returned is the distance in km.
+#    - name: offset
+#      schema:
+#         type: integer
+#         default: 0
+#         maximum: 250
+#      description: Specifies the offset from zero, used for pagination.
+#    - name: limit
+#      schema:
+#         type: integer
+#         default: 10
+#         maximum: 100
+#      description: Specifies the number of addresses to return.
+#    - name: classificationfilter
+#      schema:
+#         type: string
+#      description: Classification code filter. Can be pattern match (ZW*), exact match (RD06), multiple exact match (RD02,RD04) or a preset keyword such as residential, commercial or workplace
+#    - name: rangekm
+#      schema:
+#         type: number
+#         format: decimal
+#      description: Limit results to those within this number of kilometers of point (decimal e.g. 0.1)
+#    - name: lat
+#      schema:
+#         type: number
+#         format: decimal
+#      description: Latitude of point in decimal format (e.g. 50.705948).
+#    - name: lon
+#      schema:
+#         type: number
+#         format: decimal
+#      description: Longitude of point in decimal format (e.g. -3.5091076).
+#    - name: historical
+#      schema:
+#         type: boolean
+#         default: true
+#      description: Include historical addresses
+#    - name: matchthreshold
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 5.0
+#      description: Minimum confidence score (percentage) for match to be included in results.
+#    - name: verbose
+#      schema:
+#         type: boolean
+#         default: false
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#    - name: epoch
+#      schema:
+#         type: string
+#      description: Select a specific AddressBase Epoch to search.
+#    - name: includeauxiliarysearch
+#      schema:
+#         type: boolean
+#         default: false
+#      description: Include search of Auxiliary index.
+#    - name: eboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in England
+#    - name: nboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Northern Ireland
+#    - name: sboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Scotland
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#    - name: wboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Wales
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      content:
+#        application/json:
+#          schema:
+#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+#
+###
 GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
