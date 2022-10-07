@@ -1348,8 +1348,8 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String], epoch: Option[String])
 
 ###
-#  summary: Gets address by list of UPRNs.
-#  description: Returns a single address for each UPRN in the array example &colon; {"uprns" &colon; ["200003658014","200003658022"]}
+#  summary: Gets address by list of UPRNs, posted as a JSON array called uprns.
+#  description: Returns a single address for each UPRN in the array.
 #  parameters:
 #    - name: historical
 #      schema:
