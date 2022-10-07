@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGaz
   * @param underlyingScore  score from elastic search
   *
   */
-case class AddressResponseAddressIDS(onsAddressId: String,
+case class AddressResponseAddressIDS(addressEntryId: String,
                                      confidenceScore: Double
                                  )
 
@@ -30,7 +30,7 @@ object AddressResponseAddressIDS {
   def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddressIDS = {
 
     AddressResponseAddressIDS(
-      onsAddressId = other.onsAddressId,
+      addressEntryId = other.addressEntryId,
       confidenceScore = 100D,
     )
   }

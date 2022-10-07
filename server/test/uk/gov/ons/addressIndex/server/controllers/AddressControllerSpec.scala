@@ -178,7 +178,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val validBuckets = Seq(AddressResponsePostcodeGroup("EX4 1AA","Aardvark Avenue","Exeter",47,1,"Exeter"))
 
   val validHybridAddress: HybridAddress = HybridAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -199,7 +199,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   )
 
   val validHybridAddressSkinny: HybridAddress = HybridAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "1",
     parentUprn = "4",
     relatives = None,
