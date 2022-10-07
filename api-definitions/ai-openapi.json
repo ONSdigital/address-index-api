@@ -438,7 +438,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeRH": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -465,7 +465,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "formattedAddress",
           "addressType",
@@ -550,7 +550,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressBucketEQ": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -564,7 +564,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "formattedAddress",
           "addressType"
@@ -624,7 +624,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressPostcodeEQ": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -638,7 +638,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "formattedAddress",
           "addressType"
@@ -990,7 +990,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNRH": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -1031,7 +1031,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "formattedAddress",
           "addressLine1",
@@ -1175,7 +1175,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -1261,7 +1261,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "parentUprn",
           "formattedAddress",
@@ -1400,7 +1400,7 @@
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressUPRNEQ": {
         "properties": {
-          "onsAddressId": {
+          "addressEntryId": {
             "type": "string"
           },
           "uprn": {
@@ -1429,7 +1429,7 @@
           }
         },
         "required": [
-          "onsAddressId",
+          "addressEntryId",
           "uprn",
           "formattedAddress",
           "addressLine1",

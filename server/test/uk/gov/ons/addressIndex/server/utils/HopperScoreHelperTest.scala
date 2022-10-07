@@ -183,7 +183,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -209,7 +209,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
 
   val mockAddressResponseAddress1: AddressResponseAddress = AddressResponseAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -235,7 +235,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
 
   val mockAddressResponseAddressWithScores: AddressResponseAddress = AddressResponseAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),

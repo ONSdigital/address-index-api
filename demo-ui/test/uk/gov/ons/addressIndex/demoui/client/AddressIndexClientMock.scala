@@ -249,7 +249,7 @@ object AddressIndexClientMock {
     ambiguityPenalty = 1d)
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
-    onsAddressId = "",
+    addressEntryId = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),

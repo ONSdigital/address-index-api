@@ -546,7 +546,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)
       val expectedAuxiliary = AddressResponseAuxiliary.fromAuxiliaryAddress(givenAuxiliary)
       val expected = AddressResponseAddress(
-        onsAddressId = "",
+        addressEntryId = "",
         uprn = givenPaf.uprn,
         parentUprn = givenPaf.uprn,
         relatives = Some(Seq(givenRelativeResponse)),
