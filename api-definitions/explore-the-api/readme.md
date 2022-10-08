@@ -53,6 +53,20 @@
             Gets an address by UPRN.
         </td>
     </tr>
+    <tr class="table--row">
+        <td class="table--cell">POST</td>
+        <td class="table--cell"><a href="mutliuprn/readme.md">/addresses/multiuprn</a></td>
+        <td class="table--cell">
+            Gets addresses from an array of UPRNs.
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">POST</td>
+        <td class="table--cell"><a href="bulk/readme.md">/bulk</a></td>
+        <td class="table--cell">
+            Runs a batch of up to 30000 addresses.
+        </td>
+    </tr>
    </tbody>
 </table>
 
@@ -67,18 +81,25 @@
     <tbody>
     <tr class="table--row">
         <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="ids/readme.md">/addresses/ids</a></td>
+        <td class="table--cell">
+            Custom endpoint for Integrated Data Service.
+        </td>
+    </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
         <td class="table--cell"><a href="eq/readme.md">/addresses/eq</a></td>
         <td class="table--cell">
             Custom endpoint for Electronic Questionnaire.
         </td>
     </tr>
-         <tr class="table--row">
-            <td class="table--cell">GET</td>
-            <td class="table--cell"><a href="eq/uprn/readme.md">/addresses/eq/uprn/{uprn}</a></td>
-            <td class="table--cell">
-                Gets an address by UPRN (EQ version).
-            </td>
-        </tr>
+    <tr class="table--row">
+        <td class="table--cell">GET</td>
+        <td class="table--cell"><a href="eq/uprn/readme.md">/addresses/eq/uprn/{uprn}</a></td>
+        <td class="table--cell">
+            Gets an address by UPRN (EQ version).
+        </td>
+    </tr>
     <tr class="table--row">
         <td class="table--cell">GET</td>
         <td class="table--cell"><a href="rh/partial/readme.md">/addresses/rh/partial</a></td>
