@@ -55,7 +55,7 @@
     </tr>
     <tr class="table--row">
         <td class="table--cell">POST</td>
-        <td class="table--cell"><a href="mutliuprn/readme.md">/addresses/multiuprn</a></td>
+        <td class="table--cell"><a href="multiuprn/readme.md">/addresses/multiuprn</a></td>
         <td class="table--cell">
             Gets addresses from an array of UPRNs.
         </td>

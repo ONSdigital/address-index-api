@@ -185,9 +185,7 @@
 
 <h2>Sample Queries</h2>
 
-<p><pre>7 Gate Reach, Exeter</pre></p>
-<p><pre>University Of Exeter</pre></p>
-<p><pre>coffee</pre></p>
+<p><pre>7C Padfield Road, London, SE5 9AA</pre></p>
 
    <h2 class="saturn">Sample Output</h2>
 
