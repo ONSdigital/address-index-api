@@ -99,7 +99,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      content:
 #        application/json:
 #          schema:
-#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainer"
+#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponseContainerIDS"
 #    400:
 #      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
 #    401:
@@ -1347,6 +1347,49 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 ###
 POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchController.bulkDebug(limitperaddress: Option[String], historical: Option[String], matchthreshold: Option[String], epoch: Option[String])
 
+###
+#  summary: Gets address by list of UPRNs, posted as a JSON array called uprns.
+#  description: Returns a single address for each UPRN in the array.
+#  parameters:
+#    - name: historical
+#      schema:
+#         type: boolean
+#         default: true
+#      description: Include historical addresses
+#    - name: verbose
+#      schema:
+#         type: boolean
+#         default: false
+#      description: Include the full address details in the response (including relatives, crossRefs, paf and nag).
+#    - name: epoch
+#      schema:
+#         type: string
+#      description: Select a specific AddressBase Epoch to search (latest if not supplied).
+#    - name: includeauxiliarysearch
+#      schema:
+#         type: boolean
+#         default: false
+#      description: Include search of Auxiliary index.
+#  responses:
+#    200:
+#      description: Success. A json return of matched addresses.
+#      content:
+#        application/json:
+#          schema:
+#            $ref: "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.uprn.AddressByMultiUprnResponseContainer"
+#    400:
+#      description: Bad request. Indicates an issue with the request. Further details are provided in the response.
+#    401:
+#      description: Unauthorised. The API key provided with the request is invalid.
+#    404:
+#      description: Multi-uprn skips not found UPRNs, so does not normall return 404s
+#    429:
+#      description: Server too busy. The Address Index API is experiencing exceptional load.
+#    500:
+#      description: Internal server error. Failed to process the request due to an internal error.
+###
+POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
+
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
 
@@ -1366,5 +1409,4 @@ GET   /openapi/swagger.json          uk.gov.ons.addressIndex.server.controllers.
 ###
 GET     /healthz            uk.gov.ons.addressIndex.server.controllers.general.ApplicationController.healthz()
 
-### NoDocs ###
-POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String])
+

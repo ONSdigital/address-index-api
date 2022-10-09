@@ -132,7 +132,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
       }
 
     def transformToIDS(addressIn: AddressResponseAddress): AddressResponseAddressIDS = {
-      AddressResponseAddressIDS(addressIn.onsAddressId,addressIn.confidenceScore)
+      AddressResponseAddressIDS(addressIn.addressEntryId,addressIn.confidenceScore)
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)

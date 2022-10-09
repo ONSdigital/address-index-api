@@ -14,7 +14,7 @@ import uk.gov.ons.addressIndex.model.db.index._
   * @param underlyingScore  score from elastic search
   *
   */
-case class AddressResponseAddress(onsAddressId: String,
+case class AddressResponseAddress(addressEntryId: String,
                                   uprn: String,
                                   parentUprn: String,
                                   relatives: Option[Seq[AddressResponseRelative]],
@@ -87,7 +87,7 @@ object AddressResponseAddress {
               else chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
 
     AddressResponseAddress(
-      onsAddressId = other.onsAddressId,
+      addressEntryId = other.addressEntryId,
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = {
