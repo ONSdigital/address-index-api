@@ -14,7 +14,7 @@ import com.typesafe.sbt.packager.docker._
 //routesImport := Seq.empty
 
 lazy val Versions = new {
-  val elastic4s = "7.17.0"
+  val elastic4s = "8.4.2"
   val scala = "2.13.6"
   val gatlingVersion = "3.6.1"
   val scapegoatVersion = "1.4.9"
