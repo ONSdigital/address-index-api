@@ -10,6 +10,8 @@ import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
 
+import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
@@ -211,6 +213,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val hOpts = HighlightOptions(numOfFragments=Some(0))
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
+
+    search(searchIndicies)
+      .timeout(timeDur)
+      .rawQuery()
 
     search(searchIndicies)
       .timeout(timeDur)

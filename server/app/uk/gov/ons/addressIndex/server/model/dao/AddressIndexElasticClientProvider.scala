@@ -1,15 +1,18 @@
 package uk.gov.ons.addressIndex.server.model.dao
 
 import java.security.cert.X509Certificate
-
-import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties}
+import com.sksamuel.elastic4s.{ElasticClient, ElasticNodeEndpoint, ElasticProperties, ElasticRequest, HttpClient, HttpEntity, HttpResponse}
 import com.sksamuel.elastic4s.http.JavaClient
+
 import javax.inject.{Inject, Singleton}
 import javax.net.ssl.{SSLContext, X509TrustManager}
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.client.config.RequestConfig.Builder
+import org.apache.http.entity.ContentType
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client._
+import org.apache.http.nio.entity.NStringEntity
+import org.elasticsearch.client.{Request, RestClient, RestClientBuilder}
 import org.elasticsearch.client.RestClientBuilder._
 import uk.gov.ons.addressIndex.server.modules.ConfigModule
 import uk.gov.ons.addressIndex.server.utils.GenericLogger
@@ -87,6 +90,32 @@ class AddressIndexElasticClientProvider @Inject()
 
   val client: ElasticClient = clientBuilder(propsBuilder(host, port, ssl))
 
+  val rClient = new RestClient(propsBuilder(host, port, ssl))
+  val request: Request = new Request(
+    "POST",
+    "_ml/trained_models/arinze__address-match-abp-v1/deployment/_infer")
+  request.setEntity(new NStringEntity(
+    "{  \"docs\": {    \"text_field\": \"Office For National Statistics Newport\"  }}",
+    ContentType.APPLICATION_JSON));
+  val myResponse = rClient.performRequest(request)
+  val rClientBuilder = new RestClientBuilder()
+  val jclient: JavaClient = clientBuilderJ(propsBuilder(host, port, ssl))
+
+  val underlyingClient: HttpClient = client.client
+
+  def callback(cb: Either[Throwable,HttpResponse]): Unit = {
+    cb match {
+      case Left(s) => println(s"Error: $s")
+      case Right(i) => println(s"Answer: $i")
+    }
+  }
+
+  val mlentity: HttpEntity = new NStringEntity(
+    "{\"json\":\"text\"}",
+    ContentType.APPLICATION_JSON).asInstanceOf;
+  val mlrequest = new ElasticRequest("POST", "_ml/trained_models/arinze__address-match-abp-v1/deployment/_infer",null, entity = Option(mlentity),null )
+  underlyingClient.send(mlrequest,callback)
+
   val clientFullmatch: ElasticClient = clientBuilder(propsBuilder(hostFullmatch, port, ssl))
 
   val clientSpecialCensus: ElasticClient = clientBuilderCen(propsBuilder(hostFullmatch, port, ssl))
@@ -113,6 +142,29 @@ class AddressIndexElasticClientProvider @Inject()
     }
   }
   ))
+
+  def clientBuilderJ(eProps: ElasticProperties): JavaClient = JavaClient(eProps, new RequestConfigCallback {
+
+    override def customizeRequestConfig(requestConfigBuilder: Builder): Builder = {
+      requestConfigBuilder.setConnectTimeout(connectionTimeout)
+        .setSocketTimeout(socketTimeout)
+        .setConnectionRequestTimeout(connectionRequestTimeout)
+        .setContentCompressionEnabled(true)
+      requestConfigBuilder
+    }
+  }, (httpClientBuilder: HttpAsyncClientBuilder) => {
+    if (basicAuth == "true") {
+      httpClientBuilder
+        .setDefaultCredentialsProvider(provider)
+        .setMaxConnTotal(maxESConnections)
+        .setSSLContext(context)
+    } else {
+      httpClientBuilder
+        .setMaxConnTotal(maxESConnections)
+        .setSSLContext(context)
+    }
+  }
+  )
 
   def clientBuilderCen(eProps: ElasticProperties): ElasticClient = ElasticClient(JavaClient(eProps, new RequestConfigCallback {
 
