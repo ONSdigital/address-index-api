@@ -34,6 +34,11 @@ class AddressIndexVersionModule @Inject()
       "93" -> "June 2022",
       "94" -> "July 2022",
       "95" -> "August 2022",
+      "96" -> "October 2022",
+      "97" -> "November 2022",
+      "98" -> "January 2023",
+      "99" -> "February 2023",
+      "100" -> "March 2023",
       "80" -> "Census no extras",
       "80C" -> "Census with extras",
       "80N" -> "Census with extras and NISRA",
@@ -83,14 +88,13 @@ class AddressIndexVersionModule @Inject()
       case Right(r) => r.result.mappings
     }
 
-    // TODO what about 80C and 80N indices?
     if (indexMap == null) List(message)
     else
     indexMap.map{case (key, _) =>
       Option(key.toString()).map(removeBaseIndexName)
         .map(removeLetters)
         .filter(_.length >= 2) // epoch number should contain at least 2 numbers
-        .map(_.substring(0, 2))
+        .map(_.substring(0))
         .getOrElse("NA")
     }.toList
   }
