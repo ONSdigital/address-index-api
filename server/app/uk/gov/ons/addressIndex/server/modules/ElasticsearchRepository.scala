@@ -54,7 +54,7 @@ trait ElasticsearchRepository {
     * @param args the query arguments
     * @return Future containing a collection of addresses
     */
-  def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection]
+  def runMultiResultQuery(args: MultiResultArgs, vector: String = ""): Future[HybridAddressCollection]
 
   /**
     * Query ES using MultiSearch endpoint

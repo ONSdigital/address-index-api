@@ -435,7 +435,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       .limit(args.limit)
   }
 
-  private def makeAddressQuery(args: AddressArgs): SearchRequest = {
+  private def makeAddressQuery(args: AddressArgs, vector:String = ""): SearchRequest = {
     val queryParams = args.queryParamsConfig.getOrElse(conf.config.elasticSearch.queryParams)
     val defaultFuzziness = "1"
     val isBlank = args.isBlank
@@ -1200,8 +1200,26 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         client.execute(query).map(HybridAddressCollection.fromResponse)
   }
 
-  override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
+  def makeHybridQuery(request: SearchRequest, denseVector: String): String = {
+    val searchString = SearchBodyBuilderFn(request).string()
+    val combinedString = "{ \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
+        "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
+      "\"k\": 5," +
+    "\"num_candidates\": 10," +
+    "\"boost\": 1}," +
+      searchString
+    println(combinedString)
+    combinedString
+  }
+
+  override def runMultiResultQuery(args: MultiResultArgs, vector: String = "") : Future[HybridAddressCollection] = {
     val query = makeQuery(args)
+    val query2 = {
+      val mainQuery = makeQuery(args)
+      if (vector.equals("")) mainQuery
+      else
+        makeHybridQuery(mainQuery,vector)
+    }
  // uncomment to see generated query
  //   val searchString = SearchBodyBuilderFn(query).string()
  //  println(searchString)

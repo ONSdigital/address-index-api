@@ -169,7 +169,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       auth = req.headers.get("authorization").getOrElse("Anon")
     )
 
-    val iResponse: Response = esRepo.infer("42 Dingleberry Drive Didcot")
+    val iResponse: Response = esRepo.infer(input)
     val vector = EntityUtils.toString(iResponse.getEntity)
     println(vector)
 
@@ -214,7 +214,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runMultiResultQuery(finalArgs)
+              esRepo.runMultiResultQuery(finalArgs,vector)
             )
           }
 
