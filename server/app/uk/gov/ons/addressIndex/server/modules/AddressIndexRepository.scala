@@ -9,8 +9,11 @@ import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
 import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
 import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
+import org.apache.http.entity.ContentType
+import org.apache.http.nio.entity.NStringEntity
+import org.elasticsearch.client.{Request, Response, RestClient}
 
-import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
+//import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
@@ -76,6 +79,21 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   val clientFullmatch: ElasticClient = elasticClientProvider.clientFullmatch
   val clientSpecialCensus: ElasticClient = elasticClientProvider.clientSpecialCensus
   lazy val logger: GenericLogger = GenericLogger("AddressIndexRepository")
+
+  val rclient: RestClient = elasticClientProvider.rclient
+
+  def infer(sentence: String) : Response = {
+
+    val bodyJson = "{  \"docs\": { \"text_field\": \"" + sentence + "\"  }}"
+    val rBody: NStringEntity = new NStringEntity(bodyJson,ContentType.APPLICATION_JSON)
+
+    val request: Request = new Request (
+    "POST",
+    "_ml/trained_models/arinze__address-match-abp-v1/_infer")
+    request.setEntity(rBody)
+    rclient.performRequest(request)
+  }
+
 
   def queryHealth(): Future[String] = client.execute(clusterHealth()).map(_.toString)
 
@@ -214,9 +232,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
-    search(searchIndicies)
-      .timeout(timeDur)
-      .rawQuery()
+//    search(searchIndicies)
+//      .timeout(timeDur)
+//      .rawQuery()
 
     search(searchIndicies)
       .timeout(timeDur)

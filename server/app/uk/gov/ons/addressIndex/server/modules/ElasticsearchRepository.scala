@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.server.modules
 
 import com.google.inject.ImplementedBy
 import com.sksamuel.elastic4s.requests.searches.SearchRequest
+import org.elasticsearch.client.Response
 import uk.gov.ons.addressIndex.model.db.BulkAddressRequestData
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
@@ -10,6 +11,11 @@ import scala.concurrent.Future
 
 @ImplementedBy(classOf[AddressIndexRepository])
 trait ElasticsearchRepository {
+
+  /** Blocking call to infer string
+  * and return vector
+  */
+  def infer(sentence: String): Response
 
   /**
     * Queries if ES is up

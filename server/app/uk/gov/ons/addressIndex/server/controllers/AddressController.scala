@@ -1,5 +1,8 @@
 package uk.gov.ons.addressIndex.server.controllers
 
+import org.apache.http.util.EntityUtils
+import org.elasticsearch.client.Response
+
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -165,6 +168,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       wboost = wboostDouble,
       auth = req.headers.get("authorization").getOrElse("Anon")
     )
+
+    val iResponse: Response = esRepo.infer("42 Dingleberry Drive Didcot")
+    val vector = EntityUtils.toString(iResponse.getEntity)
+    println(vector)
 
     val result: Option[Future[Result]] =
       addressValidation.validateAddressFilter(classificationfilter, queryValues)
