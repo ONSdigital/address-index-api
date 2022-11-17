@@ -45,13 +45,15 @@ object HybridAddressCollection {
   def fromLowResponse(lowRes: String) : HybridAddressCollection = {
     val resJson: JsValue = Json.parse(lowRes)
     val maxScore = (resJson \ "hits" \ "max_score").get
-    println(maxScore.toString())
+   // println(maxScore.toString())
     val hit1 = (resJson \ "hits" \ "hits" \ 0).get
-    println(hit1.toString())
-    val uprn = (hit1 \ "_id" ).get
-    val score = (hit1 \ "_score" ).get
-    val address1: HybridAddress = new HybridAddress(addressEntryId = "",
-      uprn = uprn.toString.substring(1).dropRight(1),
+   // println(hit1.toString())
+    val uprn1 = (hit1 \ "_id" ).get
+    val score1 = (hit1 \ "_score" ).get
+    val formattedAddress1 = (hit1 \ "_source" \ "lpi" \ 0 \ "nagAll" ).get
+    val address1: HybridAddress = new HybridAddress(
+      addressEntryId = formattedAddress1.toString().substring(1).dropRight(1),
+      uprn = uprn1.toString.substring(1).dropRight(1),
       parentUprn = "",
       relatives = Some(Seq.empty),
       crossRefs = Some(Seq.empty),
@@ -61,7 +63,7 @@ object HybridAddressCollection {
       paf = Seq.empty,
       nisra = Seq.empty,
       auxiliary = Seq.empty,
-      score = score.toString.toFloat,
+      score = score1.toString.toFloat,
       classificationCode = "",
       censusAddressType = "",
       censusEstabType = "",
@@ -70,7 +72,109 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    new HybridAddressCollection(Seq(address1),Seq(),maxScore.toString.toDouble,1)
+    val hit2 = (resJson \ "hits" \ "hits" \ 1).get
+    // println(hit1.toString())
+    val uprn2 = (hit2 \ "_id").get
+    val score2 = (hit2 \ "_score").get
+    val formattedAddress2 = (hit2 \ "_source" \ "lpi" \ 0 \ "nagAll").get
+    val address2: HybridAddress = new HybridAddress(
+      addressEntryId = formattedAddress2.toString().substring(1).dropRight(1),
+      uprn = uprn2.toString.substring(1).dropRight(1),
+      parentUprn = "",
+      relatives = Some(Seq.empty),
+      crossRefs = Some(Seq.empty),
+      postcodeIn = Some(""),
+      postcodeOut = Some(""),
+      lpi = Seq.empty,
+      paf = Seq.empty,
+      nisra = Seq.empty,
+      auxiliary = Seq.empty,
+      score = score2.toString.toFloat,
+      classificationCode = "",
+      censusAddressType = "",
+      censusEstabType = "",
+      fromSource = "",
+      countryCode = "",
+      distance = 0D,
+      highlights = Seq.empty)
+
+    val hit3 = (resJson \ "hits" \ "hits" \ 2).get
+    // println(hit1.toString())
+    val uprn3 = (hit3 \ "_id").get
+    val score3 = (hit3 \ "_score").get
+    val formattedAddress3 = (hit3 \ "_source" \ "lpi" \ 0 \ "nagAll").get
+    val address3: HybridAddress = new HybridAddress(
+      addressEntryId = formattedAddress3.toString().substring(1).dropRight(1),
+      uprn = uprn3.toString.substring(1).dropRight(1),
+      parentUprn = "",
+      relatives = Some(Seq.empty),
+      crossRefs = Some(Seq.empty),
+      postcodeIn = Some(""),
+      postcodeOut = Some(""),
+      lpi = Seq.empty,
+      paf = Seq.empty,
+      nisra = Seq.empty,
+      auxiliary = Seq.empty,
+      score = score3.toString.toFloat,
+      classificationCode = "",
+      censusAddressType = "",
+      censusEstabType = "",
+      fromSource = "",
+      countryCode = "",
+      distance = 0D,
+      highlights = Seq.empty)
+
+    val hit4 = (resJson \ "hits" \ "hits" \ 3).get
+    val uprn4 = (hit4 \ "_id").get
+    val score4 = (hit4 \ "_score").get
+    val formattedAddress4 = (hit4 \ "_source" \ "lpi" \ 0 \ "nagAll").get
+    val address4: HybridAddress = new HybridAddress(
+      addressEntryId = formattedAddress1.toString().substring(1).dropRight(1),
+      uprn = uprn4.toString.substring(1).dropRight(1),
+      parentUprn = "",
+      relatives = Some(Seq.empty),
+      crossRefs = Some(Seq.empty),
+      postcodeIn = Some(""),
+      postcodeOut = Some(""),
+      lpi = Seq.empty,
+      paf = Seq.empty,
+      nisra = Seq.empty,
+      auxiliary = Seq.empty,
+      score = score4.toString.toFloat,
+      classificationCode = "",
+      censusAddressType = "",
+      censusEstabType = "",
+      fromSource = "",
+      countryCode = "",
+      distance = 0D,
+      highlights = Seq.empty)
+
+    val hit5 = (resJson \ "hits" \ "hits" \ 4).get
+    val uprn5 = (hit5 \ "_id").get
+    val score5 = (hit5 \ "_score").get
+    val formattedAddress5 = (hit5 \ "_source" \ "lpi" \ 0 \ "nagAll").get
+    val address5: HybridAddress = new HybridAddress(
+      addressEntryId = formattedAddress5.toString().substring(1).dropRight(1),
+      uprn = uprn5.toString.substring(1).dropRight(1),
+      parentUprn = "",
+      relatives = Some(Seq.empty),
+      crossRefs = Some(Seq.empty),
+      postcodeIn = Some(""),
+      postcodeOut = Some(""),
+      lpi = Seq.empty,
+      paf = Seq.empty,
+      nisra = Seq.empty,
+      auxiliary = Seq.empty,
+      score = score5.toString.toFloat,
+      classificationCode = "",
+      censusAddressType = "",
+      censusEstabType = "",
+      fromSource = "",
+      countryCode = "",
+      distance = 0D,
+      highlights = Seq.empty)
+
+    new HybridAddressCollection(Seq(address1,address2,address3,address4,address5),Seq(),maxScore.toString.toDouble,5)
   }
 
   def fromResponse(resp: com.sksamuel.elastic4s.Response[SearchResponse]): HybridAddressCollection = {
