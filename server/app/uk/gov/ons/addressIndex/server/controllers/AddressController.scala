@@ -60,7 +60,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    eboost: Option[String] = None,
                    nboost: Option[String] = None,
                    sboost: Option[String] = None,
-                   wboost: Option[String] = None
+                   wboost: Option[String] = None,
+                   nlpboost: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
@@ -98,11 +99,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
     val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+    val nlpboostVal = {if (nlpboost.getOrElse("0").isEmpty) "0" else nlpboost.getOrElse("0")}
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+    val nlpboostDouble = Try(nlpboostVal.toDouble).toOption.getOrElse(0D)
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
@@ -169,8 +172,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       auth = req.headers.get("authorization").getOrElse("Anon")
     )
 
-    val iResponse: Response = esRepo.infer(input)
-    val vector = EntityUtils.toString(iResponse.getEntity)
+    val iResponse: Response = if (nlpboostDouble == 0) null else esRepo.infer(input)
+    val vector = if (nlpboostDouble == 0) "" else EntityUtils.toString(iResponse.getEntity)
   //  println(vector)
 
     val result: Option[Future[Result]] =
@@ -214,7 +217,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
             overloadProtection.breaker.withCircuitBreaker(
-              esRepo.runMultiResultQuery(finalArgs,vector)
+              esRepo.runMultiResultQuery(finalArgs,vector,nlpboostDouble)
             )
           }
 

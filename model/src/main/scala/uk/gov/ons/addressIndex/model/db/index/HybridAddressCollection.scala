@@ -73,7 +73,6 @@ object HybridAddressCollection {
       highlights = Seq.empty)
 
     val hit2 = (resJson \ "hits" \ "hits" \ 1).get
-    // println(hit1.toString())
     val uprn2 = (hit2 \ "_id").get
     val score2 = (hit2 \ "_score").get
     val formattedAddress2 = (hit2 \ "_source" \ "lpi" \ 0 \ "nagAll").get
@@ -129,7 +128,7 @@ object HybridAddressCollection {
     val score4 = (hit4 \ "_score").get
     val formattedAddress4 = (hit4 \ "_source" \ "lpi" \ 0 \ "nagAll").get
     val address4: HybridAddress = new HybridAddress(
-      addressEntryId = formattedAddress1.toString().substring(1).dropRight(1),
+      addressEntryId = formattedAddress4.toString().substring(1).dropRight(1),
       uprn = uprn4.toString.substring(1).dropRight(1),
       parentUprn = "",
       relatives = Some(Seq.empty),

@@ -1200,13 +1200,13 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         client.execute(query).map(HybridAddressCollection.fromResponse)
   }
 
-  def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs): String = {
+  def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs, nlpBoostDouble: Double = 0D): String = {
     val searchString = SearchBodyBuilderFn(request).string()
     val combinedString = "{ \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
       "\"k\": 5," +
     "\"num_candidates\": 10," +
-    "\"boost\": 1," +
+    "\"boost\": " + nlpBoostDouble + "," +
       "\"filter\": [{\"match\": {\"lpi.nagAll\": {" +
       "\"query\": \"" + args.inputOrDefault + "\"," +
       "\"analyzer\": \"welsh_split_synonyms_analyzer\"," +
@@ -1214,17 +1214,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     "\"minimum_should_match\": \"-50%\" }}}]" +
       "}," +
       searchString.substring(1)
-   // println(combinedString)
+    println(combinedString)
     combinedString
   }
 
-  override def runMultiResultQuery(args: MultiResultArgs, vector: String = "") : Future[HybridAddressCollection] = {
+  override def runMultiResultQuery(args: MultiResultArgs, vector: String = "",nlpBoostDouble: Double = 0D) : Future[HybridAddressCollection] = {
     val query = makeQuery(args)
     val combinedQuery: String = {
       val mainQuery = makeQuery(args)
       if (vector.equals("")) SearchBodyBuilderFn(mainQuery).string()
       else
-        makeHybridQuery(mainQuery,vector,args)
+        makeHybridQuery(mainQuery,vector,args,nlpBoostDouble)
     }
  // uncomment to see generated query
  //   val searchString = SearchBodyBuilderFn(query).string()
