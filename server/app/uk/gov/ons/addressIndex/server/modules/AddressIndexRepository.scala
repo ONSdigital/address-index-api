@@ -1262,7 +1262,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               request.setEntity(rBody)
               val resp: Response = rclient.performRequest(request)
               val lowresult = EntityUtils.toString(resp.getEntity)
-              println(lowresult)
+             // println(lowresult)
               Future(HybridAddressCollection.fromLowResponse(lowresult))
             }
       case _: PostcodeArgs =>

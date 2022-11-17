@@ -1,9 +1,11 @@
 package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
-import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
+import com.sksamuel.elastic4s.{Hit, RequestFailure, RequestSuccess, Response}
 import org.elasticsearch.client.{Request, Response, RestClient}
+import play.api.libs.json._
 import play.api.Logger
+//import play.libs.Json
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup
 
 import scala.util.Try
@@ -41,7 +43,34 @@ object HybridAddressCollection {
 //  }
 
   def fromLowResponse(lowRes: String) : HybridAddressCollection = {
-    new HybridAddressCollection(Seq(),Seq(),0,0)
+    val resJson: JsValue = Json.parse(lowRes)
+    val maxScore = (resJson \ "hits" \ "max_score").get
+    println(maxScore.toString())
+    val hit1 = (resJson \ "hits" \ "hits" \ 0).get
+    println(hit1.toString())
+    val uprn = (hit1 \ "_id" ).get
+    val score = (hit1 \ "_score" ).get
+    val address1: HybridAddress = new HybridAddress(addressEntryId = "",
+      uprn = uprn.toString.substring(1).dropRight(1),
+      parentUprn = "",
+      relatives = Some(Seq.empty),
+      crossRefs = Some(Seq.empty),
+      postcodeIn = Some(""),
+      postcodeOut = Some(""),
+      lpi = Seq.empty,
+      paf = Seq.empty,
+      nisra = Seq.empty,
+      auxiliary = Seq.empty,
+      score = score.toString.toFloat,
+      classificationCode = "",
+      censusAddressType = "",
+      censusEstabType = "",
+      fromSource = "",
+      countryCode = "",
+      distance = 0D,
+      highlights = Seq.empty)
+
+    new HybridAddressCollection(Seq(address1),Seq(),maxScore.toString.toDouble,1)
   }
 
   def fromResponse(resp: com.sksamuel.elastic4s.Response[SearchResponse]): HybridAddressCollection = {
