@@ -6,14 +6,13 @@ import com.sksamuel.elastic4s.requests.script.Script
 import com.sksamuel.elastic4s.requests.searches.aggs.TermsOrder
 import com.sksamuel.elastic4s.requests.searches.term.TermsQuery
 import com.sksamuel.elastic4s.requests.searches.queries.compound.BoolQuery
-import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query}
+import com.sksamuel.elastic4s.requests.searches.queries.{ConstantScore, Query, RawQuery}
 import com.sksamuel.elastic4s.requests.searches.sort.{FieldSort, GeoDistanceSort, SortOrder}
-import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchType}
+import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, HighlightOptions, SearchBodyBuilderFn, SearchRequest, SearchResponse, SearchType}
 import org.apache.http.entity.ContentType
 import org.apache.http.nio.entity.NStringEntity
 import org.elasticsearch.client.{Request, Response, RestClient}
-
-//import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
+import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
@@ -1214,9 +1213,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs, vector: String = "") : Future[HybridAddressCollection] = {
     val query = makeQuery(args)
-    val query2 = {
+    val combinedQuery: String = {
       val mainQuery = makeQuery(args)
-      if (vector.equals("")) mainQuery
+      if (vector.equals("")) SearchBodyBuilderFn(mainQuery).string()
       else
         makeHybridQuery(mainQuery,vector)
     }
@@ -1247,7 +1246,16 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         val specialCen = addressArgs.auth == conf.config.masterKey
         if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
         if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
-          client.execute(query).map(HybridAddressCollection.fromResponse)
+          if (vector.equals("")) client.execute(query).map(HybridAddressCollection.fromResponse) else
+             {
+              val rBody: NStringEntity = new NStringEntity(combinedQuery, ContentType.APPLICATION_JSON)
+              val request: Request = new Request(
+                "GET",
+                "index_full_hist_current/_search")
+              request.setEntity(rBody)
+              val resp: Response = rclient.performRequest(request)
+              Future(HybridAddressCollection.fromLowResponse(resp))
+            }
       case _: PostcodeArgs =>
         if ((gcp && args.verboseOrDefault) || (gcp && args.includeAuxiliarySearchOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
           client.execute(query).map(HybridAddressCollection.fromResponse)

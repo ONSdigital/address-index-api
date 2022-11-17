@@ -2,6 +2,7 @@ package uk.gov.ons.addressIndex.model.db.index
 
 import com.sksamuel.elastic4s.requests.searches.SearchResponse
 import com.sksamuel.elastic4s.{RequestFailure, RequestSuccess, Response}
+import org.elasticsearch.client.{Request, Response, RestClient}
 import play.api.Logger
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressResponsePostcodeGroup
 
@@ -32,7 +33,12 @@ object HybridAddressCollection {
     }
   }
 
-  def fromResponse(resp: Response[SearchResponse]): HybridAddressCollection = {
+  def fromLowResponse(resp: org.elasticsearch.client.Response): HybridAddressCollection = {
+   val sresp: com.sksamuel.elastic4s.Response[SearchResponse] = resp.asInstanceOf
+    fromResponse(sresp)
+  }
+
+  def fromResponse(resp: com.sksamuel.elastic4s.Response[SearchResponse]): HybridAddressCollection = {
     if (resp.isError) {
       val err = s"${resp.status} - ${resp.error.`type`}, ${resp.error.reason}"
       val rootCauseErr = resp.error.rootCause.map(rc => s"${rc.`type`}, ${rc.reason}" ).mkString
