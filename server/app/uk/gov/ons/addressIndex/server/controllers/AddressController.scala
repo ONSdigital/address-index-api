@@ -171,7 +171,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val iResponse: Response = esRepo.infer(input)
     val vector = EntityUtils.toString(iResponse.getEntity)
-    println(vector)
+  //  println(vector)
 
     val result: Option[Future[Result]] =
       addressValidation.validateAddressFilter(classificationfilter, queryValues)

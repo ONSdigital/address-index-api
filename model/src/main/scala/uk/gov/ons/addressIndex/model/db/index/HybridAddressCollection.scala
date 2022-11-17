@@ -33,9 +33,15 @@ object HybridAddressCollection {
     }
   }
 
-  def fromLowResponse(resp: org.elasticsearch.client.Response): HybridAddressCollection = {
-   val sresp: com.sksamuel.elastic4s.Response[SearchResponse] = resp.asInstanceOf
-    fromResponse(sresp)
+//  def fromLowResponse(resp: org.elasticsearch.client.Response): HybridAddressCollection = {
+//  // val sresp: com.sksamuel.elastic4s.Response[SearchResponse] = resp.asInstanceOf[com.sksamuel.elastic4s.Response[SearchResponse]]
+//  val sresp: com.sksamuel.elastic4s.Response[SearchResponse] = new SearchResponse()
+//  val test = resp.getEntity.t
+//    fromResponse(sresp)
+//  }
+
+  def fromLowResponse(lowRes: String) : HybridAddressCollection = {
+    new HybridAddressCollection(Seq(),Seq(),0,0)
   }
 
   def fromResponse(resp: com.sksamuel.elastic4s.Response[SearchResponse]): HybridAddressCollection = {

@@ -13,6 +13,7 @@ import org.apache.http.entity.ContentType
 import org.apache.http.nio.entity.NStringEntity
 import org.elasticsearch.client.{Request, Response, RestClient}
 import com.sksamuel.elastic4s.requests.searches.queries.RawQuery
+import org.apache.http.util.EntityUtils
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
@@ -1199,15 +1200,21 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         client.execute(query).map(HybridAddressCollection.fromResponse)
   }
 
-  def makeHybridQuery(request: SearchRequest, denseVector: String): String = {
+  def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs): String = {
     val searchString = SearchBodyBuilderFn(request).string()
     val combinedString = "{ \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
       "\"k\": 5," +
     "\"num_candidates\": 10," +
-    "\"boost\": 1}," +
-      searchString
-    println(combinedString)
+    "\"boost\": 1," +
+      "\"filter\": [{\"match\": {\"lpi.nagAll\": {" +
+      "\"query\": \"" + args.inputOrDefault + "\"," +
+      "\"analyzer\": \"welsh_split_synonyms_analyzer\"," +
+      "\"boost\": 1," +
+    "\"minimum_should_match\": \"-50%\" }}}]" +
+      "}," +
+      searchString.substring(1)
+   // println(combinedString)
     combinedString
   }
 
@@ -1217,7 +1224,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       val mainQuery = makeQuery(args)
       if (vector.equals("")) SearchBodyBuilderFn(mainQuery).string()
       else
-        makeHybridQuery(mainQuery,vector)
+        makeHybridQuery(mainQuery,vector,args)
     }
  // uncomment to see generated query
  //   val searchString = SearchBodyBuilderFn(query).string()
@@ -1254,7 +1261,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
                 "index_full_hist_current/_search")
               request.setEntity(rBody)
               val resp: Response = rclient.performRequest(request)
-              Future(HybridAddressCollection.fromLowResponse(resp))
+              val lowresult = EntityUtils.toString(resp.getEntity)
+              println(lowresult)
+              Future(HybridAddressCollection.fromLowResponse(lowresult))
             }
       case _: PostcodeArgs =>
         if ((gcp && args.verboseOrDefault) || (gcp && args.includeAuxiliarySearchOrDefault) || postcodeFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
