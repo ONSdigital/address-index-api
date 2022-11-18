@@ -99,13 +99,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
     val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
-    val nlpboostVal = {if (nlpboost.getOrElse("0").isEmpty) "0" else nlpboost.getOrElse("0")}
+    val nlpboostVal = {if (nlpboost.getOrElse("5.0").isEmpty) "5.0" else nlpboost.getOrElse("5.0")}
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
-    val nlpboostDouble = Try(nlpboostVal.toDouble).toOption.getOrElse(0D)
+    val nlpboostDouble = Try(nlpboostVal.toDouble).toOption.getOrElse(5.0D)
 
     def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
