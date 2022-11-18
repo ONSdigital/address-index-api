@@ -1252,7 +1252,20 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case addressArgs: AddressArgs =>
         val specialCen = addressArgs.auth == conf.config.masterKey
         if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
-        if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull)) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+        if (gcp || (!addressArgs.isBulk && addressFull) || (addressArgs.isBulk && bulkFull))
+          if (vector.equals("")) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
+          {
+            val rBody: NStringEntity = new NStringEntity(combinedQuery, ContentType.APPLICATION_JSON)
+            val request: Request = new Request(
+              "GET",
+              "index_full_hist_current/_search")
+            request.setEntity(rBody)
+            val resp: Response = rclient.performRequest(request)
+            val lowresult = EntityUtils.toString(resp.getEntity)
+            // println(lowresult)
+            Future(HybridAddressCollection.fromLowResponse(lowresult))
+          }
+        else
           if (vector.equals("")) client.execute(query).map(HybridAddressCollection.fromResponse) else
              {
               val rBody: NStringEntity = new NStringEntity(combinedQuery, ContentType.APPLICATION_JSON)
