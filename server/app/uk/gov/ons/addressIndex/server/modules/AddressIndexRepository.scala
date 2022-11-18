@@ -1208,7 +1208,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     "\"num_candidates\": 10," +
     "\"boost\": " + nlpBoostDouble + "," +
       "\"filter\": [{\"match\": {\"lpi.nagAll\": {" +
-      "\"query\": \"" + args.inputOrDefault + "\"," +
+      "\"query\": \"" + args.inputOrDefault.toUpperCase + "\"," +
       "\"analyzer\": \"welsh_split_synonyms_analyzer\"," +
       "\"boost\": 1," +
     "\"minimum_should_match\": 3 }}}]" +
