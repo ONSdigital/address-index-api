@@ -84,7 +84,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   def infer(sentence: String) : Response = {
 
-    val bodyJson = "{  \"docs\": { \"text_field\": \"" + sentence + "\"  }}"
+    val bodyJson: String = "{  \"docs\": { \"text_field\": \"" + sentence + "\"  }}"
     val rBody: NStringEntity = new NStringEntity(bodyJson,ContentType.APPLICATION_JSON)
 
     val request: Request = new Request (
@@ -1211,7 +1211,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "\"query\": \"" + args.inputOrDefault + "\"," +
       "\"analyzer\": \"welsh_split_synonyms_analyzer\"," +
       "\"boost\": 1," +
-    "\"minimum_should_match\": \"-50%\" }}}]" +
+    "\"minimum_should_match\": 3 }}}]" +
       "}," +
       searchString.substring(1)
     println(combinedString)
