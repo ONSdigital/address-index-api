@@ -1191,8 +1191,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiUPRNQuery(args: UPRNArgs):  Future[HybridAddressCollection] = {
     val query = makeQuery(args)
- //     val searchString = SearchBodyBuilderFn(query).string()
- //   println(searchString)
  //  logger.trace(query.toString)
     val specialCen = args.auth == conf.config.masterKey
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
@@ -1202,7 +1200,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs, nlpBoostDouble: Double = 0D): String = {
     val searchString = SearchBodyBuilderFn(request).string()
-    val combinedString = "{ \"timeout\": \"15s\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
+    val combinedString = "{ \"timeout\": \"15000ms\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
       "\"k\": 5," +
     "\"num_candidates\": 10," +
@@ -1220,6 +1218,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiResultQuery(args: MultiResultArgs, vector: String = "",nlpBoostDouble: Double = 0D) : Future[HybridAddressCollection] = {
     val query = makeQuery(args)
+  //  val searchString = SearchBodyBuilderFn(query).string()
+  //  println(searchString)
     val combinedQuery: String = {
       val mainQuery = makeQuery(args)
       if (vector.equals("")) SearchBodyBuilderFn(mainQuery).string()
