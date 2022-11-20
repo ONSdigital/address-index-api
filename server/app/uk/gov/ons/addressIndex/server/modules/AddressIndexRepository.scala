@@ -1202,7 +1202,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs, nlpBoostDouble: Double = 0D): String = {
     val searchString = SearchBodyBuilderFn(request).string()
-    val combinedString = "{ \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
+    val combinedString = "{ \"timeout\": \"15s\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
       "\"k\": 5," +
     "\"num_candidates\": 10," +
