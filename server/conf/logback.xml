@@ -25,8 +25,8 @@
 
     <logger name="play" level="INFO"/>
     <logger name="addressIndex" level="INFO"/>
-    <logger name="application" level="WARN"/>
-    <logger name="akka" level="WARN"/>
+    <logger name="application" level="INFO"/>
+    <logger name="akka" level="INFO"/>
     <logger name="SPLUNK" level="INFO"/>
 
     <logger name="com.avaje.ebean.config.PropertyMapLoader" level="WARN"/>
