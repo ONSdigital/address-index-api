@@ -1322,7 +1322,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         auth = args.auth
       )
       val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
-      logger.warn("nlpboost="+nlpboost+" input="+addressArgs.input)
+      println("nlpboost="+nlpboost+" input="+addressArgs.input)
       val iResponse: Response = if (nlpboost == 0) null else infer(addressArgs.input)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
