@@ -1213,7 +1213,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "\"minimum_should_match\": " + minMatch + " }}}]" +
       "}," +
       searchString.substring(1)
-    println(combinedString)
+  //  println(combinedString)
     combinedString
   }
 
@@ -1321,7 +1321,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         wboost = 1.0,
         auth = args.auth
       )
-      val nlpboost = 4D
+      val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
+      logger.warn("nlpboost="+nlpboost+" input="+addressArgs.input)
       val iResponse: Response = if (nlpboost == 0) null else infer(addressArgs.input)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
