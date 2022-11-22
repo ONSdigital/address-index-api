@@ -1303,7 +1303,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val scaleFactor = conf.config.bulk.scaleFactor
     val addressRequests = args.requestsData.map { requestData =>
       val addressArgs = AddressArgs(
-        input = "",
+        input = requestData.inputAddress,
         tokens = requestData.tokens,
         limit = max(args.limit * 2, minimumSample),
         filters = "",
@@ -1322,7 +1322,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         auth = args.auth
       )
       val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
-      println("nlpboost="+nlpboost+" input="+addressArgs.input)
+      println("input="+addressArgs.input)
       val iResponse: Response = if (nlpboost == 0) null else infer(addressArgs.input)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
