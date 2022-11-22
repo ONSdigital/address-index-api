@@ -1321,8 +1321,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         wboost = 1.0,
         auth = args.auth
       )
+      val nlpboost = 4D
+      val iResponse: Response = if (nlpboost == 0) null else infer(addressArgs.input)
+      val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
-        runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
+        runMultiResultQuery(addressArgs,vector,nlpboost).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
