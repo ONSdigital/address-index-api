@@ -1200,7 +1200,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs, nlpBoostDouble: Double = 0D): String = {
     val searchString = SearchBodyBuilderFn(request).string()
-    val minMatch: String = if (args.inputOrDefault.toUpperCase.contains("ROAD") || args.inputOrDefault.toUpperCase.contains("STREET")) "4" else "3"
+    val minMatch: String = if (args.inputOrDefault.toUpperCase.contains("ROAD") || args.inputOrDefault.toUpperCase.contains("STREET") || args.inputOrDefault.toUpperCase.contains("CLOSE")) "5" else "4"
     val combinedString = "{ \"timeout\": \"15000ms\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
       "\"k\": 5," +

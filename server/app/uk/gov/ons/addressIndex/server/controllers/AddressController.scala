@@ -215,11 +215,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         implicit val success = Success[HybridAddressCollection](_ != null)
 
         val request: Future[HybridAddressCollection] =
-          retry.Pause(3, 1.seconds).apply { ()  =>
-            overloadProtection.breaker.withCircuitBreaker(
+      //   retry.Pause(3, 1.seconds).apply { ()  =>
+       //     overloadProtection.breaker.withCircuitBreaker(
               esRepo.runMultiResultQuery(finalArgs,vector,nlpboostDouble)
-            )
-          }
+         //   )
+         // }
 
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total@_) =>
