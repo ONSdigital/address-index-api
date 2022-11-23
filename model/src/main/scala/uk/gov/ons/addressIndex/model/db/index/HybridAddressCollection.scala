@@ -46,12 +46,14 @@ object HybridAddressCollection {
     val resJson: JsValue = Json.parse(lowRes)
     val maxScore = (resJson \ "hits" \ "max_score").get
    // println(maxScore.toString())
-    val hit1 = (resJson \ "hits" \ "hits" \ 0).get
+    val hit1 = (resJson \ "hits" \ "hits" \ 0).getOrElse(null)
    // println(hit1.toString())
-    val uprn1 = (hit1 \ "_id" ).get
-    val score1 = (hit1 \ "_score" ).get
-    val formattedAddress1 = (hit1 \ "_source" \ "lpi" \ 0 \ "nagAll" ).get
-    val address1: HybridAddress = new HybridAddress(
+    val uprn1 = (hit1 \ "_id" ).getOrElse(null)
+    val score1 = (hit1 \ "_score" ).getOrElse(null)
+    val formattedAddress1 = (hit1 \ "_source" \ "lpi" \ 0 \ "nagAll" ).getOrElse(null)
+    val address1: HybridAddress =
+      if (hit1 == null) HybridAddress.empty else
+      new HybridAddress(
       addressEntryId = formattedAddress1.toString().substring(1).dropRight(1),
       uprn = uprn1.toString.substring(1).dropRight(1),
       parentUprn = "",
@@ -72,11 +74,12 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    val hit2 = (resJson \ "hits" \ "hits" \ 1).get
-    val uprn2 = (hit2 \ "_id").get
-    val score2 = (hit2 \ "_score").get
-    val formattedAddress2 = (hit2 \ "_source" \ "lpi" \ 0 \ "nagAll").get
-    val address2: HybridAddress = new HybridAddress(
+    val hit2 = (resJson \ "hits" \ "hits" \ 1).getOrElse(null)
+    val uprn2 = (hit2 \ "_id").getOrElse(null)
+    val score2 = (hit2 \ "_score").getOrElse(null)
+    val formattedAddress2 = (hit2 \ "_source" \ "lpi" \ 0 \ "nagAll").getOrElse(null)
+    val address2: HybridAddress =
+      if (hit2 == null) HybridAddress.empty else new HybridAddress(
       addressEntryId = formattedAddress2.toString().substring(1).dropRight(1),
       uprn = uprn2.toString.substring(1).dropRight(1),
       parentUprn = "",
@@ -97,12 +100,13 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    val hit3 = (resJson \ "hits" \ "hits" \ 2).get
+    val hit3 = (resJson \ "hits" \ "hits" \ 2).getOrElse(null)
     // println(hit1.toString())
-    val uprn3 = (hit3 \ "_id").get
-    val score3 = (hit3 \ "_score").get
-    val formattedAddress3 = (hit3 \ "_source" \ "lpi" \ 0 \ "nagAll").get
-    val address3: HybridAddress = new HybridAddress(
+    val uprn3 = (hit3 \ "_id").getOrElse(null)
+    val score3 = (hit3 \ "_score").getOrElse(null)
+    val formattedAddress3 = (hit3 \ "_source" \ "lpi" \ 0 \ "nagAll").getOrElse(null)
+    val address3: HybridAddress =
+      if (hit3 == null) HybridAddress.empty else new HybridAddress(
       addressEntryId = formattedAddress3.toString().substring(1).dropRight(1),
       uprn = uprn3.toString.substring(1).dropRight(1),
       parentUprn = "",
@@ -123,11 +127,12 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    val hit4 = (resJson \ "hits" \ "hits" \ 3).get
-    val uprn4 = (hit4 \ "_id").get
-    val score4 = (hit4 \ "_score").get
-    val formattedAddress4 = (hit4 \ "_source" \ "lpi" \ 0 \ "nagAll").get
-    val address4: HybridAddress = new HybridAddress(
+    val hit4 = (resJson \ "hits" \ "hits" \ 3).getOrElse(null)
+    val uprn4 = (hit4 \ "_id").getOrElse(null)
+    val score4 = (hit4 \ "_score").getOrElse(null)
+    val formattedAddress4 = (hit4 \ "_source" \ "lpi" \ 0 \ "nagAll").getOrElse(null)
+    val address4: HybridAddress =
+      if (hit4 == null) HybridAddress.empty else new HybridAddress(
       addressEntryId = formattedAddress4.toString().substring(1).dropRight(1),
       uprn = uprn4.toString.substring(1).dropRight(1),
       parentUprn = "",
@@ -148,11 +153,12 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    val hit5 = (resJson \ "hits" \ "hits" \ 4).get
-    val uprn5 = (hit5 \ "_id").get
-    val score5 = (hit5 \ "_score").get
-    val formattedAddress5 = (hit5 \ "_source" \ "lpi" \ 0 \ "nagAll").get
-    val address5: HybridAddress = new HybridAddress(
+    val hit5 = (resJson \ "hits" \ "hits" \ 4).getOrElse(null)
+    val uprn5 = (hit5 \ "_id").getOrElse(null)
+    val score5 = (hit5 \ "_score").getOrElse(null)
+    val formattedAddress5 = (hit5 \ "_source" \ "lpi" \ 0 \ "nagAll").getOrElse(null)
+    val address5: HybridAddress =
+      if (hit5 == null) HybridAddress.empty else new HybridAddress(
       addressEntryId = formattedAddress5.toString().substring(1).dropRight(1),
       uprn = uprn5.toString.substring(1).dropRight(1),
       parentUprn = "",
