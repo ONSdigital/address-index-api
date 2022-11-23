@@ -82,6 +82,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   val rclient: RestClient = elasticClientProvider.rclient
 
+  import org.apache.http.client.config.RequestConfig
+  import org.elasticsearch.client.RequestOptions
+
+  val requestConfig: RequestConfig = RequestConfig.custom.setConnectTimeout(60000).setSocketTimeout(60000).build
+  val requestOptions: RequestOptions = RequestOptions.DEFAULT.toBuilder.setRequestConfig(requestConfig).build
+
   def infer(sentence: String) : Response = {
 
     val bodyJson: String = "{  \"docs\": { \"text_field\": \"" + sentence + "\"  }}"
@@ -91,6 +97,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     "POST",
     "_ml/trained_models/arinze__address-match-abp-v1/_infer")
     request.setEntity(rBody)
+    request.setOptions(requestOptions)
     rclient.performRequest(request)
   }
 
@@ -1204,6 +1211,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val minMatchBoostStreetSuffix: Int = if (args.inputOrDefault.toUpperCase.contains("ROAD")
       || args.inputOrDefault.toUpperCase.contains("STREET")
       || args.inputOrDefault.toUpperCase.contains("CLOSE")
+      || args.inputOrDefault.toUpperCase.contains("DRIVE")
     ) 1 else 0
     val minMatchBoostCity: Int = if (args.inputOrDefault.toUpperCase.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
@@ -1270,6 +1278,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               "GET",
               "index_full_hist_current/_search")
             request.setEntity(rBody)
+            request.setOptions(requestOptions)
             val resp: Response = rclient.performRequest(request)
             val lowresult = EntityUtils.toString(resp.getEntity)
             // println(lowresult)
@@ -1283,6 +1292,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
                 "GET",
                 "index_full_hist_current/_search")
               request.setEntity(rBody)
+              request.setOptions(requestOptions)
               val resp: Response = rclient.performRequest(request)
               val lowresult = EntityUtils.toString(resp.getEntity)
              // println(lowresult)
