@@ -1212,9 +1212,12 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       || args.inputOrDefault.toUpperCase.contains("STREET")
       || args.inputOrDefault.toUpperCase.contains("CLOSE")
       || args.inputOrDefault.toUpperCase.contains("DRIVE")
+      || args.inputOrDefault.toUpperCase.contains("AVENUE")
     ) 1 else 0
     val minMatchBoostCity: Int = if (args.inputOrDefault.toUpperCase.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
+      || args.inputOrDefault.toUpperCase.contains("GREEN")
+      || args.inputOrDefault.toUpperCase.contains("THE")
     ) 1 else 0
     val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity
 
