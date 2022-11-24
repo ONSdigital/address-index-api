@@ -1216,10 +1216,15 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     ) 1 else 0
     val minMatchBoostCity: Int = if (args.inputOrDefault.toUpperCase.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
-      || args.inputOrDefault.toUpperCase.contains("GREEN")
+    ) 1 else 0
+    val minMatchBoostTenure: Int = if (args.inputOrDefault.toUpperCase.contains("FLAT")
+      || args.inputOrDefault.toUpperCase.contains("ROOM")
+      || args.inputOrDefault.toUpperCase.contains("HOUSE")
+    ) 1 else 0
+    val minMatchBoostOther: Int = if (args.inputOrDefault.toUpperCase.contains("GREEN")
       || args.inputOrDefault.toUpperCase.contains("THE")
     ) 1 else 0
-    val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity
+    val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther
 
     val combinedString = "{ \"timeout\": \"15000ms\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
