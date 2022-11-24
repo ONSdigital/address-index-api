@@ -1208,21 +1208,23 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   def makeHybridQuery(request: SearchRequest, denseVector: String, args: MultiResultArgs, nlpBoostDouble: Double = 0D): String = {
     val searchString = SearchBodyBuilderFn(request).string()
     val minMatchBase: Int = 4
-    val minMatchBoostStreetSuffix: Int = if (args.inputOrDefault.toUpperCase.contains("ROAD")
+    val dedupInput = args.inputOrDefault.toUpperCase.replaceAll("\\\\","").replaceAll(","," ").split(" ").distinct.mkString(" ").replaceAll("  "," ")
+    val minMatchBoostStreetSuffix: Int = if (dedupInput.contains("ROAD")
       || args.inputOrDefault.toUpperCase.contains("STREET")
       || args.inputOrDefault.toUpperCase.contains("CLOSE")
       || args.inputOrDefault.toUpperCase.contains("DRIVE")
       || args.inputOrDefault.toUpperCase.contains("AVENUE")
     ) 1 else 0
-    val minMatchBoostCity: Int = if (args.inputOrDefault.toUpperCase.contains("BIRMINGHAM")
+    val minMatchBoostCity: Int = if (dedupInput.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
     ) 1 else 0
-    val minMatchBoostTenure: Int = if (args.inputOrDefault.toUpperCase.contains("FLAT")
+    val minMatchBoostTenure: Int = if (dedupInput.toUpperCase.contains("FLAT")
       || args.inputOrDefault.toUpperCase.contains("ROOM")
       || args.inputOrDefault.toUpperCase.contains("HOUSE")
     ) 1 else 0
-    val minMatchBoostOther: Int = if (args.inputOrDefault.toUpperCase.contains("GREEN")
+    val minMatchBoostOther: Int = if (dedupInput.contains("GREEN")
       || args.inputOrDefault.toUpperCase.contains("THE")
+      || args.inputOrDefault.toUpperCase.contains(" Y ")
     ) 1 else 0
     val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther
 
@@ -1232,7 +1234,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     "\"num_candidates\": 10," +
     "\"boost\": " + nlpBoostDouble + "," +
       "\"filter\": [{\"match\": {\"lpi.nagAll\": {" +
-      "\"query\": \"" + args.inputOrDefault.toUpperCase + "\"," +
+      "\"query\": \"" + dedupInput + "\"," +
       "\"analyzer\": \"welsh_split_synonyms_analyzer\"," +
       "\"boost\": 1," +
       "\"minimum_should_match\": " + minMatch + " }}}]" +
@@ -1350,7 +1352,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       )
       val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
       println("input="+addressArgs.input)
-      val iResponse: Response = if (nlpboost == 0) null else infer(addressArgs.input)
+      val cleanInput = addressArgs.input.replaceAll("\\\\","")
+      val iResponse: Response = if (nlpboost == 0) null else infer(cleanInput)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs,vector,nlpboost).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
