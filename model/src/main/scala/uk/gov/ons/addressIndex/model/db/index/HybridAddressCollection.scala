@@ -44,7 +44,9 @@ object HybridAddressCollection {
 
   def fromLowResponse(lowRes: String) : HybridAddressCollection = {
     val resJson: JsValue = Json.parse(lowRes)
-    val maxScore = (resJson \ "hits" \ "max_score").get
+    val maxScoreJs = (resJson \ "hits" \ "max_score").getOrElse(null)
+    val maxScoreS = if (maxScoreJs == null) "0" else maxScoreJs.toString()
+    val maxScore = if (maxScoreS.equals("null")) "0" else maxScoreS
    // println(maxScore.toString())
     val hit1 = (resJson \ "hits" \ "hits" \ 0).getOrElse(null)
    // println(hit1.toString())
@@ -179,7 +181,7 @@ object HybridAddressCollection {
       distance = 0D,
       highlights = Seq.empty)
 
-    new HybridAddressCollection(Seq(address1,address2,address3,address4,address5),Seq(),maxScore.toString.toDouble,5)
+    new HybridAddressCollection(Seq(address1,address2,address3,address4,address5),Seq(),maxScore.toDouble,5)
   }
 
   def fromResponse(resp: com.sksamuel.elastic4s.Response[SearchResponse]): HybridAddressCollection = {

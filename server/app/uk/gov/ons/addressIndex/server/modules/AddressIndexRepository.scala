@@ -1240,7 +1240,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "\"minimum_should_match\": " + minMatch + " }}}]" +
       "}," +
       searchString.substring(1)
-  //  println(combinedString)
+    println(combinedString)
     combinedString
   }
 
@@ -1351,7 +1351,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         auth = args.auth
       )
       val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
-      println("input="+addressArgs.input)
+    //  println("input="+addressArgs.input)
       val cleanInput = addressArgs.input.replaceAll("\\\\","")
       val iResponse: Response = if (nlpboost == 0) null else infer(cleanInput)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
