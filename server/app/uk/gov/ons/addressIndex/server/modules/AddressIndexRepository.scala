@@ -1211,20 +1211,23 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val dedupInput = args.inputOrDefault.toUpperCase.replaceAll("\\\\","").replaceAll(","," ").split(" ").distinct.mkString(" ").replaceAll("  "," ")
     val minMatchBoostStreetSuffix: Int = if (dedupInput.contains("ROAD")
       || args.inputOrDefault.toUpperCase.contains("STREET")
-      || args.inputOrDefault.toUpperCase.contains("CLOSE")
-      || args.inputOrDefault.toUpperCase.contains("DRIVE")
-      || args.inputOrDefault.toUpperCase.contains("AVENUE")
+      || args.inputOrDefault.toUpperCase.contains(" CLOSE")
+      || args.inputOrDefault.toUpperCase.contains(" DRIVE")
+      || args.inputOrDefault.toUpperCase.contains(" AVENUE")
     ) 1 else 0
     val minMatchBoostCity: Int = if (dedupInput.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
     ) 1 else 0
-    val minMatchBoostTenure: Int = if (dedupInput.toUpperCase.contains("FLAT")
-      || args.inputOrDefault.toUpperCase.contains("ROOM")
-      || args.inputOrDefault.toUpperCase.contains("HOUSE")
+    val minMatchBoostTenure: Int = if (dedupInput.toUpperCase.contains("FLAT ")
+      || args.inputOrDefault.toUpperCase.contains("ROOM ")
+      || args.inputOrDefault.toUpperCase.contains(" HOUSE ")
     ) 1 else 0
     val minMatchBoostOther: Int = if (dedupInput.contains("GREEN")
-      || args.inputOrDefault.toUpperCase.contains("THE")
+      || args.inputOrDefault.toUpperCase.contains(" THE ")
       || args.inputOrDefault.toUpperCase.contains(" Y ")
+      || args.inputOrDefault.toUpperCase.contains(" YR ")
+      || args.inputOrDefault.toUpperCase.contains(" FROM ")
+      || args.inputOrDefault.toUpperCase.contains(" TO ")
     ) 1 else 0
     val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther
 
@@ -1240,7 +1243,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       "\"minimum_should_match\": " + minMatch + " }}}]" +
       "}," +
       searchString.substring(1)
-    println(combinedString)
+    //println(combinedString)
     combinedString
   }
 
@@ -1351,7 +1354,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         auth = args.auth
       )
       val nlpboost = conf.config.elasticSearch.minimumPartial.toDouble
-    //  println("input="+addressArgs.input)
+      println("input="+addressArgs.input)
       val cleanInput = addressArgs.input.replaceAll("\\\\","")
       val iResponse: Response = if (nlpboost == 0) null else infer(cleanInput)
       val vector = if (nlpboost == 0) "" else EntityUtils.toString(iResponse.getEntity)
