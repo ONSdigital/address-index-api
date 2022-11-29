@@ -1214,6 +1214,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       || args.inputOrDefault.toUpperCase.contains(" CLOSE")
       || args.inputOrDefault.toUpperCase.contains(" DRIVE")
       || args.inputOrDefault.toUpperCase.contains(" AVENUE")
+      || args.inputOrDefault.toUpperCase.contains(" LANE")
     ) 1 else 0
     val minMatchBoostCity: Int = if (dedupInput.contains("BIRMINGHAM")
       || args.inputOrDefault.toUpperCase.contains("LONDON")
@@ -1228,6 +1229,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       || args.inputOrDefault.toUpperCase.contains(" YR ")
       || args.inputOrDefault.toUpperCase.contains(" FROM ")
       || args.inputOrDefault.toUpperCase.contains(" TO ")
+      || args.inputOrDefault.toUpperCase.contains(" ON ")
+      || args.inputOrDefault.toUpperCase.contains(" UPON ")
     ) 1 else 0
     val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther
 
