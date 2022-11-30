@@ -1210,7 +1210,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val minMatchBase: Int = 4
     val dedupInput = args.inputOrDefault.toUpperCase.replaceAll("\\\\","").replaceAll(","," ").split(" ").distinct.mkString(" ").replaceAll("  "," ")
     val minMatchBoostStreetSuffix: Int = if (dedupInput.contains("ROAD")
+      || args.inputOrDefault.toUpperCase.contains(" RD")
       || args.inputOrDefault.toUpperCase.contains("STREET")
+      || args.inputOrDefault.toUpperCase.contains(" ST")
       || args.inputOrDefault.toUpperCase.contains(" CLOSE")
       || args.inputOrDefault.toUpperCase.contains(" DRIVE")
       || args.inputOrDefault.toUpperCase.contains(" AVENUE")
