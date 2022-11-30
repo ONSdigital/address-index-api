@@ -1234,7 +1234,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       || args.inputOrDefault.toUpperCase.contains(" ON ")
       || args.inputOrDefault.toUpperCase.contains(" UPON ")
     ) 1 else 0
-    val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther
+    val minMatchBoostOther2: Int = if (dedupInput.contains(" WITH ")
+      || args.inputOrDefault.toUpperCase.contains(" BY ")
+      || args.inputOrDefault.toUpperCase.contains(" AND ")
+    ) 1 else 0
+    val minMatch: Int = minMatchBase + minMatchBoostStreetSuffix + minMatchBoostCity + minMatchBoostTenure + minMatchBoostOther + minMatchBoostOther2
 
     val combinedString = "{ \"timeout\": \"15000ms\", \"knn\": { \"field\": \"nag_text_embedding.predicted_value\"," +
         "\"query_vector\": " + denseVector.substring(41).dropRight(3) + "," +
