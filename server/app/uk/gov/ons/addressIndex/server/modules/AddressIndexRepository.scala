@@ -239,9 +239,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
 
-//    search(searchIndicies)
-//      .timeout(timeDur)
-//      .rawQuery()
+  // search(searchIndicies)
+  //   .timeout(timeDur)
+  //    .source()
 
     search(searchIndicies)
       .timeout(timeDur)
