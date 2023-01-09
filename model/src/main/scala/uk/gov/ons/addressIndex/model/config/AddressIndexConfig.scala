@@ -70,6 +70,7 @@ case class QueryParamsConfig(// the number of cases has to be at most 22
                              locality: LocalityConfig,
                              fallback: FallbackConfig,
                              nisra: NisraConfig,
+                             postal: PostalConfig,
                              excludingDisMaxTieBreaker: Double,
                              includingDisMaxTieBreaker: Double,
                              topDisMaxTieBreaker: Double,
@@ -227,6 +228,14 @@ case class NisraConfig (partialNiBoostBoost: Double,
 
 object NisraConfig {
   implicit val NisraConfigFormat: Format[NisraConfig] = Json.format[NisraConfig]
+}
+
+case class PostalConfig ( postalDBoost: Double,
+                          postalCBoost: Double,
+                          postalLBoost: Double)
+
+object PostalConfig {
+  implicit val PostalConfigFormat: Format[PostalConfig] = Json.format[PostalConfig]
 }
 
 

@@ -407,24 +407,20 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
  //   C = A record which is postal and has a parent record which is linked to PAF
  //   L = A record which is identified as postal based on Local Authority information
 
-    val postalDBoost = 2
-    val postalCBoost = 1
-    val postalLBoost = 1
-
     val postalQuery =
       Seq(
         constantScoreQuery(matchQuery(
           field = "lpi.addressBasePostal",
           value = "D"
-        )).boost(postalDBoost),
+        )).boost(queryParams.postal.postalDBoost),
         constantScoreQuery(matchQuery(
           field = "lpi.addressBasePostal",
           value = "C"
-        )).boost(postalCBoost),
+        )).boost(queryParams.postal.postalCBoost),
         constantScoreQuery(matchQuery(
           field = "lpi.addressBasePostal",
           value = "L"
-        )).boost(postalLBoost)
+        )).boost(queryParams.postal.postalLBoost)
       )
 
     // this part of query should be blank unless there is an end number or end suffix
@@ -1103,8 +1099,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
   override def runMultiResultQuery(args: MultiResultArgs): Future[HybridAddressCollection] = {
     val query = makeQuery(args)
  // uncomment to see generated query
-    val searchString = SearchBodyBuilderFn(query).string()
-    println(searchString)
+ //   val searchString = SearchBodyBuilderFn(query).string()
+  //  println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
