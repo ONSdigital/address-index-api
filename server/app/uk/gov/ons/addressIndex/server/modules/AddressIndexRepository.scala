@@ -161,23 +161,18 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         // allow the target pao and target sao to match once each
         // prevents (a a -> a b) from causing two matches
         numMatchQuery("lpi.paoStartNumber", first).boost(2D),
-        numMatchQuery("lpi.saoStartNumber", first).boost(2D),
-        numMatchQuery("nisra.paoStartNumber", first).boost(2D))
+        numMatchQuery("lpi.saoStartNumber", first).boost(2D))
       case first :: second :: _ => Seq(
         // allow the input pao and input sao to match once each
         // because they cannot both match the same target, matches should not overlap (usually)
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(1D),
-          numMatchQuery("lpi.saoStartNumber", first).boost(2D),
-          numMatchQuery("nisra.saoStartNumber", first).boost(2D)),
+          numMatchQuery("lpi.saoStartNumber", first).boost(2D)),
         dismax(numMatchQuery("lpi.paoStartNumber", second).boost(2D),
-          numMatchQuery("lpi.saoStartNumber", second).boost(1D),
-          numMatchQuery("nisra.paoStartNumber", second).boost(2D)))
+          numMatchQuery("lpi.saoStartNumber", second).boost(1D)))
       case Seq(first) => Seq(
         // otherwise, match either
         dismax(numMatchQuery("lpi.paoStartNumber", first).boost(2D),
           numMatchQuery("lpi.saoStartNumber", first).boost(1D),
-          numMatchQuery("nisra.paoStartNumber", first).boost(2D),
-          numMatchQuery("nisra.saoStartNumber", first).boost(1D),
         ))
       case _ => Seq.empty
     }
@@ -189,8 +184,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       prefixQuery("lpi.mixedNagStart",shortInput).boost(1.25),
       prefixQuery("lpi.mixedWelshNagStart",shortInput).boost(1.25),
       prefixQuery("paf.mixedPafStart",shortInput).boost(1.25),
-      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.25),
-      prefixQuery("nisra.mixedNisraStart",shortInput).boost(1.25))))
+      prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.25))))
 
     val query = must(queryWithMatchType).filter(args.queryFilter)
       .not(fromSourceQueryMustNot5)
@@ -227,8 +221,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         FieldSort("lpi.paoStartNumber").asc(),
         FieldSort("lpi.paoStartSuffix.keyword").asc(),
         FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
         FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
@@ -279,9 +271,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       FieldSort("lpi.paoStartNumber").asc(),
       FieldSort("lpi.paoStartSuffix.keyword").asc(),
       FieldSort("lpi.secondarySort").asc(),
-      FieldSort("nisra.thoroughfare.keyword").asc(),
-      FieldSort("nisra.paoStartNumber").asc(),
-      FieldSort("nisra.secondarySort").asc(),
       FieldSort("uprn").asc())
 
     if (args.groupfullpostcodes.equals("combo"))
@@ -324,9 +313,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         FieldSort("lpi.paoStartNumber").asc(),
         FieldSort("lpi.paoStartSuffix.keyword").asc(),
         FieldSort("lpi.secondarySort").asc(),
-        FieldSort("nisra.thoroughfare.keyword").asc(),
-        FieldSort("nisra.paoStartNumber").asc(),
-        FieldSort("nisra.secondarySort").asc(),
         FieldSort("uprn").asc())
       .start(args.start)
       .limit(args.limit)
@@ -416,6 +402,27 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val defaultFuzziness = "1"
     val isBlank = args.isBlank
 
+  //  D = A record which is linked to PAF
+ //   N = Not a postal address
+ //   C = A record which is postal and has a parent record which is linked to PAF
+ //   L = A record which is identified as postal based on Local Authority information
+
+    val postalQuery =
+      Seq(
+        constantScoreQuery(matchQuery(
+          field = "lpi.addressBasePostal",
+          value = "D"
+        )).boost(queryParams.postal.postalDBoost),
+        constantScoreQuery(matchQuery(
+          field = "lpi.addressBasePostal",
+          value = "C"
+        )).boost(queryParams.postal.postalCBoost),
+        constantScoreQuery(matchQuery(
+          field = "lpi.addressBasePostal",
+          value = "L"
+        )).boost(queryParams.postal.postalLBoost)
+      )
+
     // this part of query should be blank unless there is an end number or end suffix
     val saoEndNumber = args.tokens.getOrElse(Tokens.saoEndNumber, "")
     val saoEndSuffix = args.tokens.getOrElse(Tokens.saoEndSuffix, "")
@@ -473,11 +480,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
           .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
         constantScoreQuery(matchQuery(
-          field = "nisra.subBuildingName",
-          value = token
-        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
-          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
-        constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
@@ -498,10 +500,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
           constantScoreQuery(matchQuery(
-            field = "nisra.subBuildingName",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
-          constantScoreQuery(matchQuery(
             field = "lpi.saoText",
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
@@ -516,10 +514,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
           constantScoreQuery(matchQuery(
             field = "paf.subBuildingName",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
-          constantScoreQuery(matchQuery(
-            field = "nisra.subBuildingName",
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
           constantScoreQuery(matchQuery(
@@ -551,11 +545,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
           .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
         constantScoreQuery(matchQuery(
-          field = "nisra.subBuildingName",
-          value = token
-        ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
-          .boost(queryParams.subBuildingName.pafSubBuildingNameBoost),
-        constantScoreQuery(matchQuery(
           field = "lpi.saoText",
           value = token
         ).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
@@ -576,10 +565,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
           constantScoreQuery(matchQuery(
-            field = "nisra.subBuildingName",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost),
-          constantScoreQuery(matchQuery(
             field = "lpi.saoText",
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartNumberBoost))),
@@ -595,10 +580,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
           constantScoreQuery(matchQuery(
             field = "paf.subBuildingName",
-            value = token
-          )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
-          constantScoreQuery(matchQuery(
-            field = "nisra.subBuildingName",
             value = token
           )).boost(queryParams.subBuildingName.lpiSaoStartSuffixBoost),
           constantScoreQuery(matchQuery(
@@ -670,16 +651,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           field = "paf.buildingNumber",
           value = token
         )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-      args.tokens.get(Tokens.paoEndNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "nisra.paoStartNumber",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoStartEndBoost)),
-      args.tokens.get(Tokens.paoStartNumber).map(token =>
-        constantScoreQuery(matchQuery(
-          field = "nisra.paoStartNumber",
-          value = token
-        )).boost(queryParams.buildingRange.lpiPaoStartEndBoost))
     ).flatten else Seq.empty
 
 
@@ -709,10 +680,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost),
       constantScoreQuery(matchQuery(
-        field = "nisra.buildingName",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost),
-      constantScoreQuery(matchQuery(
         field = "lpi.paoText",
         value = token
       ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
@@ -727,10 +694,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         )).boost(queryParams.buildingNumber.lpiPaoStartNumberBoost),
         constantScoreQuery(matchQuery(
           field = "paf.buildingNumber",
-          value = token
-        )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
-        constantScoreQuery(matchQuery(
-          field = "nisra.paoStartNumber",
           value = token
         )).boost(queryParams.buildingNumber.pafBuildingNumberBoost),
         constantScoreQuery(matchQuery(
@@ -754,10 +717,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost),
       constantScoreQuery(matchQuery(
-        field = "nisra.thoroughfare",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost),
-      constantScoreQuery(matchQuery(
         field = "paf.welshThoroughfare",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshThoroughfareBoost),
@@ -767,14 +726,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafDependentThoroughfareBoost),
       constantScoreQuery(matchQuery(
         field = "paf.welshDependentThoroughfare",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.dependentThoroughfare",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.altThoroughfare",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost),
       constantScoreQuery(matchQuery(
@@ -796,10 +747,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         field = "paf.welshPostTown",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafWelshPostTownBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.townName",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.townName.pafPostTownBoost),
       constantScoreQuery(matchQuery(
         field = "lpi.townName",
         value = token
@@ -852,10 +799,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         value = token
       )).boost(queryParams.postcode.pafPostcodeBoost),
       constantScoreQuery(matchQuery(
-        field = "nisra.postcode",
-        value = token
-      )).boost(queryParams.postcode.pafPostcodeBoost),
-      constantScoreQuery(matchQuery(
         field = "lpi.postcodeLocator",
         value = token
       )).boost(queryParams.postcode.lpiPostcodeLocatorBoost),
@@ -868,10 +811,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.lpiOrganisationBoost),
       constantScoreQuery(matchQuery(
         field = "paf.organisationName",
-        value = token
-      ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.pafOrganisationNameBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.organisationName",
         value = token
       ).minimumShouldMatch(queryParams.organisationDepartmentMinimumShouldMatch)).boost(queryParams.organisationName.pafOrganisationNameBoost),
       constantScoreQuery(matchQuery(
@@ -916,11 +855,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         field = "paf.postTown",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.townName",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafPostTownBoost),
-      constantScoreQuery(matchQuery(
+       constantScoreQuery(matchQuery(
         field = "paf.welshPostTown",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshPostTownBoost),
@@ -936,11 +871,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         field = "paf.welshDependentLocality",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.pafWelshDependentLocalityBoost),
-      constantScoreQuery(matchQuery(
-        field = "nisra.locality",
-        value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.locality.lpiLocalityBoost),
-      constantScoreQuery(matchQuery(
+        constantScoreQuery(matchQuery(
         field = "lpi.locality",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.locality.lpiLocalityBoost),
@@ -961,8 +892,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val radiusQuery = args.region match {
       case Some(Region(range, lat, lon)) =>
         Seq(bool(Seq(),
-        Seq(geoDistanceQuery("lpi.location", lat, lon).distance(s"${range}km"),
-          geoDistanceQuery("nisra.location", lat, lon).distance(s"${range}km")),Seq()))
+        Seq(geoDistanceQuery("lpi.location", lat, lon).distance(s"${range}km")),Seq()))
       case None => Seq.empty
     }
 
@@ -1010,10 +940,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackLpiBoost),
-        matchQuery("nisra.nisraAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
-          .analyzer("welsh_split_synonyms_analyzer")
-          .boost(queryParams.nisra.fullFallBackNiBoost),
         matchQuery("paf.pafAll", normalizedInput)
           .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
           .analyzer("welsh_split_synonyms_analyzer")
@@ -1026,9 +952,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         matchQuery("lpi.nagAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackLpiBigramBoost),
-        matchQuery("nisra.nisraAll.bigram", normalizedInput)
-          .fuzziness(queryParams.fallback.bigramFuzziness)
-          .boost(queryParams.nisra.fullFallBackBigramNiBoost),
         matchQuery("paf.pafAll.bigram", normalizedInput)
           .fuzziness(queryParams.fallback.bigramFuzziness)
           .boost(queryParams.fallback.fallbackPafBigramBoost))
@@ -1074,7 +997,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       organisationDepartmentQueries,
       townLocalityQueries,
       paoQuery,
-      saoQuery
+      saoQuery,
+      postalQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[Query]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
@@ -1105,8 +1029,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val radiusSort = args.region match {
       case Some(Region(_, lat, lon)) =>
-        Seq(GeoDistanceSort(field = "lpi.location", points = Seq(GeoPoint(lat, lon))),
-          GeoDistanceSort(field = "nisra.location", points = Seq(GeoPoint(lat, lon))))
+        Seq(GeoDistanceSort(field = "lpi.location", points = Seq(GeoPoint(lat, lon))))
       case None => Seq.empty
     }
 
@@ -1167,9 +1090,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
   override def runMultiUPRNQuery(args: UPRNArgs):  Future[HybridAddressCollection] = {
     val query = makeQuery(args)
- //     val searchString = SearchBodyBuilderFn(query).string()
- //   println(searchString)
- //  logger.trace(query.toString)
     val specialCen = args.auth == conf.config.masterKey
     if (specialCen) clientSpecialCensus.execute(query).map(HybridAddressCollection.fromResponse) else
       if (gcp || uprnFull) clientFullmatch.execute(query).map(HybridAddressCollection.fromResponse) else
@@ -1180,7 +1100,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val query = makeQuery(args)
  // uncomment to see generated query
  //   val searchString = SearchBodyBuilderFn(query).string()
- //  println(searchString)
+  //  println(searchString)
     args match {
       case partialArgs: PartialArgs =>
         val minimumFallback: Int = esConf.minimumFallback
