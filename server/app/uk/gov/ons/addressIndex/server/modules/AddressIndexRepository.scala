@@ -747,7 +747,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       constantScoreQuery(matchQuery(
         field = "lpi.paoText",
         value = token
-      ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.lpiPaoTextBoost/4),
+      ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost/4),
       constantScoreQuery(matchQuery(
         field = "lpi.streetDescriptor",
         value = token
@@ -949,19 +949,22 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val auxBoost = queryParams.fallback.fallbackAuxBoost
     val auxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
+    val tokenCount = args.tokens.count(z=>true)
+    val minMatchAdjustment = if (tokenCount > 6) -10 else 0
+    logger.warn("tokencount = " + tokenCount)
 
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("tokens.addressAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(auxBoost),
         matchQuery("lpi.nagAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackLpiBoost),
         matchQuery("paf.pafAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackPafBoost))
         .tieBreaker(0.0)),
