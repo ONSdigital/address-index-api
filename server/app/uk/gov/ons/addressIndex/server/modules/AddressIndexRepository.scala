@@ -950,21 +950,21 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val auxBoost = queryParams.fallback.fallbackAuxBoost
     val auxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
     val tokenCount = args.tokens.count(z=>true)
-    val minMatchAdjustment = if (tokenCount > 6) -10 else 0
+    val fallbackMSM = if (tokenCount > 9) "-60%" else queryParams.fallback.fallbackMinimumShouldMatch
     logger.warn("tokencount = " + tokenCount)
 
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("tokens.addressAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(auxBoost),
         matchQuery("lpi.nagAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackLpiBoost),
         matchQuery("paf.pafAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch + minMatchAdjustment)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackPafBoost))
         .tieBreaker(0.0)),
