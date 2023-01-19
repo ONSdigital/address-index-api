@@ -949,7 +949,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val auxBoost = queryParams.fallback.fallbackAuxBoost
     val auxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
-    val tokenCount = args.tokens.count(z=>true)
+    // Be more forgiving for long address strings
+    val tokenCount = normalizedInput.split(" ").length
     val fallbackMSM = if (tokenCount > 9) "-60%" else queryParams.fallback.fallbackMinimumShouldMatch
     logger.warn("tokencount = " + tokenCount)
 
