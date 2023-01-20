@@ -680,6 +680,18 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost),
       constantScoreQuery(matchQuery(
+        field = "lpi.streetDescriptor",
+        value = token
+      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.lpiStreetDescriptorBoost/4),
+      constantScoreQuery(matchQuery(
+        field = "paf.thoroughfare",
+        value = token
+      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafThoroughfareBoost/4),
+      constantScoreQuery(matchQuery(
+        field = "paf.dependentThoroughfare",
+        value = token
+      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafDependentThoroughfareBoost/4),
+      constantScoreQuery(matchQuery(
         field = "lpi.paoText",
         value = token
       ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch))
@@ -728,6 +740,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         field = "paf.welshDependentThoroughfare",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.pafWelshDependentThoroughfareBoost),
+      constantScoreQuery(matchQuery(
+        field = "paf.buildingName",
+        value = token
+      ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost/4),
+      constantScoreQuery(matchQuery(
+        field = "lpi.paoText",
+        value = token
+      ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost/4),
       constantScoreQuery(matchQuery(
         field = "lpi.streetDescriptor",
         value = token
@@ -929,19 +949,22 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val auxBoost = queryParams.fallback.fallbackAuxBoost
     val auxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
+    // Be more forgiving for long address strings
+    val wordCount = normalizedInput.split(" ").length
+    val fallbackMSM = if (wordCount > 10) "-50%" else queryParams.fallback.fallbackMinimumShouldMatch
 
     val fallbackQueryStart: BoolQuery = bool(
       Seq(dismax(
         matchQuery("tokens.addressAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(auxBoost),
         matchQuery("lpi.nagAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackLpiBoost),
         matchQuery("paf.pafAll", normalizedInput)
-          .minimumShouldMatch(queryParams.fallback.fallbackMinimumShouldMatch)
+          .minimumShouldMatch(fallbackMSM)
           .analyzer("welsh_split_synonyms_analyzer")
           .boost(queryParams.fallback.fallbackPafBoost))
         .tieBreaker(0.0)),
