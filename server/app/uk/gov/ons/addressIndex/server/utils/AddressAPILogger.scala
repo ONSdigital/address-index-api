@@ -24,7 +24,8 @@ class AddressAPILogger(log: String) extends APILogger {
                 formattedOutput: String = "", numOfResults: String = "", score: String = "",
                 endpoint: String = "", activity: String = "", uuid: String = "",
                 networkid: String = "", organisation: String = "", clusterid: String = "",
-                includeAuxiliary: Boolean = false, eboost: String = "", nboost: String = "", sboost:String = "", wboost: String = ""): Unit = {
+                includeAuxiliary: Boolean = false, eboost: String = "", nboost: String = "",
+                sboost:String = "", wboost: String = "", pafDefault: Boolean = false): Unit = {
 
     // Note we are using the info level for Splunk
     super.logMessage(splunk.info, AddressLoggerMessage(

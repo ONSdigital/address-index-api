@@ -380,7 +380,8 @@ final case class AddressArgs(input: String,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
                              wboost: Double = 1.0,
-                             auth: String = ""
+                             auth: String = "",
+                             pafDefault: Boolean = false
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 

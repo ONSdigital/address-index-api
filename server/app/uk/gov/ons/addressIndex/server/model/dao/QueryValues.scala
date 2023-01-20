@@ -19,7 +19,7 @@ case class QueryValues(input: Option[String] = None,
                        latitude: Option[String] = None,
                        longitude: Option[String] = None,
                        matchThreshold: Option[Float] = None,
-                       fromsource: Option[String] = None,
+ //                      fromsource: Option[String] = None,
                        highlight: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
@@ -30,7 +30,8 @@ case class QueryValues(input: Option[String] = None,
                        sboost: Option[Double] = None,
                        wboost: Option[Double] = None,
                        groupFullPostcodes: Option[String] = None,
-                       timeout: Option[Int] = None
+                       timeout: Option[Int] = None,
+                       pafDefault: Option[Boolean] = None
                       )
 {
   def inputOrDefault: String = this.input.getOrElse("")
@@ -71,7 +72,7 @@ case class QueryValues(input: Option[String] = None,
 
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
 
-  def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
+ // def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
 
   def eboostOrDefault: Double = this.eboost.getOrElse(1.0D)
 
@@ -92,4 +93,6 @@ case class QueryValues(input: Option[String] = None,
   def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearch.getOrElse(false)
 
   def groupFullPostcodesOrDefault: String = this.groupFullPostcodes.getOrElse("no")
+
+  def pafDefaultOrDefault: Boolean = this.pafDefault.getOrElse(false)
 }

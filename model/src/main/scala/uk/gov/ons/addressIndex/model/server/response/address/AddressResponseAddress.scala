@@ -80,6 +80,7 @@ object AddressResponseAddress {
 
     val formattedAddress = if (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
                            else if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
+                           else if (chosenPaf.isDefined) removeConcatenatedPostcode(formattedAddressPaf)
                            else removeConcatenatedPostcode(formattedAddressNag)
 
     val geo = if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)

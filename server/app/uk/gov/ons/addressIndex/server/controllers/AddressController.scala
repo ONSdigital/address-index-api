@@ -57,10 +57,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    eboost: Option[String] = None,
                    nboost: Option[String] = None,
                    sboost: Option[String] = None,
-                   wboost: Option[String] = None
+                   wboost: Option[String] = None,
+                   pafdefault: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
@@ -118,7 +121,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         verbose = verb, eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterId, includeAuxiliary = auxiliary)
+        endpoint = endpointType, activity = activity, clusterid = clusterId, includeAuxiliary = auxiliary,
+        pafDefault = pafDefault)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
@@ -144,7 +148,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
-      wboost = Some(wboostDouble)
+      wboost = Some(wboostDouble),
+      pafDefault = Some(pafDefault)
     )
 
     val args = AddressArgs(
@@ -163,7 +168,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       nboost = nboostDouble,
       sboost = sboostDouble,
       wboost = wboostDouble,
-      auth = req.headers.get("authorization").getOrElse("Anon")
+      auth = req.headers.get("authorization").getOrElse("Anon"),
+      pafDefault = pafDefault
     )
 
     val result: Option[Future[Result]] =
@@ -269,7 +275,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,
-                  wboost = wboostDouble
+                  wboost = wboostDouble,
+                  pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus
               )
