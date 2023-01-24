@@ -58,7 +58,8 @@ class AddressAPILogger(log: String) extends APILogger {
                    endpoint: String = "",
                    uuid: String = "",
                    authVal: String = "",
-                   clusterId: String = ""
+                   clusterId: String = "",
+                   pafdefault: Boolean = false
                   )(
                     badRequestErrorMessage: String = "",
                     formattedOutput: String = "",
@@ -104,6 +105,7 @@ class AddressAPILogger(log: String) extends APILogger {
          |offset=${asArgType[StartAtOffset](args).map(_.start.toString).getOrElse("")}
          |filter=${asArgType[Filterable](args).map(_.filters).getOrElse("")}
          |verbose=${asArgType[Verboseable](args).exists(_.verbose)}
+         |pafdefault=$pafdefault
          |is_skinny=${asArgType[Skinnyable](args).exists(_.skinny)}
          |historical=${args.map(_.historical).getOrElse("")} epoch=${args.map(_.epoch).getOrElse("")}
          |batch_size=$batchSize

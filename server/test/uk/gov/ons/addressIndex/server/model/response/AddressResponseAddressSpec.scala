@@ -576,7 +576,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true, pafdefault = false)
 
       // Then
       result shouldBe expected

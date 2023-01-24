@@ -264,7 +264,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D, scaleFactor)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
@@ -308,7 +308,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Thread.sleep(500)
       args.requestsData.map(requestData => {
         val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-        val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D,scaleFactor)
+        val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor)
         val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
         Right(Seq(filledBulkAddress))
@@ -339,7 +339,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true)), requestData.tokens, 1D,scaleFactor)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor)
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
@@ -366,7 +366,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
           case requestData =>
             val emptyBulk = BulkAddress.empty(requestData)
-            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), requestData.tokens, 1D, scaleFactor)
+            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor)
             val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
             Right(Seq(emptyBulkAddress))
@@ -469,13 +469,13 @@ class AddressControllerSpec extends PlaySpec with Results {
   val applicationController = new ApplicationController(components, postcodeController, uprnController)
 
   val UPRNControllerKaput : UPRNController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation) {
-    override def uprnQuery(uprn: String, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String]): Action[AnyContent] = Action {
+    override def uprnQuery(uprn: String, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }
 
   val postcodeControllerKaput : PostcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation) {
-    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String]): Action[AnyContent] = Action {
+    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }
@@ -538,10 +538,11 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault=false)),
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -563,10 +564,11 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)),
           historical = true,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -588,7 +590,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByMultiUprnResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)),
           historical = true,
           verbose = false,
           epoch = ""
@@ -625,7 +627,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault=false)),
           filter = "",
           historical = false,
           limit = 100,
@@ -657,7 +659,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)),
           filter = "",
           historical = false,
           limit = 100,
@@ -722,7 +724,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false)),
           filter = "",
           historical = true,
           limit = 1,
@@ -731,7 +733,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -754,7 +757,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault=false)),
           filter = "",
           historical = true,
           limit = 1,
@@ -763,7 +766,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -780,7 +784,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
    "reply on a found address in concise format (by partial)" in {
 
-     val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+     val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false).copy(confidenceScore=5))
 
      val sortAddresses = partialAddressController.boostAtStart(addresses, input="some query", favourPaf = true, favourWelsh = false, highVerbose = false)
 
@@ -863,7 +867,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply on a found address in concise format where input is less than 6 digits (by partial)" in {
 
-      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false).copy(confidenceScore=5))
 
       val sortAddresses = partialAddressController.boostAtStart(addresses, input="12345", favourPaf = true, favourWelsh = false, highVerbose = false)
 
@@ -906,7 +910,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply on a found address in concise format where input is greater than 5 digits (by partial)" in {
 
-      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false).copy(confidenceScore=5))
+      val addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false).copy(confidenceScore=5))
 
       val sortAddresses = partialAddressController.boostAtStart(addresses, input="123456", favourPaf = true, favourWelsh = false, highVerbose = false)
 
@@ -1273,7 +1277,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true).copy(confidenceScore=5)),
+          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false).copy(confidenceScore=5)),
           filter = "",
           fallback = false,
           historical = false,
@@ -1313,7 +1317,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1353,7 +1357,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1393,7 +1397,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "commercial",
           historical = true,
           rangekm = "20",
@@ -1433,7 +1437,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1473,7 +1477,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1833,7 +1837,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -2052,7 +2057,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -2353,7 +2359,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -2385,7 +2392,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(randomValidation.EpochNotAvailableErrorCustom)
@@ -2905,7 +2913,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
           filter = "",
           historical = true,
           rangekm = "",
@@ -3210,7 +3218,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -3290,7 +3299,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           address = None,
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -3320,7 +3330,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           address = None,
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(UprnNotNumericAddressResponseError)
@@ -3346,7 +3357,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           address = None,
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(UprnNotNumericAddressResponseError)
@@ -3382,7 +3394,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           address = None,
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         NotFoundAddressResponseStatus,
         errors = Seq(NotFoundAddressResponseError)
@@ -3408,7 +3421,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When
-      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, 3, None, "", "", historical = true, epoch = "", 5F, auth=""), Duration.Inf)
+      val result: BulkAddresses = Await.result(controller.queryBulkAddresses(requestsData, limitperaddress = 3, None,  historical = true, epoch = "", matchThreshold = 5F, auth="", pafDefault = false), Duration.Inf)
 
       // Then
       result.successfulBulkAddresses.size mustBe 2
@@ -3432,7 +3445,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When
-      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None, "", "", historical = true, epoch = "", 5F)
+      val result = controller.iterateOverRequestsWithBackPressure(requestsData, 3, None, None,  historical = true, epoch = "", 5F)
 
       // Then
       result.size mustBe requestsData.size
@@ -3449,7 +3462,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       )
 
       // When Then
-      an[Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, 10, None, None, "", "", historical = true, epoch = "", 5F)
+      an[Exception] should be thrownBy controller.iterateOverRequestsWithBackPressure(requestsData, miniBatchSize = 10, None, None,  historical = true, epoch = "", matchThreshold =5F)
     }
 
     "return list of codelists" in {

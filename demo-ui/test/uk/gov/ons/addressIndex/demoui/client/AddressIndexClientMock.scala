@@ -277,6 +277,7 @@ object AddressIndexClientMock {
     address = Some(mockAddressResponseAddress: AddressResponseAddress),
     historical = true,
     verbose = true,
-    epoch = ""
+    epoch = "",
+    pafdefault = false
   )
 }

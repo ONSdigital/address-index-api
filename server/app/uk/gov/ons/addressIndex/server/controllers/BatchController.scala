@@ -420,7 +420,7 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     logger.systemLog(
       ip = request.remoteAddress, url = request.uri, responseTimeMillis = responseTime.toString,
       bulkSize = requestData.size.toString, networkid = networkId, organisation = organisation,
-      clusterid = clusterid
+      clusterid = clusterid, pafDefault = pafdefault
     )
 
     response

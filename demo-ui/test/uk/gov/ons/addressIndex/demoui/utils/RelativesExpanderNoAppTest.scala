@@ -38,7 +38,7 @@ class RelativesExpanderNoAppTest extends AnyFlatSpec with should.Matchers with M
       AddressByUprnResponseContainer(
         "api-version",
         "data-version",
-        response = AddressByUprnResponse(addressResponseAddressOpt, historical = true, "", verbose = true),
+        response = AddressByUprnResponse(addressResponseAddressOpt, historical = true, "", verbose = true, pafdefault = false),
         status = mockAddressResponseStatus,
         errors = Seq.empty)
     }
