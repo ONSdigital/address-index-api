@@ -19,7 +19,6 @@ case class QueryValues(input: Option[String] = None,
                        latitude: Option[String] = None,
                        longitude: Option[String] = None,
                        matchThreshold: Option[Float] = None,
- //                      fromsource: Option[String] = None,
                        highlight: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
@@ -71,8 +70,6 @@ case class QueryValues(input: Option[String] = None,
   def longitudeOrDefault: String = this.longitude.getOrElse("")
 
   def matchThresholdOrDefault: Float = this.matchThreshold.getOrElse(0f)
-
- // def fromSourceOrDefault: String = this.fromsource.getOrElse("all")
 
   def eboostOrDefault: Double = this.eboost.getOrElse(1.0D)
 

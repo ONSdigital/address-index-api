@@ -43,6 +43,7 @@ class AddressAPILogger(log: String) extends APILogger {
         s"formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score endpoint=$endpoint " +
         s"eboost=$eboost nboost=$nboost sboost=$sboost wboost=$wboost " +
+        s"pafDefault=$pafDefault " +
         s"activity=$activity uuid=$uuid networkid=$networkid organisation=$organisation " +
         s"clusterid=$clusterid includeAuxiliary=$includeAuxiliary "))
   }

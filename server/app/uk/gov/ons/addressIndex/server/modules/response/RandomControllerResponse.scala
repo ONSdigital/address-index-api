@@ -20,7 +20,8 @@ trait RandomControllerResponse extends Response {
         eboost = queryValues.eboostOrDefault,
         nboost = queryValues.nboostOrDefault,
         sboost = queryValues.sboostOrDefault,
-        wboost = queryValues.wboostOrDefault
+        wboost = queryValues.wboostOrDefault,
+        pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -68,7 +69,8 @@ trait RandomControllerResponse extends Response {
       eboost = queryValues.eboostOrDefault,
       nboost = queryValues.nboostOrDefault,
       sboost = queryValues.sboostOrDefault,
-      wboost = queryValues.wboostOrDefault
+      wboost = queryValues.wboostOrDefault,
+      pafdefault = queryValues.pafDefaultOrDefault
     )
   }
 
