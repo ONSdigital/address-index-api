@@ -377,7 +377,6 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             fromsource: String = "all",
                              includeAuxiliarySearch: Boolean = false,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
@@ -415,7 +414,8 @@ final case class BulkArgs(requestsData: LazyList[BulkAddressRequestData],
                           limit: Int,
                           filterDateRange: DateRange = DateRange(),
                           queryParamsConfig: Option[QueryParamsConfig] = None,
-                          auth: String = ""
+                          auth: String = "",
+                          pafDefault: Boolean = false
                          ) extends QueryArgs with Limitable with DateFilterable with Configurable {
   override def requestsDataOpt: Option[LazyList[BulkAddressRequestData]] = Some(requestsData)
 
