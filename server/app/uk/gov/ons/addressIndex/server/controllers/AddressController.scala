@@ -220,7 +220,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total@_) =>
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verbose = true)
+              AddressResponseAddress.fromHybridAddress(_, verbose = true, pafdefault = pafDefault)
             )
 
              //  calculate the elastic denominator value which will be used when scoring each address

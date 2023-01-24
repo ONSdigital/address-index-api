@@ -200,6 +200,7 @@ final case class UPRNArgs(uprn: String,
                           epoch: String = "",
                           includeAuxiliarySearch: Boolean = false,
                           auth: String = "",
+                          pafDefault: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
 
@@ -275,7 +276,8 @@ final case class PostcodeArgs(postcode: String,
                               eboost: Double = 1.0,
                               nboost: Double = 1.0,
                               sboost: Double = 1.0,
-                              wboost: Double = 1.0
+                              wboost: Double = 1.0,
+                              pafDefault: Boolean = false
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -351,7 +353,8 @@ final case class RandomArgs(epoch: String = "",
                             eboost: Double = 1.0,
                             nboost: Double = 1.0,
                             sboost: Double = 1.0,
-                            wboost: Double = 1.0
+                            wboost: Double = 1.0,
+                            pafDefault: Boolean = false
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }

@@ -125,7 +125,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
             val address = AddressByRHUprnResponse.fromHybridAddress(hybridAddress, addressType)
 
             writeLog(
-              formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb).formattedAddressNag, numOfResults = "1",
+              formattedOutput = AddressResponseAddress.fromHybridAddress(hybridAddress, verb, false).formattedAddressNag, numOfResults = "1",
               score = hybridAddress.score.toString, activity = "address_request"
             )
 

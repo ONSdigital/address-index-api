@@ -39,7 +39,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
   def multiUprn(historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None,
-                includeauxiliarysearch: Option[String] = None
+                includeauxiliarysearch: Option[String] = None,
+                pafdefault: Option[String] = None
           ): Action[MultiUprnBody] = Action(parse.json[MultiUprnBody]) async { implicit req =>
 
     logger.info(s"#multi UPRN query with ${req.body.uprns.size} items")
@@ -48,6 +49,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     val uprn = uprns.head
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val endpointType = "uprn"
 
@@ -74,7 +77,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
-        includeAuxiliary = auxiliary
+        includeAuxiliary = auxiliary, pafDefault = pafDefault
       )
     }
 
@@ -83,7 +86,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(auxiliary)
+      includeAuxiliarySearch = Some(auxiliary),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Future[Result]] =
@@ -105,7 +109,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           historical = hist,
           epoch = epochVal,
           includeAuxiliarySearch = auxiliary,
-          auth = req.headers.get("authorization").getOrElse("Anon")
+          auth = req.headers.get("authorization").getOrElse("Anon"),
+          pafDefault = pafDefault
         )
 
         implicit val success = Success[HybridAddressCollection](_ != null)
@@ -121,7 +126,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           case HybridAddressCollection(hybridAddresses,_,_,_) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verbose = verb)
+              AddressResponseAddress.fromHybridAddress(_, verbose = verb, pafdefault = pafDefault)
             )
 
             writeLog(

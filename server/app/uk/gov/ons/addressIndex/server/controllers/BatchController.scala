@@ -38,12 +38,15 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   def bulk(limitperaddress: Option[String],
            historical: Option[String] = None,
            matchthreshold: Option[String] = None,
-           epoch: Option[String] = None
+           epoch: Option[String] = None,
+           pafdefault: Option[String] = None
           ): Action[BulkBody] = Action(parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkQuery with ${request.body.addresses.size} items")
 
     val clusterID = conf.config.elasticSearch.clusterPolicies.bulk
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val startDateVal = ""
     val endDateVal = ""
@@ -66,7 +69,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       limit = Some(limitInt),
       startDate = Some(startDateVal),
       endDate = Some(endDateVal),
-      matchThreshold = Some(thresholdFloat)
+      matchThreshold = Some(thresholdFloat),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Result] =
@@ -100,10 +104,16 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     * @return all the information on found addresses (uprn, formatted address, found address json object)
     */
   def bulkFull(limitperaddress: Option[String],
-               historical: Option[String] = None, matchthreshold: Option[String] = None, epoch: Option[String]): Action[BulkBody] = Action(
+               historical: Option[String] = None,
+               matchthreshold: Option[String] = None,
+               epoch: Option[String] = None,
+               pafdefault: Option[String] = None
+              ): Action[BulkBody] = Action(
     parse.json[BulkBody]) { implicit request =>
 
     logger.info(s"#bulkFullQuery with ${request.body.addresses.size} items")
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -130,7 +140,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       limit = Some(limitInt),
       startDate = Some(startDateVal),
       endDate = Some(endDateVal),
-      matchThreshold = Some(thresholdFloat)
+      matchThreshold = Some(thresholdFloat),
+      pafDefault = Some(pafDefault)
     )
 
     logger.info("threshold = " + thresholdFloat)
@@ -163,10 +174,14 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
   def bulkDebug(limitperaddress: Option[String],
                 historical: Option[String] = None,
                 matchthreshold: Option[String] = None,
-                epoch: Option[String]): Action[BulkBodyDebug] = Action(
+                epoch: Option[String] = None,
+                pafdefault: Option[String] = None
+               ): Action[BulkBodyDebug] = Action(
     parse.json[BulkBodyDebug]) { implicit request =>
 
     logger.info(s"#bulkDebugQuery with ${request.body.addresses.size} items")
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val hist = historical match {
       case Some(x) => Try(x.toBoolean).getOrElse(true)
@@ -195,7 +210,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
       limit = Some(limitInt),
       startDate = Some(startDateVal),
       endDate = Some(endDateVal),
-      matchThreshold = Some(thresholdFloat)
+      matchThreshold = Some(thresholdFloat),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Result] =

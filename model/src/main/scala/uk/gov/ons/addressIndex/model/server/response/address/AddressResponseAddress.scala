@@ -57,7 +57,7 @@ object AddressResponseAddress {
     * @param other HybridAddress from ES
     * @return
     */
-  def fromHybridAddress(other: HybridAddress, verbose: Boolean): AddressResponseAddress = {
+  def fromHybridAddress(other: HybridAddress, verbose: Boolean, pafdefault: Boolean): AddressResponseAddress = {
 
     val chosenNag = chooseMostRecentNag(other.lpi, NationalAddressGazetteerAddress.Languages.english)
     val formattedAddressNag = chosenNag.map(_.mixedNag).getOrElse(chosenNag.map(_.mixedWelshNag).getOrElse(""))
@@ -80,7 +80,7 @@ object AddressResponseAddress {
 
     val formattedAddress = if (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
                            else if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
-                           else if (chosenPaf.isDefined) removeConcatenatedPostcode(formattedAddressPaf)
+                           else if (chosenPaf.isDefined && pafdefault) removeConcatenatedPostcode(formattedAddressPaf)
                            else removeConcatenatedPostcode(formattedAddressNag)
 
     val geo = if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)

@@ -48,11 +48,14 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     eboost: Option[String] = None,
                     nboost: Option[String] = None,
                     sboost: Option[String] = None,
-                    wboost: Option[String] = None
+                    wboost: Option[String] = None,
+                    pafdefault: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPostcode
@@ -97,7 +100,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         endpoint = endpointType, activity = activity, clusterid = clusterId,
-        includeAuxiliary = auxiliary
+        includeAuxiliary = auxiliary, pafDefault = pafDefault
       )
     }
 
@@ -116,7 +119,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
-      wboost = Some(wboostDouble)
+      wboost = Some(wboostDouble),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Future[Result]] =
@@ -147,7 +151,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
-          wboost = wboostDouble
+          wboost = wboostDouble,
+          pafDefault = pafDefault
         )
 
         implicit val success = Success[HybridAddressCollection](_ != null)
@@ -163,7 +168,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
+              AddressResponseAddress.fromHybridAddress(_, verb, pafDefault)
             )
 
             writeLog(activity = "postcode_request")

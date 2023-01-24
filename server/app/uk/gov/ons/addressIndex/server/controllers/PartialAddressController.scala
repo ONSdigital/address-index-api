@@ -191,8 +191,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
         request.map {
           case HybridAddressCollection(hybridAddresses, aggregations@_, maxScore, total) =>
+            val pafDefault = false
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
+              AddressResponseAddress.fromHybridAddress(_, verb, pafdefault=pafDefault)
             )
 
             val sortAddresses = if (startboost > 0) boostAtStart(addresses, inputVal, favourPaf, favourWelsh, highVerbose) else addresses
