@@ -143,7 +143,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeauxiliarysearch = auxiliary
+                  includeauxiliarysearch = auxiliary,
+                  pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus
               )

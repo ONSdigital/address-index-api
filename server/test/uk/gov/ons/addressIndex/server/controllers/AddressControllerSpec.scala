@@ -593,7 +593,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)),
           historical = true,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -635,7 +636,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 1,
           maxScore = 1.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -667,7 +669,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 1,
           maxScore = 1.0f,
           verbose = true,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1334,7 +1337,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1374,7 +1378,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1414,7 +1419,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1454,7 +1460,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1494,7 +1501,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -1534,7 +1542,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(CountryBoostsInvalidError)
@@ -1575,7 +1584,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 42
+          wboost = 42,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(CountryBoostsInvalidError)
@@ -1617,7 +1627,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -1658,7 +1669,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(MixedFilterError)
@@ -1700,7 +1712,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1732,7 +1745,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1773,7 +1787,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1805,7 +1820,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1879,7 +1895,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyRadiusQueryAddressResponseError)
@@ -1920,7 +1937,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1952,7 +1970,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1993,7 +2012,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -2025,7 +2045,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -2222,7 +2243,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -2254,7 +2276,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -2295,7 +2318,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -2327,7 +2351,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -2434,7 +2459,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -2475,7 +2501,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -2516,7 +2543,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -2557,7 +2585,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -2598,7 +2627,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -2639,7 +2669,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -2680,7 +2711,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -2721,7 +2753,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -2835,7 +2868,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryPostcodeAddressResponseError)
@@ -2867,7 +2901,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = "epoch"
+          epoch = "epoch",
+          pafdefault = false
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(postcodeValidation.EpochNotAvailableErrorCustom)
@@ -2930,7 +2965,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         OkAddressResponseStatus
       ))
@@ -2957,7 +2993,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2985,7 +3022,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(cbError)
@@ -3013,7 +3051,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(cbTimeoutError)
@@ -3142,7 +3181,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           eboost = 1,
           nboost = 1,
           sboost = 1,
-          wboost = 1
+          wboost = 1,
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -3180,7 +3220,8 @@ class AddressControllerSpec extends PlaySpec with Results {
           total = 0,
           maxScore = 0.0f,
           verbose = false,
-          epoch = ""
+          epoch = "",
+          pafdefault = false
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
