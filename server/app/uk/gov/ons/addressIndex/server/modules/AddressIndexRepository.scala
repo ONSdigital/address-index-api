@@ -916,20 +916,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       case None => Seq.empty
     }
 
-    val fromSourceQuery1 = args.fromsource match {
-      case "ewonly" => Seq(termsQuery("fromSource","EW"))
-      case "nionly" => Seq(termsQuery("fromSource","NI"))
-      case _ => Seq.empty
-    }
-
-    val fromSourceQuery2 = args.fromsource match {
-      case "ewonly" => Seq(termsQuery("fromSource","EW"))
-      case "nionly" => Seq(termsQuery("fromSource","NI"))
-      case "niboost" => Seq(termsQuery("fromSource","NI"))
-      case "ewboost" => Seq(termsQuery("fromSource","EW"))
-      case _ => Seq.empty
-    }
-
     val eboost = args.eboost
     val nboost = args.nboost
     val sboost = args.sboost
@@ -981,7 +967,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         .tieBreaker(0.0)),
       Seq.empty).boost(queryParams.fallback.fallbackQueryBoost)
 
-    val fallbackQueryFilter = args.queryFilter ++ radiusQuery ++ fromSourceQuery2
+    val fallbackQueryFilter = args.queryFilter ++ radiusQuery
 
     val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter).not(fromSourceQueryMustNot5)
 
@@ -1037,7 +1023,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
          dismax(
            should(shouldQuery.asInstanceOf[Iterable[Query]])
              .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
-             .filter(args.queryFilter ++ radiusQuery ++ fromSourceQuery1)
+             .filter(args.queryFilter ++ radiusQuery)
              .not(fromSourceQueryMustNot5)
            , fallbackQuery)
            .tieBreaker(queryParams.topDisMaxTieBreaker)
@@ -1184,21 +1170,22 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         verbose = false,
         isBulk = true,
         epoch = args.epoch,
-        fromsource = "all",
         eboost = 1.0,
         nboost = 1.0,
         sboost = 1.0,
         wboost = 1.0,
-        auth = args.auth
+        auth = args.auth,
+        pafDefault = args.pafDefault
       )
       val bulkAddressRequest: Future[Seq[AddressBulkResponseAddress]] =
         runMultiResultQuery(addressArgs).map { case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
+          val pafDefault = addressArgs.pafDefault
           // If we didn't find any results for an input, we still need to return
           // something that will indicate an empty result
           val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true)), tokens, 1D,scaleFactor)
+          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor)
           val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
@@ -1207,7 +1194,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             }
 
             val addressResponseAddresses = hybridAddresses.map { hybridAddress =>
-              AddressResponseAddress.fromHybridAddress(hybridAddress, verbose = true)
+              AddressResponseAddress.fromHybridAddress(hybridAddress, verbose = true, pafdefault=pafDefault)
             }
 
             //  calculate the elastic denominator value which will be used when scoring each address

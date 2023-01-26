@@ -57,7 +57,8 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
       eboost = partResponse.eboost,
       nboost = partResponse.nboost,
       sboost = partResponse.sboost,
-      wboost = partResponse.wboost
+      wboost = partResponse.wboost,
+      pafdefault = false
   )
 
 }

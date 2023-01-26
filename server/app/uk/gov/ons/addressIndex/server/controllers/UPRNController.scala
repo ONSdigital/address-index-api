@@ -40,10 +40,13 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                 historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None,
-                includeauxiliarysearch: Option[String] = None
+                includeauxiliarysearch: Option[String] = None,
+                pafdefault: Option[String] = None
                ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
+
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val endpointType = "uprn"
 
@@ -68,10 +71,9 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
-        // startDate = startDateVal, endDate = endDateVal,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid,
-        includeAuxiliary = auxiliary
+        includeAuxiliary = auxiliary, pafDefault = pafDefault
       )
     }
 
@@ -80,7 +82,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(auxiliary)
+      includeAuxiliarySearch = Some(auxiliary),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Future[Result]] =
@@ -103,7 +106,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           historical = hist,
           epoch = epochVal,
           includeAuxiliarySearch = auxiliary,
-          auth = req.headers.get("authorization").getOrElse("Anon")
+          auth = req.headers.get("authorization").getOrElse("Anon"),
+          pafDefault = pafDefault
         )
 
         implicit val success = Success[Option[HybridAddress]](_ != null)
@@ -118,7 +122,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb)
+            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb, pafdefault=pafDefault)
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",
@@ -134,7 +138,8 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeauxiliarysearch = auxiliary
+                  includeauxiliarysearch = auxiliary,
+                  pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus
               )

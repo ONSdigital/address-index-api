@@ -22,7 +22,8 @@ trait PostcodeControllerResponse extends Response {
         total = 0,
         maxScore = 0f,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
+        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+        pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = NotFoundAddressResponseStatus,
       errors = Seq(NotFoundAddressResponseError)
@@ -79,7 +80,8 @@ trait PostcodeControllerResponse extends Response {
       total = 0,
       maxScore = 0f,
       verbose = queryValues.verboseOrDefault,
-      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault
+      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+      pafdefault = queryValues.pafDefaultOrDefault
     )
   }
 

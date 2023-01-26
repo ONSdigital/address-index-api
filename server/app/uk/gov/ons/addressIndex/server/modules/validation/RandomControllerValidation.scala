@@ -77,19 +77,6 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
     }
 
-  def validateFromSource(queryValues: QueryValues): Option[Future[Result]] = {
-    queryValues.fromsource match {
-      case Some("nionly") => None
-      case Some("ewonly") => None
-      case Some("niboost") => None
-      case Some("ewboost") => None
-      case Some("all") => None
-      case _ =>
-        logger.systemLog(badRequestMessage = FromSourceInvalidError.message)
-        Some(futureJsonBadRequest(RandomFromSourceInvalid(queryValues)))
-    }
-  }
-
    def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}

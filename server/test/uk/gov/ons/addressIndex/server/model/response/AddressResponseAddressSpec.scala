@@ -576,7 +576,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       )
 
       // When
-      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true)
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true, pafdefault = false)
 
       // Then
       result shouldBe expected
@@ -712,7 +712,91 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
     }
 
-    // EQ SECTION
+    "create AddressResponseAddress from Hybrid ES response when pafdefault false" in {
+      // Given
+      val hybrid = HybridAddress("", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
+      val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
+      val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
+      val expected = AddressResponseAddress(
+        addressEntryId = "",
+        uprn = givenPaf.uprn,
+        parentUprn = givenPaf.uprn,
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        formattedAddressNisra = "",
+        welshFormattedAddressNag = "",
+        welshFormattedAddressPaf = "mixedWelshPaf",
+        formattedAddressAuxiliary = "",
+        paf = Some(expectedPaf),
+        nag = Some(Seq(expectedNag)),
+        nisra = None,
+        geo = Some(AddressResponseGeo(
+          latitude = 50.7341677,
+          longitude = -3.540302,
+          easting = 291398,
+          northing = 93861
+        )),
+        classificationCode = "classificationCode",
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        confidenceScore = 100,
+        underlyingScore = 1,
+        census = AddressResponseCensus("NA", "NA", "E"),
+        highlights = None
+      )
+
+      // When
+      val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true, pafdefault = false)
+
+      // Then
+      result shouldBe expected
+    }
+
+    "create AddressResponseAddress from Hybrid ES response when pafdefault true" in {
+          // Given
+        val hybrid = HybridAddress("", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
+        val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
+        val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
+         val expected = AddressResponseAddress(
+          addressEntryId = "",
+          uprn = givenPaf.uprn,
+          parentUprn = givenPaf.uprn,
+          relatives = Some(Seq(givenRelativeResponse)),
+          crossRefs = Some(Seq(givenCrossRefResponse)),
+          formattedAddress = "mixedPaf",
+          formattedAddressNag = "mixedNag",
+          formattedAddressPaf = "mixedPaf",
+          formattedAddressNisra = "",
+          welshFormattedAddressNag = "",
+          welshFormattedAddressPaf = "mixedWelshPaf",
+          formattedAddressAuxiliary = "",
+          paf = Some(expectedPaf),
+          nag = Some(Seq(expectedNag)),
+          nisra = None,
+          geo = Some(AddressResponseGeo(
+            latitude = 50.7341677,
+            longitude = -3.540302,
+            easting = 291398,
+            northing = 93861
+          )),
+          classificationCode = "classificationCode",
+          lpiLogicalStatus = givenNag.lpiLogicalStatus,
+          confidenceScore = 100,
+          underlyingScore = 1,
+          census = AddressResponseCensus("NA", "NA", "E"),
+          highlights = None
+        )
+
+        // When
+        val result = AddressResponseAddress.fromHybridAddress(hybrid, verbose = true, pafdefault = true)
+
+        // Then
+        result shouldBe expected
+      }
+
+     // EQ SECTION
 
     "create AddressResponseAddressEQ from Hybrid ES response for PAF and English" in {
       // Given

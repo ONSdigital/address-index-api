@@ -200,6 +200,7 @@ final case class UPRNArgs(uprn: String,
                           epoch: String = "",
                           includeAuxiliarySearch: Boolean = false,
                           auth: String = "",
+                          pafDefault: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
 
@@ -275,7 +276,8 @@ final case class PostcodeArgs(postcode: String,
                               eboost: Double = 1.0,
                               nboost: Double = 1.0,
                               sboost: Double = 1.0,
-                              wboost: Double = 1.0
+                              wboost: Double = 1.0,
+                              pafDefault: Boolean = false
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -351,7 +353,8 @@ final case class RandomArgs(epoch: String = "",
                             eboost: Double = 1.0,
                             nboost: Double = 1.0,
                             sboost: Double = 1.0,
-                            wboost: Double = 1.0
+                            wboost: Double = 1.0,
+                            pafDefault: Boolean = false
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 }
@@ -374,13 +377,13 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             fromsource: String = "all",
                              includeAuxiliarySearch: Boolean = false,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
                              wboost: Double = 1.0,
-                             auth: String = ""
+                             auth: String = "",
+                             pafDefault: Boolean = false
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {
   override def inputOpt: Option[String] = Some(input)
 
@@ -411,7 +414,8 @@ final case class BulkArgs(requestsData: LazyList[BulkAddressRequestData],
                           limit: Int,
                           filterDateRange: DateRange = DateRange(),
                           queryParamsConfig: Option[QueryParamsConfig] = None,
-                          auth: String = ""
+                          auth: String = "",
+                          pafDefault: Boolean = false
                          ) extends QueryArgs with Limitable with DateFilterable with Configurable {
   override def requestsDataOpt: Option[LazyList[BulkAddressRequestData]] = Some(requestsData)
 
