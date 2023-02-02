@@ -24,7 +24,8 @@ class AddressAPILogger(log: String) extends APILogger {
                 formattedOutput: String = "", numOfResults: String = "", score: String = "",
                 endpoint: String = "", activity: String = "", uuid: String = "",
                 networkid: String = "", organisation: String = "", clusterid: String = "",
-                includeAuxiliary: Boolean = false, eboost: String = "", nboost: String = "", sboost:String = "", wboost: String = ""): Unit = {
+                includeAuxiliary: Boolean = false, eboost: String = "", nboost: String = "",
+                sboost:String = "", wboost: String = "", pafDefault: Boolean = false): Unit = {
 
     // Note we are using the info level for Splunk
     super.logMessage(splunk.info, AddressLoggerMessage(
@@ -42,6 +43,7 @@ class AddressAPILogger(log: String) extends APILogger {
         s"formattedOutput=${formattedOutput.replaceAll("""\s""", "_")} " +
         s"numOfResults=$numOfResults score=$score endpoint=$endpoint " +
         s"eboost=$eboost nboost=$nboost sboost=$sboost wboost=$wboost " +
+        s"pafDefault=$pafDefault " +
         s"activity=$activity uuid=$uuid networkid=$networkid organisation=$organisation " +
         s"clusterid=$clusterid includeAuxiliary=$includeAuxiliary "))
   }
@@ -56,7 +58,8 @@ class AddressAPILogger(log: String) extends APILogger {
                    endpoint: String = "",
                    uuid: String = "",
                    authVal: String = "",
-                   clusterId: String = ""
+                   clusterId: String = "",
+                   pafdefault: Boolean = false
                   )(
                     badRequestErrorMessage: String = "",
                     formattedOutput: String = "",
@@ -102,6 +105,7 @@ class AddressAPILogger(log: String) extends APILogger {
          |offset=${asArgType[StartAtOffset](args).map(_.start.toString).getOrElse("")}
          |filter=${asArgType[Filterable](args).map(_.filters).getOrElse("")}
          |verbose=${asArgType[Verboseable](args).exists(_.verbose)}
+         |pafdefault=$pafdefault
          |is_skinny=${asArgType[Skinnyable](args).exists(_.skinny)}
          |historical=${args.map(_.historical).getOrElse("")} epoch=${args.map(_.epoch).getOrElse("")}
          |batch_size=$batchSize

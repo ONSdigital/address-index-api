@@ -38,15 +38,6 @@ object HopperScoreHelper {
     scoredAddresses
   }
 
-//  def getScoresForBulks(addresses: Seq[BulkAddress], tokens: Map[String, String], elasticDenominator: Double): Seq[AddressResponseAddress] = {
-//    val startingTime = System.currentTimeMillis()
-//    val localityParams = addresses.map(address => getLocalityParams(AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens))
-//    val scoredAddresses = addresses.zipWithIndex.map { case (address, index) => addScoresToAddress(index, AddressResponseAddress.fromHybridAddress(address.hybridAddress, verbose = true), tokens, localityParams, elasticDenominator) }
-//    val endingTime = System.currentTimeMillis()
-//    logger.trace("Hopper Score calculation time = " + (endingTime - startingTime) + " milliseconds")
-//    scoredAddresses
-//  }
-
   def getLocalityParams(address: AddressResponseAddress, tokens: Map[String, String]): (String, String) = {
 
     val organisationName = tokens.getOrElse(Tokens.organisationName, empty)

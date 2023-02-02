@@ -98,7 +98,8 @@ trait Response {
       eboost = queryValues.eboostOrDefault,
       nboost = queryValues.nboostOrDefault,
       sboost = queryValues.sboostOrDefault,
-      wboost = queryValues.wboostOrDefault
+      wboost = queryValues.wboostOrDefault,
+      pafdefault = queryValues.pafDefaultOrDefault
     )
   }
 

@@ -115,7 +115,16 @@
                          Optional
                         <br>Default: 1.0
                     </td>
-                </tr>        
+                </tr>
+            <tr class="table--row">
+                <td class="table--cell">pafdefault</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to true to use PAF instead of NAG as default formatted address where possible</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: false
+                </td>
+            </tr>
     </tbody>
 </table>
 

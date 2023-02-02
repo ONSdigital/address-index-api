@@ -41,14 +41,16 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   eboost: Option[String] = None,
                   nboost: Option[String] = None,
                   sboost: Option[String] = None,
-                  wboost: Option[String] = None
+                  wboost: Option[String] = None,
+                  pafdefault: Option[String] = None
                  ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
 
-    val defLimit = conf.config.elasticSearch.defaultLimitRandom
+    val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
+    val defLimit = conf.config.elasticSearch.defaultLimitRandom
     val limval = limit.getOrElse(defLimit.toString)
 
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
@@ -85,7 +87,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        endpoint = endpointType, activity = activity, clusterid = clusterid, pafDefault = pafDefault
       )
     }
 
@@ -100,7 +102,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
-      wboost = Some(wboostDouble)
+      wboost = Some(wboostDouble),
+      pafDefault = Some(pafDefault)
     )
 
     val result: Option[Future[Result]] =
@@ -128,7 +131,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
-          wboost = wboostDouble
+          wboost = wboostDouble,
+          pafDefault = pafDefault
         )
 
         val request: Future[HybridAddressCollection] =
@@ -140,7 +144,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
           case HybridAddressCollection(hybridAddresses, _, _, _) =>
 
             val addresses: Seq[AddressResponseAddress] = hybridAddresses.map(
-              AddressResponseAddress.fromHybridAddress(_, verb)
+              AddressResponseAddress.fromHybridAddress(_, verb, pafdefault=pafDefault)
             )
 
             writeLog(activity = "random_address_request")
@@ -159,7 +163,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,
-                  wboost = wboostDouble
+                  wboost = wboostDouble,
+                  pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus
               )
