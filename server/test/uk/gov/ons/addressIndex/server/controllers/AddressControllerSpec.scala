@@ -179,6 +179,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val validHybridAddress: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "1",
     parentUprn = "4",
     relatives = Some(Seq(validRelative)),
@@ -200,6 +201,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
   val validHybridAddressSkinny: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "1",
     parentUprn = "4",
     relatives = None,
