@@ -15,6 +15,7 @@ import uk.gov.ons.addressIndex.model.db.index._
   *
   */
 case class AddressResponseAddress(addressEntryId: String,
+                                  addressEntryIdAlphanumericBackup: String,
                                   uprn: String,
                                   parentUprn: String,
                                   relatives: Option[Seq[AddressResponseRelative]],
@@ -22,7 +23,7 @@ case class AddressResponseAddress(addressEntryId: String,
                                   formattedAddress: String,
                                   formattedAddressNag: String,
                                   formattedAddressPaf: String,
-                                  formattedAddressNisra: String,
+                              //    formattedAddressNisra: String,
                                   welshFormattedAddressNag: String,
                                   welshFormattedAddressPaf: String,
                                   formattedAddressAuxiliary: String,
@@ -32,7 +33,7 @@ case class AddressResponseAddress(addressEntryId: String,
                                   nisra: Option[AddressResponseNisra],
                                   geo: Option[AddressResponseGeo],
                                   classificationCode: String,
-                                  census: AddressResponseCensus,
+                                  countryCode:String,
                                   lpiLogicalStatus: String,
                                   confidenceScore: Double,
                                   underlyingScore: Float
@@ -89,6 +90,7 @@ object AddressResponseAddress {
 
     AddressResponseAddress(
       addressEntryId = other.addressEntryId,
+      addressEntryIdAlphanumericBackup = other.addressEntryIdAlphanumericBackup,
       uprn = other.uprn,
       parentUprn = other.parentUprn,
       relatives = {
@@ -100,7 +102,7 @@ object AddressResponseAddress {
       formattedAddress = formattedAddress,
       formattedAddressNag = removeConcatenatedPostcode(formattedAddressNag),
       formattedAddressPaf = removeConcatenatedPostcode(formattedAddressPaf),
-      formattedAddressNisra = removeConcatenatedPostcode(formattedAddressNisra),
+//      formattedAddressNisra = removeConcatenatedPostcode(formattedAddressNisra),
       welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
       welshFormattedAddressPaf = removeConcatenatedPostcode(welshFormattedAddressPaf),
       formattedAddressAuxiliary = removeConcatenatedPostcode(formattedAddressAuxiliary),
@@ -125,7 +127,8 @@ object AddressResponseAddress {
       },
       geo = geo,
       classificationCode = other.classificationCode,
-      census = AddressResponseCensus(other.censusAddressType.trim,other.censusEstabType, other.countryCode),
+      countryCode = other.countryCode,
+ //     census = AddressResponseCensus(other.censusAddressType.trim,other.censusEstabType, other.countryCode),
       lpiLogicalStatus = lpiLogicalStatus,
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance/1000).toFloat

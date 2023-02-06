@@ -179,7 +179,7 @@ object HopperScoreHelper {
                              paoEndSuffix: String,
                              organisationName: String): String = {
 
-    val fromSource = address.census.countryCode
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -496,7 +496,7 @@ object HopperScoreHelper {
                              organisationName: String,
                              buildingName: String): String = {
 
-    val fromSource = address.census.countryCode
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("").toUpperCase
@@ -1075,7 +1075,7 @@ object HopperScoreHelper {
                          saoEndSuffix: String,
                          organisationName: String): String = {
 
-    val fromSource = address.census.countryCode
+    val fromSource = address.countryCode
 
     // get paf values
     val pafBuildingName = address.paf.map(_.buildingName).getOrElse("")
