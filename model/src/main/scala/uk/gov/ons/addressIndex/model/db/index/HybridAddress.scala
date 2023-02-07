@@ -6,6 +6,7 @@ import com.sksamuel.elastic4s.{Hit, HitReader}
 import scala.util.Try
 
 case class HybridAddress(addressEntryId: String,
+                         addressEntryIdAlphanumericBackup: String,
                          uprn: String,
                          parentUprn: String,
                          relatives: Option[Seq[Relative]],
@@ -31,6 +32,7 @@ object HybridAddress {
     */
   val empty = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq.empty),
@@ -101,7 +103,8 @@ object HybridAddress {
       val highlights = hit.asInstanceOf[SearchHit].highlight
 
       Try(HybridAddress(
-        addressEntryId = Try(hit.sourceAsMap("onsAddressId").toString).getOrElse(""),
+        addressEntryId = Try(hit.sourceAsMap("addressEntryId").toString).getOrElse(Try(hit.sourceAsMap("onsAddressId").toString).getOrElse("")),
+        addressEntryIdAlphanumericBackup = Try(hit.sourceAsMap("addressEntryIdAlphanumericBackup").toString).getOrElse(""),
         uprn = hit.sourceAsMap("uprn").toString,
         parentUprn = Try(hit.sourceAsMap("parentUprn").toString).getOrElse(""),
         relatives = Some(rels.map(Relative.fromEsMap).sortBy(_.level)),

@@ -252,6 +252,7 @@ object AddressIndexClientMock {
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -259,7 +260,6 @@ object AddressIndexClientMock {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
-    formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressAuxiliary = "7, GATE REACH, EXETER, EX2 9GA",
@@ -271,7 +271,7 @@ object AddressIndexClientMock {
     lpiLogicalStatus = "1",
     confidenceScore = 100f,
     underlyingScore = 1.0f,
-    census = AddressResponseCensus("TBA", "TBA", "E"),
+    countryCode = "E",
     highlights = None
   )
 
