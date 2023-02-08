@@ -635,6 +635,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
 
   val expectedHybrid: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = hybridFirstUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -656,6 +657,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
 
   val expectedDateHybrid: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = hybridFirstDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -677,6 +679,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
 
   val expectedSecondDateHybrid: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = hybridSecondDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),
@@ -698,6 +701,7 @@ class ElasticsearchRepositorySpec extends AnyWordSpec with should.Matchers with 
 
   val expectedThirdDateHybrid: HybridAddress = HybridAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = hybridThirdDateUprn.toString,
     parentUprn = hybridFirstParentUprn.toString,
     relatives = Some(Seq(expectedRelative)),

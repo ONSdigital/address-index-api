@@ -184,6 +184,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
   val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -191,7 +192,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
-    formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressAuxiliary = "",
@@ -203,13 +203,14 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    census = AddressResponseCensus("TBA", "TBA", "E"),
+    countryCode = "E",
     highlights = None
   )
 
 
   val mockAddressResponseAddress1: AddressResponseAddress = AddressResponseAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -217,7 +218,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     formattedAddress = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressNag = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
-    formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, PO7 PO7",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
     formattedAddressAuxiliary = "",
@@ -229,13 +229,14 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    census = AddressResponseCensus("TBA", "TBA", "E"),
+    countryCode = "E",
     highlights = None
   )
 
 
   val mockAddressResponseAddressWithScores: AddressResponseAddress = AddressResponseAddress(
     addressEntryId = "",
+    addressEntryIdAlphanumericBackup = "",
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -243,7 +244,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     formattedAddress = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
-    formattedAddressNisra = "",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     formattedAddressAuxiliary = "",
@@ -255,7 +255,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     lpiLogicalStatus = "1",
     confidenceScore = 63.3795D,
     underlyingScore = 1.0f,
-    census = AddressResponseCensus("TBA", "TBA", "E"),
+    countryCode = "E",
     highlights = None
   )
 
