@@ -88,7 +88,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val searchIndicies = if (args.includeAuxiliarySearch) Seq(source, auxiliaryIndex) else Seq(source)
     val maxrecs = if (args.uprns == null) 1 else args.uprns.size
 
-    search(searchIndicies).query(query).size(maxrecs)
+    if (args.uprns == null)
+      search(searchIndicies).query(query).size(maxrecs)
+   else
+      search(searchIndicies).query(query).sourceExclude("relatives","crossRefs").size(maxrecs)
   }
 
   /**
