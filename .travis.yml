@@ -4,7 +4,6 @@ language: scala
 before_install:
   - curl -s "https://get.sdkman.io" | bash
   - source "$HOME/.sdkman/bin/sdkman-init.sh"
-  - sdk list java
   - sdk install java 11.0.12-open
   - sdk use java 11.0.12-open
 script:
