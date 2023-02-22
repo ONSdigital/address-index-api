@@ -4007,14 +4007,6 @@
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
             "required": false
-          },
-          {
-            "name": "pafdefault",
-            "schema": {
-              "type": "boolean",
-              "default": false
-            },
-            "description": "Populate the formatted address field with PAF if present"
           }
         ],
         "responses": {
