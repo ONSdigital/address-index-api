@@ -808,11 +808,6 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
-#    - name: pafdefault
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Populate the formatted address field with PAF if present
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
