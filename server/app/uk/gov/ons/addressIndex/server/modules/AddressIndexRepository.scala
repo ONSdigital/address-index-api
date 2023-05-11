@@ -1001,8 +1001,8 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       organisationDepartmentQueries,
       townLocalityQueries,
       paoQuery,
-      saoQuery,
-      postalQuery
+      saoQuery
+  //    postalQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[Query]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 

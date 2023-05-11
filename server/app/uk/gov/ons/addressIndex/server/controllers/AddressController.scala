@@ -89,7 +89,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val sigmoidScaleFactorNormal = conf.config.elasticSearch.scaleFactor
 
     val inputTokenCount = input.replace(",", " ").split("\\s+").size
-    logger.warn("inputTokenCount = " + inputTokenCount)
+ //   logger.warn("inputTokenCount = " + inputTokenCount)
 
     val sigmoidScaleFactor = inputTokenCount match {
       case 1 => 6
