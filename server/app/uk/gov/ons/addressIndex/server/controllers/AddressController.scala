@@ -85,8 +85,17 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
-    val sigmoidScaleFactor = conf.config.elasticSearch.scaleFactor
+    // reduce scalefactor for short input
+    val sigmoidScaleFactorNormal = conf.config.elasticSearch.scaleFactor
 
+    val inputTokenCount = input.replace(",", " ").split("\\s+").size
+    logger.warn("inputTokenCount = " + inputTokenCount)
+
+    val sigmoidScaleFactor = inputTokenCount match {
+      case 1 => 6
+      case 2 => 12
+      case _ => sigmoidScaleFactorNormal
+    }
     // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
     val latVal = lat.getOrElse("")

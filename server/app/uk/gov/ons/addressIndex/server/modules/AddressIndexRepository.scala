@@ -412,18 +412,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val postalQuery =
       Seq(
-        constantScoreQuery(matchQuery(
+        constantScoreQuery(termsQuery(
           field = "lpi.addressBasePostal",
-          value = "D"
-        )).boost(queryParams.postal.postalDBoost),
-        constantScoreQuery(matchQuery(
-          field = "lpi.addressBasePostal",
-          value = "C"
-        )).boost(queryParams.postal.postalCBoost),
-        constantScoreQuery(matchQuery(
-          field = "lpi.addressBasePostal",
-          value = "L"
-        )).boost(queryParams.postal.postalLBoost)
+          values = Seq("D","C","L")
+        )).boost(queryParams.postal.postalDBoost)
       )
 
     // this part of query should be blank unless there is an end number or end suffix
