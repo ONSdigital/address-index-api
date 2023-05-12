@@ -674,10 +674,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         field = "paf.buildingName",
         value = token
       ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost),
-//      constantScoreQuery(matchQuery(
-//        field = "lpi.streetDescriptor",
-//        value = token
-//      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.lpiStreetDescriptorBoost/4),
+      constantScoreQuery(matchQuery(
+        field = "lpi.streetDescriptor",
+        value = token
+      ).fuzziness(defaultFuzziness)).boost(queryParams.streetName.lpiStreetDescriptorBoost/4),
 //      constantScoreQuery(matchQuery(
 //        field = "paf.thoroughfare",
 //        value = token
@@ -739,10 +739,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 //        field = "paf.buildingName",
 //        value = token
 //      ).fuzziness(defaultFuzziness)).boost(queryParams.buildingName.pafBuildingNameBoost/4),
-//      constantScoreQuery(matchQuery(
-//        field = "lpi.paoText",
-//        value = token
-//      ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost/4),
+      constantScoreQuery(matchQuery(
+        field = "lpi.paoText",
+        value = token
+      ).fuzziness(defaultFuzziness).minimumShouldMatch(queryParams.paoSaoMinimumShouldMatch)).boost(queryParams.buildingName.lpiPaoTextBoost/4),
       constantScoreQuery(matchQuery(
         field = "lpi.streetDescriptor",
         value = token
