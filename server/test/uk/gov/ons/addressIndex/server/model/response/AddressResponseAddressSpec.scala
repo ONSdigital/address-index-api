@@ -329,27 +329,27 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
     LGDCode = "N09000003"
   )
 
-  val givenAuxiliary: AuxiliaryAddress = AuxiliaryAddress(
-    uprn = "1",
-    organisationName = "2",
-    subBuildingName = "3",
-    buildingName = "4",
-    buildingNumber = "5",
-    paoStartNumber = "6",
-    paoStartSuffix = "7",
-    paoEndNumber = "8",
-    saoStartSuffix = "9",
-    saoEndSuffix = "10",
-    streetName = "11",
-    locality = "12",
-    townName = "13",
-    location = AuxiliaryAddressLocation("50.7341677", "-3.540302"),
-    addressLevel = "16",
-    addressAll = "mixedAuxiliary",
-    addressLine1 = "17",
-    addressLine2 = "18",
-    addressLine3 = "19"
-  )
+//  val givenAuxiliary: AuxiliaryAddress = AuxiliaryAddress(
+//    uprn = "1",
+//    organisationName = "2",
+//    subBuildingName = "3",
+//    buildingName = "4",
+//    buildingNumber = "5",
+//    paoStartNumber = "6",
+//    paoStartSuffix = "7",
+//    paoEndNumber = "8",
+//    saoStartSuffix = "9",
+//    saoEndSuffix = "10",
+//    streetName = "11",
+//    locality = "12",
+//    townName = "13",
+//    location = AuxiliaryAddressLocation("50.7341677", "-3.540302"),
+//    addressLevel = "16",
+//    addressAll = "mixedAuxiliary",
+//    addressLine1 = "17",
+//    addressLine2 = "18",
+//    addressLine3 = "19"
+//  )
 
   val givenRelative: Relative = Relative (
     level = 1,
@@ -487,39 +487,39 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       result shouldBe expected
     }
 
-    "create Auxiliary from Elastic Auxiliary response" in {
-
-      // Given
-      val aux = givenAuxiliary
-
-      val expected = AddressResponseAuxiliary(
-        aux.uprn,
-        aux.organisationName,
-        aux.subBuildingName,
-        aux.buildingName,
-        aux.buildingNumber,
-        aux.paoStartNumber,
-        aux.paoStartSuffix,
-        aux.paoEndNumber,
-        aux.saoStartSuffix,
-        aux.saoEndSuffix,
-        aux.streetName,
-        aux.locality,
-        aux.townName,
-        AddressResponseAuxiliaryAddressLocation.fromAuxiliaryAddressLocation(aux.location),
-        aux.addressLevel,
-        aux.addressAll,
-        aux.addressLine1,
-        aux.addressLine2,
-        aux.addressLine3
-      )
-
-      // When
-      val result = AddressResponseAuxiliary.fromAuxiliaryAddress(aux)
-
-      // Then
-      result shouldBe expected
-    }
+//    "create Auxiliary from Elastic Auxiliary response" in {
+//
+//      // Given
+//      val aux = givenAuxiliary
+//
+//      val expected = AddressResponseAuxiliary(
+//        aux.uprn,
+//        aux.organisationName,
+//        aux.subBuildingName,
+//        aux.buildingName,
+//        aux.buildingNumber,
+//        aux.paoStartNumber,
+//        aux.paoStartSuffix,
+//        aux.paoEndNumber,
+//        aux.saoStartSuffix,
+//        aux.saoEndSuffix,
+//        aux.streetName,
+//        aux.locality,
+//        aux.townName,
+//        AddressResponseAuxiliaryAddressLocation.fromAuxiliaryAddressLocation(aux.location),
+//        aux.addressLevel,
+//        aux.addressAll,
+//        aux.addressLine1,
+//        aux.addressLine2,
+//        aux.addressLine3
+//      )
+//
+//      // When
+//      val result = AddressResponseAuxiliary.fromAuxiliaryAddress(aux)
+//
+//      // Then
+//      result shouldBe expected
+//    }
 
     "create GEO from NAG elastic response" in {
       // Given
@@ -540,11 +540,12 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
     "be creatable from Hybrid ES response" in {
       // Given
-      val hybrid = HybridAddress("", "", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), Seq(givenAuxiliary), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+  //    val hybrid = HybridAddress("", "", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), Seq(givenAuxiliary), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+      val hybrid = HybridAddress("", "", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(givenNisra), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
       val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
       val expectedNisra = AddressResponseNisra.fromNisraAddress(givenNisra)
-      val expectedAuxiliary = AddressResponseAuxiliary.fromAuxiliaryAddress(givenAuxiliary)
+ //     val expectedAuxiliary = AddressResponseAuxiliary.fromAuxiliaryAddress(givenAuxiliary)
       val expected = AddressResponseAddress(
         addressEntryId = "",
         addressEntryIdAlphanumericBackup = "",
@@ -557,7 +558,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
         formattedAddressPaf = "mixedPaf",
         welshFormattedAddressNag = "",
         welshFormattedAddressPaf = "mixedWelshPaf",
-        formattedAddressAuxiliary = "mixedAuxiliary",
+  //      formattedAddressAuxiliary = "mixedAuxiliary",
         paf = Some(expectedPaf),
         nag = Some(Seq(expectedNag)),
         nisra = Some(expectedNisra),
@@ -729,7 +730,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
         formattedAddressPaf = "mixedPaf",
         welshFormattedAddressNag = "",
         welshFormattedAddressPaf = "mixedWelshPaf",
-        formattedAddressAuxiliary = "",
+ //       formattedAddressAuxiliary = "",
         paf = Some(expectedPaf),
         nag = Some(Seq(expectedNag)),
         nisra = None,
@@ -771,7 +772,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
           formattedAddressPaf = "mixedPaf",
           welshFormattedAddressNag = "",
           welshFormattedAddressPaf = "mixedWelshPaf",
-          formattedAddressAuxiliary = "",
+//          formattedAddressAuxiliary = "",
           paf = Some(expectedPaf),
           nag = Some(Seq(expectedNag)),
           nisra = None,

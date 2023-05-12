@@ -149,7 +149,7 @@ sealed abstract class QueryArgs {
 
   //def includeAuxiliarySearch: Boolean
 
-  def includeAuxiliarySearchOpt: Option[Boolean] = None
+  //def includeAuxiliarySearchOpt: Option[Boolean] = None
   // used when assembling error reports
 
   def inputOrDefault: String = this.inputOpt.getOrElse("")
@@ -182,7 +182,7 @@ sealed abstract class QueryArgs {
 
   def matchThresholdOrDefault: Float = this.matchThresholdOpt.getOrElse(0f)
 
-  def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
+ // def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearchOpt.getOrElse(false)
 
   def groupFullPostcodesOrDefault: String = this.groupFullPostcodesOpt.getOrElse("")
 
@@ -198,13 +198,13 @@ final case class UPRNArgs(uprn: String,
                           uprns: List[String] = null,
                           historical: Boolean = true,
                           epoch: String = "",
-                          includeAuxiliarySearch: Boolean = false,
+ //                         includeAuxiliarySearch: Boolean = false,
                           auth: String = "",
                           pafDefault: Boolean = false
                          ) extends QueryArgs {
   override def uprnOpt: Option[String] = Some(uprn)
 
-  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+ // override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 sealed abstract class MultiResultArgs extends QueryArgs with Limitable with Filterable with Verboseable {
@@ -234,7 +234,7 @@ final case class PartialArgs(input: String,
                              highlight: String = "on",
                              favourpaf: Boolean = true,
                              favourwelsh: Boolean = true,
-                             includeAuxiliarySearch: Boolean = false,
+ //                            includeAuxiliarySearch: Boolean = false,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
@@ -251,7 +251,7 @@ final case class PartialArgs(input: String,
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
-  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+//  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 
   def inputNumbers: List[String] = input.replaceAll("[A-Za-z][0-9]+","").split("\\D+").filter(_.matches("\\d{1,5}")).filter(_.nonEmpty).toList
 }
@@ -271,7 +271,7 @@ final case class PostcodeArgs(postcode: String,
                               skinny: Boolean = false,
                               favourpaf: Boolean = true,
                               favourwelsh: Boolean = true,
-                              includeAuxiliarySearch: Boolean = false,
+ //                             includeAuxiliarySearch: Boolean = false,
                               groupfullpostcodes: String = "no",
                               eboost: Double = 1.0,
                               nboost: Double = 1.0,
@@ -285,7 +285,7 @@ final case class PostcodeArgs(postcode: String,
 
   override def skinnyOpt: Option[Boolean] = Some(skinny)
 
-  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+ // override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 
   override def groupFullPostcodesOpt: Option[String] = Some(groupfullpostcodes)
 }
@@ -377,7 +377,7 @@ final case class AddressArgs(input: String,
                              filterDateRange: DateRange = DateRange(),
                              verbose: Boolean,
                              queryParamsConfig: Option[QueryParamsConfig] = None,
-                             includeAuxiliarySearch: Boolean = false,
+ //                            includeAuxiliarySearch: Boolean = false,
                              eboost: Double = 1.0,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
@@ -399,7 +399,7 @@ final case class AddressArgs(input: String,
 
   override def queryParamsConfigOpt: Option[QueryParamsConfig] = queryParamsConfig
 
-  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
+//  override def includeAuxiliarySearchOpt: Option[Boolean] = Some(includeAuxiliarySearch)
 }
 
 /**

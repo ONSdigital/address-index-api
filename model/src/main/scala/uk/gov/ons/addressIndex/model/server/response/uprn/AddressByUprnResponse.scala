@@ -12,7 +12,7 @@ case class AddressByUprnResponse(address: Option[AddressResponseAddress],
                                  historical: Boolean,
                                  epoch: String,
                                  verbose: Boolean,
-                                 includeauxiliarysearch: Boolean = false,
+  //                               includeauxiliarysearch: Boolean = false,
                                  pafdefault: Boolean)
 
 object AddressByUprnResponse {

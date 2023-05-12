@@ -20,7 +20,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+ //       includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = BadRequestAddressResponseStatus,
@@ -34,7 +34,7 @@ trait UPRNControllerResponse extends Response {
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       verbose = queryValues.verboseOrDefault,
-      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+//      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
       pafdefault = queryValues.pafDefaultOrDefault
     )
   }
@@ -58,7 +58,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+ //       includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = OkAddressResponseStatus
@@ -74,7 +74,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+  //      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = NotFoundAddressResponseStatus,
@@ -91,7 +91,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+  //      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = BadRequestAddressResponseStatus,
@@ -108,7 +108,7 @@ trait UPRNControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
+ //      includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = BadRequestAddressResponseStatus,

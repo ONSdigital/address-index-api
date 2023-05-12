@@ -53,7 +53,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
-                   includeauxiliarysearch: Option[String] = None,
+ //                  includeauxiliarysearch: Option[String] = None,
                    eboost: Option[String] = None,
                    nboost: Option[String] = None,
                    sboost: Option[String] = None,
@@ -83,7 +83,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
+ //   val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     // reduce scalefactor for short input
     val sigmoidScaleFactorNormal = conf.config.elasticSearch.scaleFactor
@@ -130,7 +130,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         verbose = verb, eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterId, includeAuxiliary = auxiliary,
+        endpoint = endpointType, activity = activity, clusterid = clusterId,
+ //       includeAuxiliary = auxiliary,
         pafDefault = pafDefault)
     }
 
@@ -153,7 +154,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
-      includeAuxiliarySearch = Some(auxiliary),
+ //     includeAuxiliarySearch = Some(auxiliary),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
@@ -172,7 +173,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-      includeAuxiliarySearch = auxiliary,
+//      includeAuxiliarySearch = auxiliary,
       eboost = eboostDouble,
       nboost = nboostDouble,
       sboost = sboostDouble,
@@ -208,8 +209,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample
-        val limitExpanded = if (auxiliary) 100 else max(offsetInt + (limitInt * 2), minimumSample)
-
+ //       val limitExpanded = if (auxiliary) 100 else max(offsetInt + (limitInt * 2), minimumSample)
+        val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
         val finalArgs = args.copy(
           tokens = tokens,
           start = 0,
@@ -280,7 +281,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  includeauxiliarysearch = auxiliary,
+//                  includeauxiliarysearch = auxiliary,
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,
