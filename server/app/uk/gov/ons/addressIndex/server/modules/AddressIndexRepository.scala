@@ -405,11 +405,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val defaultFuzziness = "1"
     val isBlank = args.isBlank
 
-  //  D = A record which is linked to PAF
+ //   D = A record which is linked to PAF
  //   N = Not a postal address
  //   C = A record which is postal and has a parent record which is linked to PAF
  //   L = A record which is identified as postal based on Local Authority information
-
+ // this query is currently not being used for performance reasons, score tweaked in API
     val postalQuery =
       Seq(
         constantScoreQuery(termsQuery(
@@ -1001,8 +1001,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       organisationDepartmentQueries,
       townLocalityQueries,
       paoQuery,
-      saoQuery,
-      postalQuery
+      saoQuery
       // `dismax` dsl does not exist, `: _*` means that we provide a list (`queries`) as arguments (args) for the function
     ).filter(_.nonEmpty).map(queries => dismax(queries: Iterable[Query]).tieBreaker(queryParams.includingDisMaxTieBreaker))
 
