@@ -94,7 +94,6 @@ trait Response {
       maxScore = 0f,
       matchthreshold = 5f,
       verbose = queryValues.verboseOrDefault,
-  //    includeauxiliarysearch = queryValues.includeAuxiliarySearchOrDefault,
       eboost = queryValues.eboostOrDefault,
       nboost = queryValues.nboostOrDefault,
       sboost = queryValues.sboostOrDefault,

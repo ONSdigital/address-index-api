@@ -55,7 +55,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                    matchthreshold: Option[String] = None,
                    verbose: Option[String] = None,
                    epoch: Option[String] = None,
-  //                 includeauxiliarysearch: Option[String] = None,
                    eboost: Option[String] = None,
                    nboost: Option[String] = None,
                    sboost: Option[String] = None,
@@ -82,9 +81,15 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-//    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
-    val sigmoidScaleFactor = conf.config.elasticSearch.scaleFactor
+    // reduce scalefactor for short input
+    val sigmoidScaleFactorNormal = conf.config.elasticSearch.scaleFactor
+    val inputTokenCount = input.replace(",", " ").split("\\s+").size
+    val sigmoidScaleFactor = inputTokenCount match {
+      case 1 => 6
+      case 2 => 12
+      case _ => sigmoidScaleFactorNormal
+    }
 
     // validate radius parameters
     val rangeVal = rangekm.getOrElse("")
@@ -121,7 +126,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         verbose = verb, eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
         endpoint = endpointType, activity = activity, clusterid = clusterId
-        //, includeAuxiliary = auxiliary
       )
     }
 
@@ -152,7 +156,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
       latitude = Some(latVal),
       longitude = Some(lonVal),
       matchThreshold = Some(thresholdFloat),
- //     includeAuxiliarySearch = Some(auxiliary),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
@@ -170,7 +173,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
       start = offsetInt, // temporary, but zeroed later?
       limit = limitInt, // temporary, expanded later
       queryParamsConfig = None,
-  //    includeAuxiliarySearch = auxiliary,
       eboost = eboostDouble,
       nboost = nboostDouble,
       sboost = sboostDouble,
@@ -205,7 +207,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
         val minimumSample = conf.config.elasticSearch.minimumSample
-   //     val limitExpanded = if (auxiliary) 100 else max(offsetInt + (limitInt * 2), minimumSample)
         val limitExpanded = max(offsetInt + (limitInt * 2), minimumSample)
 
         val finalArgs = args.copy(

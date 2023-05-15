@@ -142,7 +142,7 @@ object HopperScoreHelper {
     if (uScore == 1F) uScore
     else {
       addressBasePostal match {
-        case "D" => uScore * 1.025F
+        case "D" => uScore * 1.03F
         case "C" => uScore * 1.02F
         case "L" => uScore * 1.02F
         case _ => uScore

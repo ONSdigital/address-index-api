@@ -23,7 +23,6 @@ case class QueryValues(input: Option[String] = None,
                        favourpaf: Option[Boolean] = None,
                        favourwelsh: Option[Boolean] = None,
                        addressType: Option[String] = None,
-  //                     includeAuxiliarySearch: Option[Boolean] = None,
                        eboost: Option[Double] = None,
                        nboost: Option[Double] = None,
                        sboost: Option[Double] = None,
@@ -86,8 +85,6 @@ case class QueryValues(input: Option[String] = None,
   def favourWelshOrDefault: Boolean = this.favourwelsh.getOrElse(false)
 
   def addressTypeOrDefault: String = this.addressType.getOrElse("")
-
- // def includeAuxiliarySearchOrDefault: Boolean = this.includeAuxiliarySearch.getOrElse(false)
 
   def groupFullPostcodesOrDefault: String = this.groupFullPostcodes.getOrElse("no")
 

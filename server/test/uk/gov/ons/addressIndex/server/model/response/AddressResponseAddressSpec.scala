@@ -558,7 +558,6 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
         formattedAddressPaf = "mixedPaf",
         welshFormattedAddressNag = "",
         welshFormattedAddressPaf = "mixedWelshPaf",
-  //      formattedAddressAuxiliary = "mixedAuxiliary",
         paf = Some(expectedPaf),
         nag = Some(Seq(expectedNag)),
         nisra = Some(expectedNisra),

@@ -25,7 +25,6 @@ case class AddressResponseAddress(addressEntryId: String,
                                   formattedAddressPaf: String,
                                   welshFormattedAddressNag: String,
                                   welshFormattedAddressPaf: String,
- //                                 formattedAddressAuxiliary: String,
                                   highlights: Option[AddressResponseHighlight],
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
@@ -73,23 +72,12 @@ object AddressResponseAddress {
     val chosenNisra = other.nisra.headOption
     val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
 
-//    val chosenAuxiliary = other.auxiliary.headOption
-//    val formattedAddressAuxiliary = chosenAuxiliary.map(_.addressAll).getOrElse("")
-
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
-    val formattedAddress = if
-//    (chosenAuxiliary.isDefined) removeConcatenatedPostcode(formattedAddressAuxiliary)
-//                           else if (chosenNisra.isDefined) removeConcatenatedPostcode(formattedAddressNisra)
-//                           else if
-    (chosenPaf.isDefined && pafdefault) removeConcatenatedPostcode(formattedAddressPaf)
+    val formattedAddress = if (chosenPaf.isDefined && pafdefault) removeConcatenatedPostcode(formattedAddressPaf)
                            else removeConcatenatedPostcode(formattedAddressNag)
 
-    val geo =
-//      if (chosenAuxiliary.isDefined) chosenAuxiliary.flatMap(AddressResponseGeo.fromAuxiliaryAddress)
-//              else if (chosenNisra.isDefined) chosenNisra.flatMap(AddressResponseGeo.fromNisraAddress)
-//              else
-      chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
+    val geo = chosenNag.flatMap(AddressResponseGeo.fromNagAddress)
 
     AddressResponseAddress(
       addressEntryId = other.addressEntryId,
@@ -107,7 +95,6 @@ object AddressResponseAddress {
       formattedAddressPaf = removeConcatenatedPostcode(formattedAddressPaf),
       welshFormattedAddressNag = removeConcatenatedPostcode(welshFormattedAddressNag),
       welshFormattedAddressPaf = removeConcatenatedPostcode(welshFormattedAddressPaf),
- //     formattedAddressAuxiliary = removeConcatenatedPostcode(formattedAddressAuxiliary),
       highlights = if (testHigh) None
       else
         AddressResponseHighlight.fromCombinedHighlight("formattedAddress",

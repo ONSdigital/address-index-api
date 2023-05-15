@@ -49,7 +49,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           highlight: Option[String] = None,
                           favourpaf: Option[String] = None,
                           favourwelsh: Option[String] = None,
-  //                        includeauxiliarysearch: Option[String] = None,
                           eboost: Option[String] = None,
                           nboost: Option[String] = None,
                           sboost: Option[String] = None,
@@ -73,8 +72,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val filterString = classificationfilter.getOrElse("").replaceAll("\\s+", "")
     val endpointType = "partial"
 
-//   val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-//    val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(if (auxiliary) true else false)
     val fall = fallback.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
@@ -120,7 +117,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
         endpoint = endpointType, activity = activity, clusterid = clusterid
-        //, includeAuxiliary = auxiliary
       )
     }
 
@@ -140,7 +136,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       highlight = Some(highVal),
       favourpaf = Some(favourPaf),
       favourwelsh = Some(favourWelsh),
- //     includeAuxiliarySearch = Some(auxiliary),
       eboost = Some(eboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
@@ -178,7 +173,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           highlight = highVal,
           favourpaf = favourPaf,
           favourwelsh = favourWelsh,
- //         includeAuxiliarySearch = auxiliary,
           eboost = eboostDouble,
           nboost = nboostDouble,
           sboost = sboostDouble,
@@ -221,7 +215,6 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,
-//                  includeauxiliarysearch = auxiliary,
                   eboost = eboostDouble,
                   nboost = nboostDouble,
                   sboost = sboostDouble,

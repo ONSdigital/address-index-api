@@ -60,11 +60,6 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -433,11 +428,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #         type: boolean
 #         default: false
 #      description: Welsh beats English on draw for best match
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -854,11 +844,6 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -1390,11 +1375,6 @@ POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchCon
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search (latest if not supplied).
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: pafdefault
 #      schema:
 #         type: boolean
