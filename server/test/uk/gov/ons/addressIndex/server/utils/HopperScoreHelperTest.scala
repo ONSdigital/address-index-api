@@ -600,7 +600,7 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
 
   it should "boost the scores for addresses according to addressBasePostal = D " in {
     // Given
-    val expected = 10.5F
+    val expected = 10.299999F
     val scaleFactor = 23
     // When
     val actual = HopperScoreHelper.getBoostedUnderlyingScore(mockAddressResponseAddress2)

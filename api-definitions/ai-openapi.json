@@ -101,9 +101,6 @@
           "latitude": {
             "type": "string"
           },
-          "includeauxiliarysearch": {
-            "type": "boolean"
-          },
           "historical": {
             "type": "boolean"
           },
@@ -176,7 +173,6 @@
           "maxScore",
           "matchthreshold",
           "verbose",
-          "includeauxiliarysearch",
           "eboost",
           "nboost",
           "sboost",
@@ -656,17 +652,13 @@
           },
           "verbose": {
             "type": "boolean"
-          },
-          "includeauxiliarysearch": {
-            "type": "boolean"
           }
         },
         "required": [
           "addresses",
           "historical",
           "epoch",
-          "verbose",
-          "includeauxiliarysearch"
+          "verbose"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomEQ": {
@@ -1168,9 +1160,6 @@
           "favourwelsh": {
             "type": "boolean"
           },
-          "includeauxiliarysearch": {
-            "type": "boolean"
-          },
           "eboost": {
             "type": "number",
             "format": "double"
@@ -1207,7 +1196,6 @@
           "highlight",
           "favourpaf",
           "favourwelsh",
-          "includeauxiliarysearch",
           "eboost",
           "nboost",
           "sboost",
@@ -1256,9 +1244,6 @@
             "type": "string"
           },
           "welshFormattedAddressPaf": {
-            "type": "string"
-          },
-          "formattedAddressAuxiliary": {
             "type": "string"
           },
           "highlights": {
@@ -1312,7 +1297,6 @@
           "formattedAddressNisra",
           "welshFormattedAddressNag",
           "welshFormattedAddressPaf",
-          "formattedAddressAuxiliary",
           "classificationCode",
           "census",
           "lpiLogicalStatus",
@@ -1335,9 +1319,6 @@
           "verbose": {
             "type": "boolean"
           },
-          "includeauxiliarysearch": {
-            "type": "boolean"
-          },
           "pafdefault": {
             "type": "boolean"
           }
@@ -1346,7 +1327,6 @@
           "historical",
           "epoch",
           "verbose",
-          "includeauxiliarysearch",
           "pafdefault"
         ]
       },
@@ -1896,9 +1876,6 @@
           },
           "verbose": {
             "type": "boolean"
-          },
-          "includeauxiliarysearch": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -1911,8 +1888,7 @@
           "offset",
           "total",
           "maxScore",
-          "verbose",
-          "includeauxiliarysearch"
+          "verbose"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus": {
@@ -2568,17 +2544,6 @@
           },
           {
             "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
-            "required": false
-          },
-          {
-            "schema": {
               "default": 1,
               "nullable": true,
               "format": "decimal",
@@ -2779,17 +2744,6 @@
             "in": "query",
             "name": "epoch",
             "description": "Select a specific AddressBase Epoch to search.",
-            "required": false
-          },
-          {
-            "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
             "required": false
           },
           {
@@ -3106,17 +3060,6 @@
               "type": "boolean"
             },
             "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
-            "required": false
-          },
-          {
-            "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
             "name": "pafdefault",
             "description": "Populate the formatted address field with PAF if present",
             "required": false
@@ -3277,17 +3220,6 @@
             "in": "query",
             "name": "favourwelsh",
             "description": "Welsh beats English on draw for best match",
-            "required": false
-          },
-          {
-            "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
             "required": false
           },
           {
@@ -4121,17 +4053,6 @@
           },
           {
             "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
-            "required": false
-          },
-          {
-            "schema": {
               "default": 1,
               "nullable": true,
               "format": "decimal",
@@ -4946,17 +4867,6 @@
             "in": "query",
             "name": "epoch",
             "description": "Select a specific AddressBase Epoch to search (latest if not supplied).",
-            "required": false
-          },
-          {
-            "schema": {
-              "default": false,
-              "nullable": true,
-              "type": "boolean"
-            },
-            "in": "query",
-            "name": "includeauxiliarysearch",
-            "description": "Include search of Auxiliary index.",
             "required": false
           },
           {
