@@ -852,8 +852,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
 
- //   val auxBoost = queryParams.fallback.fallbackAuxBoost
- //   val auxBigramBoost = queryParams.fallback.fallbackAuxBigramBoost
     // Be more forgiving for long address strings
     val wordCount = normalizedInput.split(" ").length
     val fallbackMSM = if (wordCount > 10) "-50%" else queryParams.fallback.fallbackMinimumShouldMatch

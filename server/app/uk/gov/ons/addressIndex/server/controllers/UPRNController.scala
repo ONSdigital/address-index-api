@@ -102,7 +102,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
           uprns = null,
           historical = hist,
           epoch = epochVal,
- //         includeAuxiliarySearch = auxiliary,
           auth = req.headers.get("authorization").getOrElse("Anon"),
           pafDefault = pafDefault
         )
@@ -135,7 +134,6 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
- //                 includeauxiliarysearch = auxiliary,
                   pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus
