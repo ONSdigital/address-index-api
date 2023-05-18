@@ -1198,7 +1198,7 @@ GET     /epochs              uk.gov.ons.addressIndex.server.controllers.EpochOpt
 #    - name: limitperaddress
 #      schema:
 #         type: integer
-#         default: 5
+#         default: 1
 #      description: Specifies the maximum number of matches to return per address.
 #    - name: historical
 #      schema:
@@ -1242,7 +1242,7 @@ POST    /bulk               uk.gov.ons.addressIndex.server.controllers.BatchCont
 #    - name: limitperaddress
 #      schema:
 #         type: integer
-#         default: 5
+#         default: 1
 #      description: Specifies the maximum number of matches to return per address.
 #    - name: historical
 #      schema:
@@ -1346,7 +1346,7 @@ GET     /query-debug        uk.gov.ons.addressIndex.server.controllers.DebugCont
 #    - name: limitperaddress
 #      schema:
 #         type: integer
-#         default: 5
+#         default: 1
 #      description: Specifies the maximum number of matches to return per address.
 #    - name: historical
 #      schema:
