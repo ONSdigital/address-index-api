@@ -4659,7 +4659,7 @@
         "parameters": [
           {
             "schema": {
-              "default": 5,
+              "default": 1,
               "nullable": true,
               "type": "integer"
             },
@@ -4749,7 +4749,7 @@
         "parameters": [
           {
             "schema": {
-              "default": 5,
+              "default": 1,
               "nullable": true,
               "type": "integer"
             },

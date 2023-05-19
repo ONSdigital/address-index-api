@@ -22,7 +22,7 @@
             <td class="table--cell">Specifies the maximum number of matches to return per address.</td>
             <td class="table--cell">
                 Optional
-                <br>Default: 5
+                <br>Default: 1
             </td>
         </tr>
         <tr class="table--row">
