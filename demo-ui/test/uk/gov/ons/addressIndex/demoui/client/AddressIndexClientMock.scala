@@ -262,7 +262,6 @@ object AddressIndexClientMock {
     formattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressNag = "7, GATE REACH, EXETER, EX2 9GA",
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
-    formattedAddressAuxiliary = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
     nisra = Some(mockNisraAddress1),

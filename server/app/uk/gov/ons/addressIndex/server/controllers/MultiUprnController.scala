@@ -39,7 +39,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
   def multiUprn(historical: Option[String] = None,
                 verbose: Option[String] = None,
                 epoch: Option[String] = None,
-                includeauxiliarysearch: Option[String] = None,
                 pafdefault: Option[String] = None
           ): Action[MultiUprnBody] = Action(parse.json[MultiUprnBody]) async { implicit req =>
 
@@ -56,7 +55,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
 
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
-    val auxiliary = includeauxiliarysearch.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val epochVal = epoch.getOrElse("")
 
@@ -76,8 +74,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
         uprn = uprnString, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
-        endpoint = endpointType, activity = activity, clusterid = clusterid,
-        includeAuxiliary = auxiliary, pafDefault = pafDefault
+        endpoint = endpointType, activity = activity, clusterid = clusterid, pafDefault = pafDefault
       )
     }
 
@@ -86,7 +83,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
       epoch = Some(epochVal),
       historical = Some(hist),
       verbose = Some(verb),
-      includeAuxiliarySearch = Some(auxiliary),
       pafDefault = Some(pafDefault)
     )
 
@@ -108,7 +104,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           uprns = uprns,
           historical = hist,
           epoch = epochVal,
-          includeAuxiliarySearch = auxiliary,
           auth = req.headers.get("authorization").getOrElse("Anon"),
           pafDefault = pafDefault
         )
@@ -143,7 +138,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
-                  includeauxiliarysearch = auxiliary,
                   pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus

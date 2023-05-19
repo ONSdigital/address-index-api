@@ -12,7 +12,6 @@ case class AddressByMultiUprnResponse(addresses: Seq[AddressResponseAddress],
                                       historical: Boolean,
                                       epoch: String,
                                       verbose: Boolean,
-                                      includeauxiliarysearch: Boolean = false,
                                       pafdefault: Boolean)
 
 

@@ -24,7 +24,7 @@ class AddressAPILogger(log: String) extends APILogger {
                 formattedOutput: String = "", numOfResults: String = "", score: String = "",
                 endpoint: String = "", activity: String = "", uuid: String = "",
                 networkid: String = "", organisation: String = "", clusterid: String = "",
-                includeAuxiliary: Boolean = false, eboost: String = "", nboost: String = "",
+                eboost: String = "", nboost: String = "",
                 sboost:String = "", wboost: String = "", pafDefault: Boolean = false): Unit = {
 
     // Note we are using the info level for Splunk
@@ -45,7 +45,7 @@ class AddressAPILogger(log: String) extends APILogger {
         s"eboost=$eboost nboost=$nboost sboost=$sboost wboost=$wboost " +
         s"pafDefault=$pafDefault " +
         s"activity=$activity uuid=$uuid networkid=$networkid organisation=$organisation " +
-        s"clusterid=$clusterid includeAuxiliary=$includeAuxiliary "))
+        s"clusterid=$clusterid "))
   }
 
   def systemLogNew(args: Option[QueryArgs] = None,

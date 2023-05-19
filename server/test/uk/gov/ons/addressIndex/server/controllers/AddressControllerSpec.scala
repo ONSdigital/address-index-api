@@ -189,7 +189,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     nisra = Seq(),
-    auxiliary = Seq(),
     score = 1f,
     classificationCode = "29",
     censusAddressType = "NA",
@@ -211,7 +210,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
     nisra = Seq(validNisraAddress),
-    auxiliary = Seq(),
     score = 1f,
     classificationCode = "29",
     censusAddressType = "NA",
@@ -471,13 +469,13 @@ class AddressControllerSpec extends PlaySpec with Results {
   val applicationController = new ApplicationController(components, postcodeController, uprnController)
 
   val UPRNControllerKaput : UPRNController = new UPRNController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, uprnValidation) {
-    override def uprnQuery(uprn: String, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
+    override def uprnQuery(uprn: String, historical: Option[String], verbose: Option[String], epoch: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }
 
   val postcodeControllerKaput : PostcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation) {
-    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
+    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }
@@ -1322,7 +1320,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1363,7 +1361,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1404,7 +1402,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 6),
           filter = "commercial",
           historical = true,
           rangekm = "20",
@@ -1445,7 +1443,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1486,7 +1484,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12),
           filter = "",
           historical = true,
           rangekm = "1",

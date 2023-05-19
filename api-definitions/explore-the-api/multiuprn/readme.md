@@ -43,15 +43,6 @@
             </td>
         </tr>
         <tr class="table--row">
-            <td class="table--cell">includeauxiliarysearch</td>
-            <td class="table--cell">string</td>
-            <td class="table--cell">Search in the auxiliary index, if available</td>
-            <td class="table--cell">
-                Optional
-                <br>Default: false
-            </td>
-        </tr>
-        <tr class="table--row">
             <td class="table--cell">pafdefault</td>
             <td class="table--cell">string</td>
             <td class="table--cell">Set to true to use PAF instead of NAG as default formatted address where possible</td>
@@ -174,7 +165,6 @@
                 "formattedAddressNisra": "",
                 "welshFormattedAddressNag": "",
                 "welshFormattedAddressPaf": "",
-                "formattedAddressAuxiliary": "",
                 "geo": {
                     "latitude": 51.268353,
                     "longitude": 0.5064844,
@@ -194,8 +184,7 @@
         ],
         "historical": true,
         "epoch": "",
-        "verbose": false,
-        "includeauxiliarysearch": false
+        "verbose": false
     },
     "status": {
         "code": 200,
