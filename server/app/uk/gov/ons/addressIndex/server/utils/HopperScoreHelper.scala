@@ -125,10 +125,29 @@ object HopperScoreHelper {
     val unitScore = Try(scoreMatrix(unitScoreDebug).toDouble).getOrElse(0d)
     val structuralScore = calculateStructuralScore(buildingScore, localityScore)
     val safeDenominator = if (elasticDenominator == 0) 1 else elasticDenominator
-    val elasticRatio = if (elasticDenominator == -1D) 1.2D else Try(address.underlyingScore).getOrElse(1F) / safeDenominator
+    val elasticRatio = if (elasticDenominator == -1D) 1.2D else getBoostedUnderlyingScore(address) / safeDenominator
     val confidenceScore = ConfidenceScoreHelper.calculateConfidenceScore(tokens, structuralScore, unitScore, elasticRatio,sigmoidScaleFactor)
 
     address.copy(confidenceScore = confidenceScore)
+  }
+
+  /**
+    * Get underlying score and apply boosts if appropriate
+    * @param address
+    * @return underlying score with any boosts
+    */
+  def getBoostedUnderlyingScore(address: AddressResponseAddress): Float = {
+    val uScore = Try(address.underlyingScore).getOrElse(1F)
+    val addressBasePostal = address.nag.getOrElse(Nil).headOption.map(_.addressBasePostal).getOrElse("")
+    if (uScore == 1F) uScore
+    else {
+      addressBasePostal match {
+        case "D" => uScore * 1.03F
+        case "C" => uScore * 1.02F
+        case "L" => uScore * 1.02F
+        case _ => uScore
+      }
+    }
   }
 
   /**

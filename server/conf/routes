@@ -60,11 +60,6 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -110,7 +105,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAddressController.addressQueryIDS(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAddressController.addressQueryIDS(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
 
 ###
 #  summary: Search for an address.
@@ -171,11 +166,6 @@ GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAd
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -226,7 +216,7 @@ GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAd
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -357,11 +347,6 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search (latest if not supplied).
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: pafdefault
 #      schema:
 #         type: boolean
@@ -385,7 +370,7 @@ GET     /logicalstatuses      uk.gov.ons.addressIndex.server.controllers.Codelis
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], pafdefault: Option[String])
+GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRNController.uprnQuery(uprn, historical: Option[String], verbose: Option[String], epoch: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead).
@@ -443,11 +428,6 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #         type: boolean
 #         default: false
 #      description: Welsh beats English on draw for best match
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -494,7 +474,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], includeauxiliarysearch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], timeout: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], timeout: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version
@@ -864,11 +844,6 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search.
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: eboost
 #      schema:
 #         type: number
@@ -914,7 +889,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String],eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Search for an address by postcode. RH version
@@ -1400,11 +1375,6 @@ POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchCon
 #      schema:
 #         type: string
 #      description: Select a specific AddressBase Epoch to search (latest if not supplied).
-#    - name: includeauxiliarysearch
-#      schema:
-#         type: boolean
-#         default: false
-#      description: Include search of Auxiliary index.
 #    - name: pafdefault
 #      schema:
 #         type: boolean
@@ -1428,7 +1398,7 @@ POST    /bulk-debug          uk.gov.ons.addressIndex.server.controllers.BatchCon
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], includeauxiliarysearch: Option[String], pafdefault: Option[String])
+POST    /addresses/multiuprn    uk.gov.ons.addressIndex.server.controllers.MultiUprnController.multiUprn(historical: Option[String], verbose: Option[String], epoch: Option[String], pafdefault: Option[String])
 
 ### NoDocs ###
 GET   /docs/swagger-ui/*file        controllers.Assets.at(path:String="/public/lib/swagger-ui", file:String)
