@@ -2,7 +2,10 @@ package uk.gov.ons.addressIndex.model.server.response.bulk
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.BulkAddress
+import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+
+import scala.reflect.runtime.universe.Try
 
 /**
   *
@@ -20,6 +23,8 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
 case class AddressBulkResponseAddress(id: String,
                                       inputAddress: String,
                                       uprn: String,
+                                      parentUprn: String,
+                                      udprn: String,
                                       addressEntryId: String,
                                       addressEntryIdAlphanumericBackup: String,
                                       matchedFormattedAddress: String,
@@ -38,6 +43,8 @@ object AddressBulkResponseAddress {
     id = bulkAddress.id,
     inputAddress = bulkAddress.inputAddress,
     uprn = bulkAddress.hybridAddress.uprn,
+    parentUprn = bulkAddress.hybridAddress.parentUprn,
+    udprn = bulkAddress.hybridAddress.paf.headOption.map(_.udprn).getOrElse(""),
     addressEntryId = bulkAddress.hybridAddress.addressEntryId,
     addressEntryIdAlphanumericBackup = bulkAddress.hybridAddress.addressEntryIdAlphanumericBackup,
     matchedFormattedAddress = addressResponseAddress.formattedAddress,
