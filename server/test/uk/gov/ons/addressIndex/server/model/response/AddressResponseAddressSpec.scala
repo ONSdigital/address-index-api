@@ -355,31 +355,31 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
   val givenCrossRefResponse: AddressResponseCrossRef = AddressResponseCrossRef.fromCrossRef(givenCrossRef)
 
-  val validPafHighlight = Map(
+  val validPafHighlight: Map[String, Seq[String]] = Map(
     "mixedPartial" -> Seq("<em>mixedPaf</em>")
   )
 
-  val validPafHighlightWelsh = Map(
+  val validPafHighlightWelsh: Map[String, Seq[String]] = Map(
     "mixedPartial" -> Seq("<em>mixedWelshPaf</em>")
   )
 
-  val validNagHighlight = Map(
+  val validNagHighlight: Map[String, Seq[String]] = Map(
     "mixedPartial" -> Seq("<em>mixedNag</em>")
   )
 
-  val validNagHighlightWelsh = Map(
+  val validNagHighlightWelsh: Map[String, Seq[String]] = Map(
     "mixedPartial" -> Seq("<em>mixedWelshNag</em>")
   )
 
-  val validNagHighlightNisra = Map(
+  val validNagHighlightNisra: Map[String, Seq[String]] = Map(
     "mixedPartial" -> Seq("<em>mixedNisra</em>")
   )
 
-  val validPafHighlights = Seq(validPafHighlight)
-  val validPafHighlightsWelsh = Seq(validPafHighlightWelsh)
-  val validNagHighlights = Seq(validNagHighlight)
-  val validNagHighlightsWelsh = Seq(validNagHighlightWelsh)
-  val validNagHighlightsNisra = Seq(validNagHighlightNisra)
+  val validPafHighlights: Seq[Map[String, Seq[String]]] = Seq(validPafHighlight)
+  val validPafHighlightsWelsh: Seq[Map[String, Seq[String]]] = Seq(validPafHighlightWelsh)
+  val validNagHighlights: Seq[Map[String, Seq[String]]] = Seq(validNagHighlight)
+  val validNagHighlightsWelsh: Seq[Map[String, Seq[String]]] = Seq(validNagHighlightWelsh)
+  val validNagHighlightsNisra: Seq[Map[String, Seq[String]]] = Seq(validNagHighlightNisra)
 
   "Address response Address model" should {
 

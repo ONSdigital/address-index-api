@@ -2,10 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response.bulk
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.db.index.PostcodeAddressFileAddress
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
-
-import scala.reflect.runtime.universe.Try
 
 /**
   *
