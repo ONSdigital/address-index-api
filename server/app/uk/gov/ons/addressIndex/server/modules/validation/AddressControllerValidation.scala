@@ -32,22 +32,22 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
       case (None, _, _) => None
       case (Some(""), _, _) => None
       case (_, Failure(_), _) =>
-        logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LatitudeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
       case (_, _, Failure(_)) =>
-        logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LongitudeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeNotNumeric(queryValues)))
       case (_, Success(latD), _) if latD > 60.9 =>
-        logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
         Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
       case (_, Success(latD), _) if latD < 49.8 =>
-        logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
         Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
       case (_, _, Success(lonD)) if lonD > 1.8 =>
-        logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
       case (_, _, Success(lonD)) if lonD < -8.6 =>
-        logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
       case (_, _, _) => None
     }
@@ -58,11 +58,11 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
-        logger.systemLog(badRequestMessage = MixedFilterError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
       case addressFilterRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = FilterInvalidError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(AddressFilterInvalid(queryValues)))
     }
   }
@@ -73,7 +73,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     case Some("") => None
     case Some(r) => Try(r.toDouble) match {
       case Failure(_) =>
-        logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = RangeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(RangeNotNumeric(queryValues)))
       case Success(_) => None
     }
@@ -82,7 +82,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   def validateThreshold(threshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(threshold: Float): Option[Future[Result]] = threshold match {
       case t if !(0 <= t && t <= 100) =>
-        logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
         Some(futureJsonBadRequest(ThresholdNotInRange(queryValues)))
       case _ => None
     }
@@ -91,7 +91,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
       case Some("") => None
       case Some(t) => Try(t.toFloat) match {
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = ThresholdNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(ThresholdNotNumeric(queryValues)))
         case Success(tFloat) => inner(tFloat)
       }
@@ -105,7 +105,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
       case "" => None
       case validEpochsRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(EpochInvalid(queryValues)))
     }
   }
@@ -122,7 +122,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
     if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
+      logger.systemLog(responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(CountryBoostsInvalid(queryValues)))
     } else None
 

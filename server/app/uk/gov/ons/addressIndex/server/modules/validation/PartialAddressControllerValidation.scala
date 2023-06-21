@@ -32,10 +32,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   override def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] =
     input match {
       case "" =>
-        logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = EmptyQueryAddressResponseError.message)
         Some(futureJsonBadRequest(EmptySearch(queryValues)))
       case i if i.trim().replaceAll(",","").length < minimumTermLength =>
-        logger.systemLog(badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = ShortQueryAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(ShortSearch(queryValues)))
       case _ => None
     }
@@ -60,10 +60,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   def validatePartialLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
-        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallPartial(queryValues)))
       case l if maximumLimit < l =>
-        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLargePartial(queryValues)))
       case _ => None
     }
@@ -72,7 +72,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(LimitNotNumericPartial(queryValues)))
       }
       case None => inner(defaultLimit)
@@ -82,10 +82,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   def validatePartialOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case l if l < 0 =>
-        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(OffsetTooSmallPartial(queryValues)))
       case l if maximumOffset < l =>
-        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(OffsetTooLargePartial(queryValues)))
       case _ => None
     }
@@ -94,7 +94,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = OffsetNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(OffsetNotNumericPartial(queryValues)))
       }
       case None => inner(defaultOffset)
@@ -104,10 +104,10 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   def validatePartialTimeout(timeout: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(timeout: Int): Option[Future[Result]] = timeout match {
       case l if l < 50 =>
-        logger.systemLog(badRequestMessage = TimeoutTooSmallAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = TimeoutTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(TimeoutTooSmallPartial(queryValues)))
       case l if maximumTimeout < l =>
-        logger.systemLog(badRequestMessage = TimeoutTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = TimeoutTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(TimeoutTooLargePartial(queryValues)))
       case _ => None
     }
@@ -116,7 +116,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = TimeoutNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = TimeoutNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(TimeoutNotNumericPartial(queryValues)))
       }
       case None => inner(defaultTimeout)
@@ -129,7 +129,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
       case "" => None
       case validEpochsRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
     }
 
@@ -145,7 +145,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
     if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
+      logger.systemLog(responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(PartialCountryBoostsInvalid(queryValues)))
     } else None
 

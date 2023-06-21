@@ -53,10 +53,10 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   def validateLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
-        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmall(queryValues)))
       case l if maximumLimit < l =>
-        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLarge(queryValues)))
       case _ => None
     }
@@ -66,7 +66,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(LimitNotNumeric(queryValues)))
       }
       case None => inner(defaultLimit)
@@ -76,10 +76,10 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
   def validateOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case o if o < 0 =>
-        logger.systemLog(badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(OffsetTooSmall(queryValues)))
       case o if maximumOffset < o =>
-        logger.systemLog(badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(OffsetTooLarge(queryValues)))
       case _ => None
     }
@@ -89,7 +89,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
       case Some(o) => Try(o.toInt) match {
         case Success(oInt) => inner(oInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          logger.systemLog(responsecode = "400",badRequestMessage = OffsetNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(OffsetNotNumeric(queryValues)))
       }
       case None => inner(defaultOffset)
@@ -101,10 +101,10 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     val withRange: Boolean = queryValues.rangeKMOrDefault != "" && queryValues.latitudeOrDefault != "" && queryValues.longitudeOrDefault != "" && queryValues.filterOrDefault != ""
     val withEmptyRange: Boolean = queryValues.rangeKMOrDefault == "" && queryValues.latitudeOrDefault == "" && queryValues.longitudeOrDefault == "" && queryValues.filterOrDefault == ""
     if (inputEmpty && withEmptyRange) {
-      logger.systemLog(badRequestMessage = EmptyQueryAddressResponseError.message)
+      logger.systemLog(responsecode = "400",badRequestMessage = EmptyQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptySearch(queryValues)))
     } else if (inputEmpty && !withEmptyRange && !withRange) {
-      logger.systemLog(badRequestMessage = EmptyRadiusQueryAddressResponseError.message)
+      logger.systemLog(responsecode = "400",badRequestMessage = EmptyRadiusQueryAddressResponseError.message)
       Some(futureJsonBadRequest(EmptyRadiusSearch(queryValues)))
     }else None
   }

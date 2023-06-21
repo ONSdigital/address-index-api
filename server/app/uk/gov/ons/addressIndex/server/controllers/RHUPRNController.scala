@@ -63,7 +63,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
     val startingTime = System.currentTimeMillis()
 
-    def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -73,7 +73,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
 
-      logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
+      logger.systemLog(responsecode = responseCode,ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprn, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
@@ -156,7 +156,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsError.message)
               logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
             }

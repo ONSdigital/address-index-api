@@ -35,10 +35,10 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
 
     checkAPIkey(apiKey) match {
       case `missing` =>
-        logger.systemLog(badRequestMessage = ApiKeyMissingError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = ApiKeyMissingError.message)
         Some(futureJsonUnauthorized(KeyMissing(queryValues)))
       case `invalid` =>
-        logger.systemLog(badRequestMessage = ApiKeyInvalidError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = ApiKeyInvalidError.message)
         Some(futureJsonUnauthorized(KeyInvalid(queryValues)))
       case _ => None
     }
@@ -72,10 +72,10 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
 
     checkSource(source) match {
       case `missing` =>
-        logger.systemLog(badRequestMessage = SourceMissingError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = SourceMissingError.message)
         Some(futureJsonUnauthorized(SourceMissing(queryValues)))
       case `invalid` =>
-        logger.systemLog(badRequestMessage = SourceInvalidError.message)
+        logger.systemLog(responsecode = "400",badRequestMessage = SourceInvalidError.message)
         Some(futureJsonUnauthorized(SourceInvalid(queryValues)))
       case _ => None
     }

@@ -83,7 +83,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -92,7 +92,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
       val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
-      logger.systemLog(
+      logger.systemLog(responsecode = responseCode,
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         postcode = postcode, isNotFound = notFound, offset = offVal,
         limit = limVal, filter = filterString, badRequestMessage = badRequestErrorMessage,
@@ -201,7 +201,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
               logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
             }
