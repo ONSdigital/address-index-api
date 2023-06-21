@@ -107,7 +107,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
-      logger.systemLog(responsecode = responseCode
+      logger.systemLog(responsecode = responseCode,
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = input, isNotFound = notFound, offset = offval,
         fallback = fall,
