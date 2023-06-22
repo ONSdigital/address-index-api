@@ -1,10 +1,9 @@
 package uk.gov.ons.addressIndex.server.modules.validation
 
 import java.text.SimpleDateFormat
-
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.Response
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 import uk.gov.ons.addressIndex.server.utils.AddressAPILogger
@@ -30,7 +29,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
 
   protected def invalidDate(date: String): Boolean = !date.isEmpty && Try(new SimpleDateFormat("yyyy-MM-dd").parse(date)).isFailure
 
-  def validateKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateKeyStatus(queryValues: QueryValues, requestValues: RequestValues)(implicit request: RequestHeader): Option[Future[Result]] = {
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
@@ -67,7 +66,7 @@ abstract class Validation(implicit conf: ConfigModule, versionProvider: VersionM
     }
   }
 
-  def validateSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Future[Result]] = {
+  def validateSource(queryValues: QueryValues, requestValues: RequestValues)(implicit request: RequestHeader): Option[Future[Result]] = {
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {

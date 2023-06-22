@@ -6,7 +6,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
@@ -124,6 +124,8 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
     val timeoutInt = Try(timeoutval.toInt).toOption.getOrElse(defTimeout)
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url = req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint = endpointType)
+
     val queryValues = QueryValues(
       input = Some(inputVal),
       fallback = Some(fall),
@@ -144,15 +146,15 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     )
 
     val result: Option[Future[Result]] =
-      partialAddressValidation.validatePartialLimit(limit, queryValues)
-        .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
-        .orElse(partialAddressValidation.validatePartialTimeout(timeout, queryValues))
-        .orElse(partialAddressValidation.validateSource(queryValues))
-        .orElse(partialAddressValidation.validateKeyStatus(queryValues))
-        .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
-        .orElse(partialAddressValidation.validateEpoch(queryValues))
-        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
+      partialAddressValidation.validatePartialLimit(limit, queryValues,requestValues)
+        .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues,requestValues))
+        .orElse(partialAddressValidation.validatePartialTimeout(timeout, queryValues,requestValues))
+        .orElse(partialAddressValidation.validateSource(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateInput(inputVal, queryValues,requestValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues,requestValues))
+        .orElse(partialAddressValidation.validateEpoch(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
         .orElse(None)
 
     result match {

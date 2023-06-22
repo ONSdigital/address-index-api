@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.postcode.AddressByPostcodeResponseContainer
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -33,7 +33,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     BadRequestPostcodeTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
         logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -55,7 +55,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
-  def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePostcodeFilter(classificationFilter: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val postcodeFilterRegex: String = """\b(residential|commercial|workplace|educational|[CcLlMmOoPpRrUuXxZz]\w*)\b.*"""
     val filterString: String = classificationFilter.getOrElse("")
 
@@ -71,7 +71,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
-  def validateBucketPattern(bucketPattern: String, queryValues: QueryValues): Option[Future[Result]] = {
+  def validateBucketPattern(bucketPattern: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     bucketPattern match {
     case "*_*_*" => logger.systemLog(responsecode = "400",badRequestMessage = InvalidEQBucketError.message)
       Some(futureJsonBadRequest(EQBucketInvalid(queryValues)))
@@ -79,7 +79,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
-  def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case l if l < 0 =>
         logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
@@ -101,7 +101,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     }
   }
 
-  def validatePostcode(postcode: String, queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePostcode(postcode: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val postcodeRegex = "^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$"
     postcode match {
       case "" =>
@@ -115,7 +115,7 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+  def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None

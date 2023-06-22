@@ -6,7 +6,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByGroupedPostcodeResponse, AddressByGroupedPostcodeResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
@@ -98,6 +98,8 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
+
     // add grouping query values
     val queryValues = QueryValues(
       postcode = Some(postcode),
@@ -114,14 +116,14 @@ class GroupedPostcodeController @Inject()(val controllerComponents: ControllerCo
     )
 
     val result: Option[Future[Result]] =
-      postcodeValidation.validatePostcodeLimit(limit, queryValues)
-        .orElse(postcodeValidation.validatePostcodeOffset(offset, queryValues))
-        .orElse(postcodeValidation.validateSource(queryValues))
-        .orElse(postcodeValidation.validateKeyStatus(queryValues))
-        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
+      postcodeValidation.validatePostcodeLimit(limit, queryValues,requestValues)
+        .orElse(postcodeValidation.validatePostcodeOffset(offset, queryValues,requestValues))
+        .orElse(postcodeValidation.validateSource(queryValues,requestValues))
+        .orElse(postcodeValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues,requestValues))
         // postcode validation will be reinstated when the regex for ticket 2133 is decided
         // .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
-        .orElse(postcodeValidation.validateEpoch(queryValues))
+        .orElse(postcodeValidation.validateEpoch(queryValues,requestValues))
         .orElse(None)
 
     result match {

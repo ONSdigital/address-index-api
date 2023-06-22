@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{RequestHeader, Result}
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
 import scala.util.{Failure, Success, Try}
@@ -16,7 +16,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   val epochRegex: String = """\b(""" + validEpochs + """)\b.*"""
 
 
-  def validateBatchSource(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
+  def validateBatchSource(queryValues: QueryValues, requestValues: RequestValues)(implicit request: RequestHeader): Option[Result] = {
     val source = request.headers.get("Source").getOrElse(missing)
 
     checkSource(source) match {
@@ -30,7 +30,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     }
   }
 
-  def validateBatchKeyStatus(queryValues: QueryValues)(implicit request: RequestHeader): Option[Result] = {
+  def validateBatchKeyStatus(queryValues: QueryValues, requestValues: RequestValues)(implicit request: RequestHeader): Option[Result] = {
     val apiKey = request.headers.get("authorization").getOrElse(missing)
 
     checkAPIkey(apiKey) match {
@@ -45,7 +45,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   }
 
   // maximumLimit and defaultLimit are inherited from AddressValidation
-  def validateBatchAddressLimit(limit: Option[String], queryValues: QueryValues): Option[Result] = {
+  def validateBatchAddressLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Result] = {
     def inner(limit: Int): Option[Result] = limit match {
       case i if i < 0 =>
         logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -68,7 +68,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
   }
 
   // matchThreshold is inherited from AddressControllerValidation
-  def validateBatchThreshold(threshold: Option[String], queryValues: QueryValues): Option[Result] = {
+  def validateBatchThreshold(threshold: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Result] = {
     def inner(threshold: Float): Option[Result] = threshold match {
       case t if !(0 <= t && t <= 100) =>
         logger.systemLog(responsecode = "400",badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
@@ -87,7 +87,7 @@ class BatchControllerValidation @Inject()(implicit conf: ConfigModule, versionPr
     }
   }
 
-  def validateBatchEpoch(epoch: Option[String], queryValues: QueryValues): Option[Result] = {
+  def validateBatchEpoch(epoch: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Result] = {
     epoch match {
       case None => None
       case Some(epochStr) if epochStr.matches(epochRegex) || epochStr.equals("current") || epochStr.equals("") => None

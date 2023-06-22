@@ -6,7 +6,7 @@ import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.RandomControllerValidation
@@ -93,6 +93,8 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
+
     val queryValues = QueryValues(
       epoch = Some(epochVal),
       filter = Some(filterString),
@@ -107,12 +109,12 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     val result: Option[Future[Result]] =
-      randomValidation.validateSource(queryValues)
-        .orElse(randomValidation.validateRandomLimit(limit, queryValues))
-        .orElse(randomValidation.validateKeyStatus(queryValues))
-        .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues))
-        .orElse(randomValidation.validateEpoch(queryValues))
-        .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
+      randomValidation.validateSource(queryValues,requestValues)
+        .orElse(randomValidation.validateRandomLimit(limit, queryValues,requestValues))
+        .orElse(randomValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues,requestValues))
+        .orElse(randomValidation.validateEpoch(queryValues,requestValues))
+        .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
         .orElse(None)
 
     result match {

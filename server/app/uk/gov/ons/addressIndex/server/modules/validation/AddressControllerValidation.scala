@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -27,7 +27,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
   // get the defaults and maxima for the paging parameters from the config
-  def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     (rangeKm, Try(lat.get.toDouble), Try(lon.get.toDouble)) match {
       case (None, _, _) => None
       case (Some(""), _, _) => None
@@ -53,7 +53,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     }
   }
 
-  def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+  def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = classificationFilter match {
     case None => None
     case Some("") => None
     case Some(filter) => filter match {
@@ -68,7 +68,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
 
-  def validateRange(rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = rangeKm match {
+  def validateRange(rangeKm: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = rangeKm match {
     case None => None
     case Some("") => None
     case Some(r) => Try(r.toDouble) match {
@@ -79,7 +79,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     }
   }
 
-  def validateThreshold(threshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateThreshold(threshold: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(threshold: Float): Option[Future[Result]] = threshold match {
       case t if !(0 <= t && t <= 100) =>
         logger.systemLog(responsecode = "400",badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
@@ -100,7 +100,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
+  def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
@@ -110,7 +110,7 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     }
   }
 
-  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}

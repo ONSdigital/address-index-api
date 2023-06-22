@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.model.db.{BulkAddressRequestData, BulkAddresses}
 import uk.gov.ons.addressIndex.model.server.response.address.OkAddressResponseStatus
 import uk.gov.ons.addressIndex.model.server.response.bulk.{AddressBulkResponseAddress, AddressBulkResponseContainer}
 import uk.gov.ons.addressIndex.model.{BulkBody, BulkBodyDebug}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.BatchControllerValidation
@@ -64,6 +64,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
     val authVal = request.headers.get("authorization").getOrElse("Anon")
 
+    val requestValues = RequestValues(ip=request.remoteAddress,url=request.uri,networkid=request.headers.get("user").getOrElse(""),endpoint="bulk")
+
     val queryValues = QueryValues(
       epoch = Some(epochVal),
       limit = Some(limitInt),
@@ -74,12 +76,12 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     val result: Option[Result] =
-      batchValidation.validateBatchSource(queryValues)
-        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
-        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limVal), queryValues))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
-        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
+      batchValidation.validateBatchSource(queryValues,requestValues)
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues,requestValues))
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues,requestValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limVal), queryValues,requestValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues,requestValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -136,6 +138,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     val epochVal = if (epochValOrCurrent.equals("current")) "" else epochValOrCurrent
     val authVal = request.headers.get("authorization").getOrElse("Anon")
 
+    val requestValues = RequestValues(ip=request.remoteAddress,url=request.uri,networkid=request.headers.get("user").getOrElse(""),endpoint="bulk-full")
+
     val queryValues = QueryValues(
       epoch = Some(epochVal),
       limit = Some(limitInt),
@@ -148,11 +152,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     logger.info("threshold = " + thresholdFloat)
 
     val result: Option[Result] =
-      batchValidation.validateBatchSource(queryValues)
-        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
-        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
+      batchValidation.validateBatchSource(queryValues,requestValues)
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues,requestValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues,requestValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues,requestValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -208,6 +212,8 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
 
     logger.info("threshold = " + thresholdFloat)
 
+    val requestValues = RequestValues(ip=request.remoteAddress,url=request.uri,networkid=request.headers.get("user").getOrElse(""),endpoint="bulk-debug")
+
     val queryValues = QueryValues(
       epoch = Some(epochVal),
       limit = Some(limitInt),
@@ -218,11 +224,11 @@ class BatchController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     val result: Option[Result] =
-      batchValidation.validateBatchSource(queryValues)
-        .orElse(batchValidation.validateBatchKeyStatus(queryValues))
-        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues))
-        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues))
-        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues))
+      batchValidation.validateBatchSource(queryValues,requestValues)
+        .orElse(batchValidation.validateBatchKeyStatus(queryValues,requestValues))
+        .orElse(batchValidation.validateBatchAddressLimit(Some(limval), queryValues,requestValues))
+        .orElse(batchValidation.validateBatchThreshold(matchthreshold, queryValues,requestValues))
+        .orElse(batchValidation.validateBatchEpoch(epoch, queryValues,requestValues))
         .orElse(None)
 
     result match {

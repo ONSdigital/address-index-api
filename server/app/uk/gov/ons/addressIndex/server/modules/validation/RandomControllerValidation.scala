@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -31,7 +31,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     BadRequestRandomTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
-  def validateRandomLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateRandomLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
         logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -53,7 +53,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     }
   }
 
-  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = classificationFilter match {
     case None => None
     case Some("") => None
     case Some(filter) => filter match {
@@ -68,7 +68,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+   def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
@@ -77,7 +77,7 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
     }
 
-   def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+   def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}

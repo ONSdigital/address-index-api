@@ -5,7 +5,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
@@ -146,6 +146,8 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
+
     val queryValues = QueryValues(
       epoch = Some(epochVal),
       filter = Some(filterString),
@@ -182,17 +184,17 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
     )
 
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressFilter(classificationfilter, queryValues)
-        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues))
-        .orElse(addressValidation.validateRange(rangekm, queryValues))
-        .orElse(addressValidation.validateSource(queryValues))
-        .orElse(addressValidation.validateKeyStatus(queryValues))
-        .orElse(addressValidation.validateLimit(limit, queryValues))
-        .orElse(addressValidation.validateOffset(offset, queryValues))
-        .orElse(addressValidation.validateInput(input, queryValues))
-        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
-        .orElse(addressValidation.validateEpoch(queryValues))
-        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
+      addressValidation.validateAddressFilter(classificationfilter, queryValues,requestValues)
+        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues,requestValues))
+        .orElse(addressValidation.validateRange(rangekm, queryValues,requestValues))
+        .orElse(addressValidation.validateSource(queryValues,requestValues))
+        .orElse(addressValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(addressValidation.validateLimit(limit, queryValues,requestValues))
+        .orElse(addressValidation.validateOffset(offset, queryValues,requestValues))
+        .orElse(addressValidation.validateInput(input, queryValues,requestValues))
+        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues,requestValues))
+        .orElse(addressValidation.validateEpoch(queryValues,requestValues))
+        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
         .orElse(None)
 
     result match {

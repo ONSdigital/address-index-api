@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -50,7 +50,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     BadRequestTemplate(queryValues, OffsetTooLargeAddressResponseErrorCustom)
   }
 
-  def validateLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
         logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -73,7 +73,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     }
   }
 
-  def validateOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateOffset(offset: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case o if o < 0 =>
         logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
@@ -96,7 +96,7 @@ abstract class AddressValidation(implicit conf: ConfigModule, versionProvider: V
     }
   }
 
-  def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] = {
+  def validateInput(input: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val inputEmpty: Boolean = input.isEmpty
     val withRange: Boolean = queryValues.rangeKMOrDefault != "" && queryValues.latitudeOrDefault != "" && queryValues.longitudeOrDefault != "" && queryValues.filterOrDefault != ""
     val withEmptyRange: Boolean = queryValues.rangeKMOrDefault == "" && queryValues.latitudeOrDefault == "" && queryValues.longitudeOrDefault == "" && queryValues.filterOrDefault == ""

@@ -7,13 +7,15 @@ import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQUprnResponse, AddressByEQUprnResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
+
 import scala.concurrent.duration.DurationInt
 import odelay.Timer.default
+
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -82,6 +84,8 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
       )
     }
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
+
     val queryValues = QueryValues(
       uprn = Some(uprn),
       addressType = Some(bestMatchAddressType),
@@ -91,11 +95,11 @@ class EQUPRNController @Inject()(val controllerComponents: ControllerComponents,
     )
 
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprn(uprn, queryValues)
-        .orElse(uprnValidation.validateAddressType(bestMatchAddressType, queryValues))
-        .orElse(uprnValidation.validateSource(queryValues))
-        .orElse(uprnValidation.validateKeyStatus(queryValues))
-        .orElse(uprnValidation.validateEpoch(queryValues))
+      uprnValidation.validateUprn(uprn, queryValues,requestValues)
+        .orElse(uprnValidation.validateAddressType(bestMatchAddressType, queryValues,requestValues))
+        .orElse(uprnValidation.validateSource(queryValues,requestValues))
+        .orElse(uprnValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(uprnValidation.validateEpoch(queryValues,requestValues))
         .orElse(None)
 
     result match {

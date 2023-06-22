@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.AddressByPartialAddressResponseContainer
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -29,7 +29,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   }
 
   // minimum length only for partial so override
-  override def validateInput(input: String, queryValues: QueryValues): Option[Future[Result]] =
+  override def validateInput(input: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     input match {
       case "" =>
         logger.systemLog(responsecode = "400",badRequestMessage = EmptyQueryAddressResponseError.message)
@@ -57,7 +57,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   }
 
   // defaultLimit and maximumLimit is inherited from AddressValidation
-  def validatePartialLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePartialLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
         logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
@@ -79,7 +79,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     }
   }
 
-  def validatePartialOffset(offset: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePartialOffset(offset: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case l if l < 0 =>
         logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
@@ -101,7 +101,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     }
   }
 
-  def validatePartialTimeout(timeout: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validatePartialTimeout(timeout: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(timeout: Int): Option[Future[Result]] = timeout match {
       case l if l < 50 =>
         logger.systemLog(responsecode = "400",badRequestMessage = TimeoutTooSmallAddressResponseError.message)
@@ -124,7 +124,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-  override def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+  override def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
@@ -133,7 +133,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
     }
 
-  override def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+  override def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}

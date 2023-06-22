@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressColle
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
@@ -78,6 +78,8 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
       )
     }
 
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
+
     val queryValues = QueryValues(
       uprns = Some(uprns),
       epoch = Some(epochVal),
@@ -87,10 +89,10 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     )
 
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprns(uprns, queryValues)
-        .orElse(uprnValidation.validateSource(queryValues))
-        .orElse(uprnValidation.validateKeyStatus(queryValues))
-        .orElse(uprnValidation.validateEpoch(queryValues))
+      uprnValidation.validateUprns(uprns,queryValues,requestValues)
+        .orElse(uprnValidation.validateSource(queryValues,requestValues))
+        .orElse(uprnValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(uprnValidation.validateEpoch(queryValues,requestValues))
         .orElse(None)
 
     result match {
