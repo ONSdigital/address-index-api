@@ -36,10 +36,12 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   def validatePostcodeLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
-        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallPostcode(queryValues)))
       case l if maximumLimit < l =>
-        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLargePostcode(queryValues)))
       case _ => None
     }
@@ -48,7 +50,8 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
+          logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+            responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(LimitNotNumericPostcode(queryValues)))
       }
       case None => inner(defaultLimit)
@@ -62,10 +65,12 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     filterString match {
       case "" => None
       case s if s.contains("*") && s.contains(",") =>
-        logger.systemLog(responsecode = "400",badRequestMessage = MixedFilterError.message)
+        logger.systemLog(
+          ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,responsecode = "400",badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(PostcodeMixedFilter(queryValues)))
       case s if !s.matches(postcodeFilterRegex) =>
-        logger.systemLog(responsecode = "400",badRequestMessage = FilterInvalidError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(PostcodeFilterInvalid(queryValues)))
       case _ => None
     }
@@ -73,7 +78,8 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
 
   def validateBucketPattern(bucketPattern: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     bucketPattern match {
-    case "*_*_*" => logger.systemLog(responsecode = "400",badRequestMessage = InvalidEQBucketError.message)
+    case "*_*_*" => logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+      responsecode = "400",badRequestMessage = InvalidEQBucketError.message)
       Some(futureJsonBadRequest(EQBucketInvalid(queryValues)))
     case _ => None
     }
@@ -82,10 +88,12 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
   def validatePostcodeOffset(offset: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(offset: Int): Option[Future[Result]] = offset match {
       case l if l < 0 =>
-        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = OffsetTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(OffsetTooSmallPostcode(queryValues)))
       case l if maximumOffset < l =>
-        logger.systemLog(responsecode = "400",badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = OffsetTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(OffsetTooLargePostcode(queryValues)))
       case _ => None
     }
@@ -94,7 +102,8 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(responsecode = "400",badRequestMessage = OffsetNotNumericAddressResponseError.message)
+          logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+            responsecode = "400",badRequestMessage = OffsetNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(OffsetNotNumericPostcode(queryValues)))
       }
       case None => inner(defaultOffset)
@@ -105,10 +114,12 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
     val postcodeRegex = "^(GIR 0AA)|((([A-Z][0-9]{1,2})|(([A-Z][A-HJ-Y][0-9]{1,2})|(([A-Z][0-9][A-Z])|([A-Z][A-HJ-Y][0-9]?[A-Z])))) ?[0-9][A-Z]{2})$"
     postcode match {
       case "" =>
-        logger.systemLog(responsecode = "400",badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EmptyQueryPostcodeAddressResponseError.message)
         Some(futureJsonBadRequest(EmptySearchPostcode(queryValues)))
       case s if !s.toUpperCase().matches(postcodeRegex) =>
-        logger.systemLog(responsecode = "400",badRequestMessage = postcode + ": " + InvalidPostcodeAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = postcode + ": " + InvalidPostcodeAddressResponseError.message)
         Some(futureJsonBadRequest(InvalidPostcode(queryValues)))
       case _ => None
     }
@@ -120,7 +131,8 @@ class PostcodeControllerValidation @Inject()(implicit conf: ConfigModule, versio
       case "" => None
       case validEpochsRegex(_*) => None
       case e =>
-        logger.systemLog(responsecode = "400",badRequestMessage = EpochNotAvailableError.message, epoch = e, postcode = queryValues.postcodeOrDefault)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message, epoch = e, postcode = queryValues.postcodeOrDefault)
         Some(futureJsonBadRequest(PostcodeEpochInvalid(queryValues)))
     }
 

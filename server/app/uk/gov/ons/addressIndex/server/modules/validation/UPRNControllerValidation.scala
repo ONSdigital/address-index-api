@@ -36,7 +36,8 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
      Try(uprn.toLong) match {
        case Success(_) => None
        case Failure(_) =>
-         logger.systemLog(responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
+         logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+           responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
          return Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
      }
    }
@@ -47,7 +48,8 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     Try(uprn.toLong) match {
       case Success(_) => None
       case Failure(_) =>
-        logger.systemLog(responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
     }
   }
@@ -58,7 +60,8 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     if (validAddressTypes.contains(addressType)) {
       None
     } else {
-      logger.systemLog(responsecode = "400",badRequestMessage = InvalidAddressTypeAddressResponseError.message)
+      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+        responsecode = "400",badRequestMessage = InvalidAddressTypeAddressResponseError.message)
       Some(futureJsonBadRequest(AddressTypeInvalid(queryValues)))
     }
   }
@@ -68,7 +71,8 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
       case "" => None
       case e if e.matches(validEpochsRegex) => None
       case _ =>
-        logger.systemLog(responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(UprnEpochInvalid(queryValues)))
     }
 }

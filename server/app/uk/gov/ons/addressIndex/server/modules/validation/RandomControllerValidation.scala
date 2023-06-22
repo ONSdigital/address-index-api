@@ -34,10 +34,12 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
   def validateRandomLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
-        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallRandom(queryValues)))
       case l if maximumLimit < l =>
-        logger.systemLog(responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLargeRandom(queryValues)))
       case _ => None
     }
@@ -46,7 +48,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
+          logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+            responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(LimitNotNumericRandom(queryValues)))
       }
       case None => inner(defaultLimit)
@@ -58,11 +61,13 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
-        logger.systemLog(responsecode = "400",badRequestMessage = MixedFilterError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(RandomMixedFilter(queryValues)))
       case randomFilterRegex(_*) => None
       case _ =>
-        logger.systemLog(responsecode = "400",badRequestMessage = FilterInvalidError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(RandomFilterInvalid(queryValues)))
     }
   }
@@ -73,7 +78,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
       case "" => None
       case validEpochsRegex(_*) => None
       case _ =>
-        logger.systemLog(responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
     }
 
@@ -89,7 +95,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
     if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
+      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+        responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(RandomCountryBoostsInvalid(queryValues)))
     } else None
 
