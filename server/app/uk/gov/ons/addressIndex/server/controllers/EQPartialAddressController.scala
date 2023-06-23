@@ -6,7 +6,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.eq.{AddressByEQPartialAddressResponse, AddressByEQPartialAddressResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.PartialAddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PartialAddressControllerValidation
@@ -94,7 +94,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -104,7 +104,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
 
-      logger.systemLog(
+      logger.systemLog(responsecode = responseCode,
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         partialAddress = inputVal, isNotFound = notFound, offset = offval,
         fallback = fall,
@@ -119,6 +119,8 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
 
     val limitInt = Try(limval.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offval.toInt).toOption.getOrElse(defOffset)
+
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
 
     val queryValues = QueryValues(
       input = Some(inputVal),
@@ -139,14 +141,14 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
     )
 
     val result: Option[Future[Result]] =
-      partialAddressValidation.validatePartialLimit(limit, queryValues)
-        .orElse(partialAddressValidation.validatePartialOffset(offset, queryValues))
-        .orElse(partialAddressValidation.validateSource(queryValues))
-        .orElse(partialAddressValidation.validateKeyStatus(queryValues))
-        .orElse(partialAddressValidation.validateInput(inputVal, queryValues))
-        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues))
-        .orElse(partialAddressValidation.validateEpoch(queryValues))
-        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
+      partialAddressValidation.validatePartialLimit(limit,queryValues,requestValues)
+        .orElse(partialAddressValidation.validatePartialOffset(offset,queryValues,requestValues))
+        .orElse(partialAddressValidation.validateSource(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateInput(inputVal, queryValues,requestValues))
+        .orElse(partialAddressValidation.validateAddressFilter(classificationfilter,queryValues,requestValues))
+        .orElse(partialAddressValidation.validateEpoch(queryValues,requestValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -223,7 +225,7 @@ class EQPartialAddressController @Inject()(val controllerComponents: ControllerC
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPartialAddress(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsPartialAddressError.message)
               logger.warn(s"Could not handle individual request (partialAddress input), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEsPartialAddress(exception.getMessage, queryValues)))
             }

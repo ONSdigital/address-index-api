@@ -7,7 +7,7 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressColle
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
@@ -60,7 +60,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
 
     val startingTime = System.currentTimeMillis()
 
-    def writeLog(badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = System.currentTimeMillis() - startingTime
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -70,13 +70,15 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
 
-      logger.systemLog(ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
+      logger.systemLog(responsecode = responseCode, ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime.toString,
         uprn = uprnString, isNotFound = notFound, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb, badRequestMessage = badRequestErrorMessage,
         endpoint = endpointType, activity = activity, clusterid = clusterid, pafDefault = pafDefault
       )
     }
+
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
 
     val queryValues = QueryValues(
       uprns = Some(uprns),
@@ -87,10 +89,10 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     )
 
     val result: Option[Future[Result]] =
-      uprnValidation.validateUprns(uprns, queryValues)
-        .orElse(uprnValidation.validateSource(queryValues))
-        .orElse(uprnValidation.validateKeyStatus(queryValues))
-        .orElse(uprnValidation.validateEpoch(queryValues))
+      uprnValidation.validateUprns(uprns,queryValues,requestValues)
+        .orElse(uprnValidation.validateSource(queryValues,requestValues))
+        .orElse(uprnValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(uprnValidation.validateEpoch(queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -158,7 +160,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyUprn(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsError.message)
               logger.warn(s"Could not handle individual request (uprn), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEsUprn(exception.getMessage, queryValues)))
             }

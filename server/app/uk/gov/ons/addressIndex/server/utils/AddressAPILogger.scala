@@ -13,7 +13,7 @@ class AddressAPILogger(log: String) extends APILogger {
   // Splunk is the current system logger
   private val splunk = Logger("SPLUNK")
 
-  def systemLog(ip: String = "", url: String = "", responseTimeMillis: String = "",
+  def systemLog(responsecode: String = "200", ip: String = "", url: String = "", responseTimeMillis: String = "",
                 uprn: String = "", postcode: String = "", random: String = "", partialAddress: String = "", input: String = "",
                 fallback: Boolean = true,
                 offset: String = "", limit: String = "", filter: String = "", verbose: Boolean = false,
@@ -29,7 +29,7 @@ class AddressAPILogger(log: String) extends APILogger {
 
     // Note we are using the info level for Splunk
     super.logMessage(splunk.info, AddressLoggerMessage(
-      s" IP=$ip url=$url millis=${System.currentTimeMillis()} " +
+      s" responsecode=$responsecode IP=$ip url=$url millis=${System.currentTimeMillis()} " +
         s"response_time_millis=$responseTimeMillis is_uprn=${!uprn.isEmpty} " +
         s"is_postcode=${!postcode.isEmpty} is_input=${!input.isEmpty} is_random=${!random.isEmpty} " +
         s"is_bulk=${!bulkSize.isEmpty} is_partial=${!partialAddress.isEmpty} " +
@@ -49,6 +49,7 @@ class AddressAPILogger(log: String) extends APILogger {
   }
 
   def systemLogNew(args: Option[QueryArgs] = None,
+                   responsecode: String = "",
                    ip: String = "",
                    url: String = "",
                    responseTimeMillis: String = "",
@@ -90,6 +91,7 @@ class AddressAPILogger(log: String) extends APILogger {
 
     super.logMessage(splunk.info, AddressLoggerMessage(
       s"""
+         |responsecode=$responsecode
          |IP=$ip
          |url=$url
          |millis=${System.currentTimeMillis()}

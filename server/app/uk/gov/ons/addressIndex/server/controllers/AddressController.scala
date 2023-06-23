@@ -6,7 +6,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules._
@@ -109,7 +109,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
-    def writeLog(badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -120,7 +120,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
 
 
-      logger.systemLog(ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
+      logger.systemLog(responsecode = responseCode, ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
         input = input, offset = offVal, limit = limVal, filter = filterString,
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
@@ -136,6 +136,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
+
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
 
     val queryValues = QueryValues(
       epoch = Some(epochVal),
@@ -175,17 +177,17 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     )
 
     val result: Option[Future[Result]] =
-      addressValidation.validateAddressFilter(classificationfilter, queryValues)
-        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues))
-        .orElse(addressValidation.validateRange(rangekm, queryValues))
-        .orElse(addressValidation.validateSource(queryValues))
-        .orElse(addressValidation.validateKeyStatus(queryValues))
-        .orElse(addressValidation.validateLimit(limit, queryValues))
-        .orElse(addressValidation.validateOffset(offset, queryValues))
-        .orElse(addressValidation.validateInput(input, queryValues))
-        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues))
-        .orElse(addressValidation.validateEpoch(queryValues))
-        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues))
+      addressValidation.validateAddressFilter(classificationfilter, queryValues,requestValues)
+        .orElse(addressValidation.validateThreshold(matchthreshold, queryValues,requestValues))
+        .orElse(addressValidation.validateRange(rangekm, queryValues,requestValues))
+        .orElse(addressValidation.validateSource(queryValues,requestValues))
+        .orElse(addressValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(addressValidation.validateLimit(limit, queryValues,requestValues))
+        .orElse(addressValidation.validateOffset(offset, queryValues,requestValues))
+        .orElse(addressValidation.validateInput(input, queryValues,requestValues))
+        .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues,requestValues))
+        .orElse(addressValidation.validateEpoch(queryValues,requestValues))
+        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -291,7 +293,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusy(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsError.message)
               logger.warn(s"Could not handle individual request (address input), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEs(exception.getMessage, queryValues)))
             }

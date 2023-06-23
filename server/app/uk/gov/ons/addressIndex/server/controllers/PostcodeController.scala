@@ -7,7 +7,7 @@ import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.PostcodeControllerValidation
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, ElasticsearchRepository, VersionModule, _}
@@ -81,7 +81,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
 
-    def writeLog(doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
+    def writeLog(responseCode: String = "200", doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
       // Set the networkId field to the username supplied in the user header
       // if this is not present, extract the user and organisation from the api key
@@ -90,7 +90,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       val keyNetworkId = Try(if (authHasPlus) authVal.split("\\+")(0) else authVal.split("_")(0)).getOrElse("")
       val organisation = Try(if (authHasPlus) keyNetworkId.split("_")(1) else "not set").getOrElse("")
       val networkId = req.headers.get("user").getOrElse(keyNetworkId)
-      logger.systemLog(
+      logger.systemLog(responsecode = responseCode,
         ip = req.remoteAddress, url = req.uri, responseTimeMillis = responseTime,
         postcode = postcode, isNotFound = notFound, offset = offVal,
         limit = limVal, filter = filterString, badRequestMessage = badRequestErrorMessage,
@@ -104,6 +104,8 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
+
+    val requestValues = RequestValues(ip=req.remoteAddress,url=req.uri,networkid=req.headers.get("user").getOrElse(""),endpoint=endpointType)
 
     val queryValues = QueryValues(
       postcode = Some(postcode),
@@ -121,13 +123,13 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     )
 
     val result: Option[Future[Result]] =
-      postcodeValidation.validatePostcodeLimit(limit, queryValues)
-        .orElse(postcodeValidation.validatePostcodeOffset(offset, queryValues))
-        .orElse(postcodeValidation.validateSource(queryValues))
-        .orElse(postcodeValidation.validateKeyStatus(queryValues))
-        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues))
-        .orElse(postcodeValidation.validatePostcode(postcode, queryValues))
-        .orElse(postcodeValidation.validateEpoch(queryValues))
+      postcodeValidation.validatePostcodeLimit(limit,queryValues,requestValues)
+        .orElse(postcodeValidation.validatePostcodeOffset(offset,queryValues,requestValues))
+        .orElse(postcodeValidation.validateSource(queryValues,requestValues))
+        .orElse(postcodeValidation.validateKeyStatus(queryValues,requestValues))
+        .orElse(postcodeValidation.validatePostcodeFilter(classificationfilter, queryValues,requestValues))
+        .orElse(postcodeValidation.validatePostcode(postcode, queryValues,requestValues))
+        .orElse(postcodeValidation.validateEpoch(queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -199,7 +201,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
               TooManyRequests(Json.toJson(FailedRequestToEsTooBusyPostCode(exception.getMessage, queryValues)))
             } else {
               // Circuit Breaker is closed. Some other problem
-              writeLog(badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
+              writeLog(responseCode = "500",badRequestErrorMessage = FailedRequestToEsPostcodeError.message)
               logger.warn(s"Could not handle individual request (postcode input), problem with ES ${exception.getMessage}")
               InternalServerError(Json.toJson(FailedRequestToEsPostcode(exception.getMessage, queryValues)))
             }

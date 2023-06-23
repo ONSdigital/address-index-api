@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponseContainer
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.RandomControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -31,13 +31,15 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     BadRequestRandomTemplate(queryValues, LimitTooLargeAddressResponseErrorCustom)
   }
 
-  def validateRandomLimit(limit: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateRandomLimit(limit: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(limit: Int): Option[Future[Result]] = limit match {
       case l if l < 1 =>
-        logger.systemLog(badRequestMessage = LimitTooSmallAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooSmallAddressResponseError.message)
         Some(futureJsonBadRequest(LimitTooSmallRandom(queryValues)))
       case l if maximumLimit < l =>
-        logger.systemLog(badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LimitTooLargeAddressResponseErrorCustom.message)
         Some(futureJsonBadRequest(LimitTooLargeRandom(queryValues)))
       case _ => None
     }
@@ -46,38 +48,42 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
       case Some(l) => Try(l.toInt) match {
         case Success(lInt) => inner(lInt)
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = LimitNotNumericAddressResponseError.message)
+          logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+            responsecode = "400",badRequestMessage = LimitNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(LimitNotNumericRandom(queryValues)))
       }
       case None => inner(defaultLimit)
     }
   }
 
-  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+  def validateRandomFilter(classificationFilter: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = classificationFilter match {
     case None => None
     case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
-        logger.systemLog(badRequestMessage = MixedFilterError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(RandomMixedFilter(queryValues)))
       case randomFilterRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = FilterInvalidError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(RandomFilterInvalid(queryValues)))
     }
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-   def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+   def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(RandomEpochInvalid(queryValues)))
     }
 
-   def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+   def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
@@ -89,7 +95,8 @@ class RandomControllerValidation @Inject()(implicit conf: ConfigModule, versionP
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
     if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
+      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+        responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(RandomCountryBoostsInvalid(queryValues)))
     } else None
 
