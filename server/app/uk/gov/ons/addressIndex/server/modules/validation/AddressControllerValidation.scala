@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.server.modules.validation
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -27,62 +27,72 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
   // get the defaults and maxima for the paging parameters from the config
-  def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateLocation(lat: Option[String], lon: Option[String], rangeKm: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     (rangeKm, Try(lat.get.toDouble), Try(lon.get.toDouble)) match {
       case (None, _, _) => None
       case (Some(""), _, _) => None
       case (_, Failure(_), _) =>
-        logger.systemLog(badRequestMessage = LatitudeNotNumericAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LatitudeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(LatitiudeNotNumeric(queryValues)))
       case (_, _, Failure(_)) =>
-        logger.systemLog(badRequestMessage = LongitudeNotNumericAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LongitudeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeNotNumeric(queryValues)))
       case (_, Success(latD), _) if latD > 60.9 =>
-        logger.systemLog(badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LatitudeTooFarNorthAddressResponseError.message)
         Some(futureJsonBadRequest(LatitudeTooFarNorth(queryValues)))
       case (_, Success(latD), _) if latD < 49.8 =>
-        logger.systemLog(badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LatitudeTooFarSouthAddressResponseError.message)
         Some(futureJsonBadRequest(LatitudeTooFarSouth(queryValues)))
       case (_, _, Success(lonD)) if lonD > 1.8 =>
-        logger.systemLog(badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LongitudeTooFarEastAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeTooFarEast(queryValues)))
       case (_, _, Success(lonD)) if lonD < -8.6 =>
-        logger.systemLog(badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = LongitudeTooFarWestAddressResponseError.message)
         Some(futureJsonBadRequest(LongitudeTooFarWest(queryValues)))
       case (_, _, _) => None
     }
   }
 
-  def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues): Option[Future[Result]] = classificationFilter match {
+  def validateAddressFilter(classificationFilter: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = classificationFilter match {
     case None => None
     case Some("") => None
     case Some(filter) => filter match {
       case f if f.contains("*") && f.contains(",") =>
-        logger.systemLog(badRequestMessage = MixedFilterError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = MixedFilterError.message)
         Some(futureJsonBadRequest(AddressMixedFilter(queryValues)))
       case addressFilterRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = FilterInvalidError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = FilterInvalidError.message)
         Some(futureJsonBadRequest(AddressFilterInvalid(queryValues)))
     }
   }
 
 
-  def validateRange(rangeKm: Option[String], queryValues: QueryValues): Option[Future[Result]] = rangeKm match {
+  def validateRange(rangeKm: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = rangeKm match {
     case None => None
     case Some("") => None
     case Some(r) => Try(r.toDouble) match {
       case Failure(_) =>
-        logger.systemLog(badRequestMessage = RangeNotNumericAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = RangeNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(RangeNotNumeric(queryValues)))
       case Success(_) => None
     }
   }
 
-  def validateThreshold(threshold: Option[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateThreshold(threshold: Option[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     def inner(threshold: Float): Option[Future[Result]] = threshold match {
       case t if !(0 <= t && t <= 100) =>
-        logger.systemLog(badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = ThresholdNotInRangeAddressResponseError.message)
         Some(futureJsonBadRequest(ThresholdNotInRange(queryValues)))
       case _ => None
     }
@@ -91,7 +101,8 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
       case Some("") => None
       case Some(t) => Try(t.toFloat) match {
         case Failure(_) =>
-          logger.systemLog(badRequestMessage = ThresholdNotNumericAddressResponseError.message)
+          logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+            responsecode = "400",badRequestMessage = ThresholdNotNumericAddressResponseError.message)
           Some(futureJsonBadRequest(ThresholdNotNumeric(queryValues)))
         case Success(tFloat) => inner(tFloat)
       }
@@ -100,17 +111,18 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
   }
 
   // validEpochsRegex is inherited from AddressControllerValidation
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] = {
+  def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     queryValues.epochOrDefault match {
       case "" => None
       case validEpochsRegex(_*) => None
       case _ =>
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(EpochInvalid(queryValues)))
     }
   }
 
-  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues): Option[Future[Result]] = {
+  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
     val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
     val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
@@ -122,7 +134,8 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
 
     if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(badRequestMessage = CountryBoostsInvalidError.message)
+      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+        responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(CountryBoostsInvalid(queryValues)))
     } else None
 

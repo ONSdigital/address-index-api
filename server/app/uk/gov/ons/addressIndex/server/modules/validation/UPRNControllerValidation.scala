@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Result
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponseContainer
-import uk.gov.ons.addressIndex.server.model.dao.QueryValues
+import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.{ConfigModule, VersionModule}
 
@@ -31,44 +31,48 @@ class UPRNControllerValidation @Inject()(implicit conf: ConfigModule, versionPro
     BadRequestUprnTemplate(queryValues, EpochNotAvailableErrorCustom)
   }
 
-  def validateUprns(uprns: List[String], queryValues: QueryValues): Option[Future[Result]] = {
+  def validateUprns(uprns: List[String], queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
    uprns.foreach { uprn =>
      Try(uprn.toLong) match {
        case Success(_) => None
        case Failure(_) =>
-         logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
+         logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+           responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
          return Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
      }
    }
    None
   }
 
-  def validateUprn(uprn: String, queryValues: QueryValues): Option[Future[Result]] = {
+  def validateUprn(uprn: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     Try(uprn.toLong) match {
       case Success(_) => None
       case Failure(_) =>
-        logger.systemLog(badRequestMessage = UprnNotNumericAddressResponseError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = UprnNotNumericAddressResponseError.message)
         Some(futureJsonBadRequest(UprnNotNumeric(queryValues)))
     }
   }
 
 
-  def validateAddressType(addressType: String, queryValues: QueryValues): Option[Future[Result]] = {
+  def validateAddressType(addressType: String, queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
 
     if (validAddressTypes.contains(addressType)) {
       None
     } else {
-      logger.systemLog(badRequestMessage = InvalidAddressTypeAddressResponseError.message)
+      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+        responsecode = "400",badRequestMessage = InvalidAddressTypeAddressResponseError.message)
       Some(futureJsonBadRequest(AddressTypeInvalid(queryValues)))
     }
   }
 
-  def validateEpoch(queryValues: QueryValues): Option[Future[Result]] =
+  def validateEpoch(queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] =
     queryValues.epochOrDefault match {
       case "" => None
       case e if e.matches(validEpochsRegex) => None
       case _ =>
-        logger.systemLog(badRequestMessage = EpochNotAvailableError.message)
+        logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+          responsecode = "400",badRequestMessage = EpochNotAvailableError.message)
         Some(futureJsonBadRequest(UprnEpochInvalid(queryValues)))
     }
 }
