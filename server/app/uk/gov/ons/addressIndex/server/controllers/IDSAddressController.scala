@@ -269,7 +269,8 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
             writeLog(activity = "address_request")
 
-            val epochOrDefault = if (epochVal.isEmpty) dataVersion else epochVal
+            // IDS does not want the epoch in the response but need to reference the lazy singleton for Splunk
+            val epochDefault = dataVersion
 
             jsonOk(
               AddressBySearchResponseContainerIDS(
