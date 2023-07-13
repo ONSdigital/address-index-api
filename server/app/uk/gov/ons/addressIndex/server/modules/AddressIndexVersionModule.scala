@@ -25,24 +25,19 @@ class AddressIndexVersionModule @Inject()
 
   lazy val epochDates: Map[String,String] = {
     Map("39" -> "Exeter Sample",
-      "87" -> "September 2021",
-      "88" -> "October 2021",
-      "89" -> "December 2021",
-      "90" -> "January 2022",
-      "91" -> "March 2022",
-      "92" -> "April 2022",
-      "93" -> "June 2022",
-      "94" -> "July 2022",
       "95" -> "August 2022",
       "96" -> "October 2022",
       "97" -> "November 2022",
       "98" -> "January 2023",
       "99" -> "February 2023",
       "100" -> "March 2023",
-      "80" -> "Census no extras",
-      "80C" -> "Census with extras",
-      "80N" -> "Census with extras and NISRA",
-      "NA" -> "test index")
+      "101" -> "May 2023",
+      "102" -> "June 2023",
+      "103" -> "July 2023",
+      "104" -> "September 2023",
+      "105" -> "October 2023",
+      "106" -> "November 2023",
+       "NA" -> "test index")
   }
 
   lazy val apiVersion: String = {
