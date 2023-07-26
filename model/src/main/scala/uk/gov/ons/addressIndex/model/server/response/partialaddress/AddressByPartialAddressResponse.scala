@@ -30,6 +30,9 @@ case class AddressByPartialAddressResponse(input: String,
                                            nboost: Double,
                                            sboost: Double,
                                            wboost: Double,
+                                           lboost: Double,
+                                           mboost: Double,
+                                           jboost: Double,
                                            timeout: Int)
 
 object AddressByPartialAddressResponse {
@@ -57,6 +60,9 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
       nboost = partResponse.nboost,
       sboost = partResponse.sboost,
       wboost = partResponse.wboost,
+      lboost = partResponse.nboost,
+      mboost = partResponse.sboost,
+      jboost = partResponse.wboost,
       pafdefault = false
   )
 

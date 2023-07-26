@@ -122,18 +122,24 @@ class AddressControllerValidation @Inject()(implicit conf: ConfigModule, version
     }
   }
 
-  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
-    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
-    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
-    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
-    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+  def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],lboost: Option[String],mboost: Option[String],jboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
+    val eboostVal = if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")
+    val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val wboostVal = if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
+    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(99D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(99D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(99D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(99D)
+    val lboostDouble = Try(lboostVal.toDouble).toOption.getOrElse(99D)
+    val mboostDouble = Try(mboostVal.toDouble).toOption.getOrElse(99D)
+    val jboostDouble = Try(jboostVal.toDouble).toOption.getOrElse(99D)
 
-    if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
+    if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || lboostDouble > 10 || mboostDouble > 10 || jboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0 || lboostDouble < 0 || lboostDouble < 0 || jboostDouble < 0) {
       logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
         responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(CountryBoostsInvalid(queryValues)))

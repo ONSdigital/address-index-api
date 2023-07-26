@@ -30,6 +30,9 @@ case class AddressBySearchResponse(tokens: Map[String, String],
                                    nboost: Double,
                                    sboost: Double,
                                    wboost: Double,
+                                   lboost: Double,
+                                   mboost: Double,
+                                   jboost: Double,
                                    pafdefault: Boolean)
 
 object AddressBySearchResponse {

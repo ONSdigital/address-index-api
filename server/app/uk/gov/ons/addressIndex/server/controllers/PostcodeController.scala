@@ -48,6 +48,9 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                     nboost: Option[String] = None,
                     sboost: Option[String] = None,
                     wboost: Option[String] = None,
+                    lboost: Option[String] = None,
+                    mboost: Option[String] = None,
+                    jboost: Option[String] = None,
                     pafdefault: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
@@ -71,15 +74,21 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
     val epochVal = epoch.getOrElse("")
 
-    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
-    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
-    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
-    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+    val eboostVal = if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")
+    val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val wboostVal = if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
+    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+    val lboostDouble = Try(lboostVal.toDouble).toOption.getOrElse(1.0D)
+    val mboostDouble = Try(mboostVal.toDouble).toOption.getOrElse(1.0D)
+    val jboostDouble = Try(jboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(responseCode: String = "200", doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -116,9 +125,12 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
       offset = Some(offsetInt),
       verbose = Some(verb),
       eboost = Some(eboostDouble),
+      wboost = Some(wboostDouble),
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
-      wboost = Some(wboostDouble),
+      lboost = Some(lboostDouble),
+      mboost = Some(mboostDouble),
+      jboost = Some(jboostDouble),
       pafDefault = Some(pafDefault)
     )
 
@@ -150,6 +162,9 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
           nboost = nboostDouble,
           sboost = sboostDouble,
           wboost = wboostDouble,
+          lboost = lboostDouble,
+          mboost = mboostDouble,
+          jboost = jboostDouble,
           pafDefault = pafDefault
         )
 

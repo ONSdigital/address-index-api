@@ -19,6 +19,9 @@ case class AddressByRandomResponse(addresses: Seq[AddressResponseAddress],
                                    nboost: Double,
                                    sboost: Double,
                                    wboost: Double,
+                                   lboost: Double,
+                                   mboost: Double,
+                                   jboost: Double,
                                    pafdefault: Boolean)
 
 object AddressByRandomResponse {

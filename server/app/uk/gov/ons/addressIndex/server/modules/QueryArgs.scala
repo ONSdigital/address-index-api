@@ -231,6 +231,9 @@ final case class PartialArgs(input: String,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
                              wboost: Double = 1.0,
+                             lboost: Double = 1.0,
+                             mboost: Double = 1.0,
+                             jboost: Double = 1.0,
                              timeout: Int = 250
                             ) extends MultiResultArgs with DateFilterable with StartAtOffset with Skinnyable {
   override def inputOpt: Option[String] = Some(input)
@@ -266,6 +269,9 @@ final case class PostcodeArgs(postcode: String,
                               nboost: Double = 1.0,
                               sboost: Double = 1.0,
                               wboost: Double = 1.0,
+                              lboost: Double = 1.0,
+                              mboost: Double = 1.0,
+                              jboost: Double = 1.0,
                               pafDefault: Boolean = false
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
@@ -295,7 +301,10 @@ final case class GroupedPostcodeArgs(postcode: String,
                               eboost: Double = 1.0,
                               nboost: Double = 1.0,
                               sboost: Double = 1.0,
-                              wboost: Double = 1.0
+                              wboost: Double = 1.0,
+                              lboost: Double = 1.0,
+                              mboost: Double = 1.0,
+                              jboost: Double = 1.0
                              ) extends MultiResultArgs with StartAtOffset with Skinnyable {
   override def postcodeOpt: Option[String] = Some(postcode)
 
@@ -341,6 +350,9 @@ final case class RandomArgs(epoch: String = "",
                             nboost: Double = 1.0,
                             sboost: Double = 1.0,
                             wboost: Double = 1.0,
+                            lboost: Double = 1.0,
+                            mboost: Double = 1.0,
+                            jboost: Double = 1.0,
                             pafDefault: Boolean = false
                            ) extends MultiResultArgs with Skinnyable {
   override def skinnyOpt: Option[Boolean] = Some(skinny)
@@ -368,6 +380,9 @@ final case class AddressArgs(input: String,
                              nboost: Double = 1.0,
                              sboost: Double = 1.0,
                              wboost: Double = 1.0,
+                             lboost: Double = 1.0,
+                             mboost: Double = 1.0,
+                             jboost: Double = 1.0,
                              auth: String = "",
                              pafDefault: Boolean = false
                             ) extends MultiResultArgs with StartAtOffset with DateFilterable with Configurable {

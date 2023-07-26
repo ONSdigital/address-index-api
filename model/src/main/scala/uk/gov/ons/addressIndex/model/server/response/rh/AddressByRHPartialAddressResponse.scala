@@ -32,7 +32,11 @@ case class AddressByRHPartialAddressResponse(input: String,
                                              eboost: Double,
                                              nboost: Double,
                                              sboost: Double,
-                                             wboost: Double)
+                                             wboost: Double,
+                                             lboost: Double,
+                                             mboost: Double,
+                                             jboost: Double
+                                            )
 
 object AddressByRHPartialAddressResponse {
   implicit lazy val addressByPartialRHAddressResponseFormat: Format[AddressByRHPartialAddressResponse] = Json.format[AddressByRHPartialAddressResponse]

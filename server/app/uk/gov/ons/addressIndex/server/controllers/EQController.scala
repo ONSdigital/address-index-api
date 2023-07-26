@@ -29,6 +29,9 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
               nboost: Option[String] = None,
               sboost: Option[String] = None,
               wboost: Option[String] = None,
+              lboost: Option[String] = None,
+              mboost: Option[String] = None,
+              jboost: Option[String] = None,
               groupfullpostcodes: Option[String] = None
              ): Action[AnyContent] = Action async { implicit req =>
 
@@ -53,7 +56,11 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
           eboost = eboost,
           nboost = nboost,
           sboost = sboost,
-          wboost = wboost)(req)
+          wboost = wboost,
+          lboost = lboost,
+          mboost = mboost,
+          jboost = jboost,
+        )(req)
       } else {
         logger.info("Input is postcode, groupfullpostcode setting = "  + groupFullPostcodesVal)
         eqPostcodeController.postcodeQuery(
@@ -68,7 +75,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
           eboost = eboost,
           nboost = nboost,
           sboost = sboost,
-          wboost = wboost
+          wboost = wboost,
+          lboost = lboost,
+          mboost = mboost,
+          jboost = jboost
         )(req)
       }
 
@@ -83,7 +93,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else if (isOutCodeAndSectorWithSpace(input)){
       logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -95,7 +108,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else if (isOutCode(input)){
       logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -107,7 +123,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else if (isOutCodeAndSectorAndHalfUnit(normalizedInput)){
       logger.info("Input is the outcode and most of incode parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -119,7 +138,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else if (isOutCodeAndSector(normalizedInput)){
       logger.info("Input is the outcode and sector parts of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -131,7 +153,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else if (isOutCode(normalizedInput)){
       logger.info("Input is the outcode part of a postcode")
       groupedPostcodeController.groupedPostcodeQuery(
@@ -143,7 +168,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost)(req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost)(req)
     } else {
       logger.info("input is partial address")
       eqPartialAddressController.partialAddressQuery(
@@ -158,7 +186,10 @@ class EQController @Inject () (val controllerComponents: ControllerComponents,
         eboost = eboost,
         nboost = nboost,
         sboost = sboost,
-        wboost = wboost) (req)
+        wboost = wboost,
+        lboost = lboost,
+        mboost = mboost,
+        jboost = jboost) (req)
     }
   }
 
