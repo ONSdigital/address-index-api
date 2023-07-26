@@ -81,6 +81,12 @@ case class QueryValues(input: Option[String] = None,
 
   def wboostOrDefault: Double = this.wboost.getOrElse(1.0D)
 
+  def lboostOrDefault: Double = this.lboost.getOrElse(1.0D)
+
+  def mboostOrDefault: Double = this.mboost.getOrElse(1.0D)
+
+  def jboostOrDefault: Double = this.jboost.getOrElse(1.0D)
+
   def highlightOrDefault: String = this.highlight.getOrElse("on")
 
   def favourPafOrDefault: Boolean = this.favourpaf.getOrElse(true)

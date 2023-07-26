@@ -289,13 +289,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble,
-                  lboost = lboostDouble,
-                  mboost = mboostDouble,
-                  jboost = jboostDouble,
+                  countryBoosts = CountryBoosts(eboostDouble,nboostDouble,sboostDouble,wboostDouble,lboostDouble,mboostDouble,jboostDouble),
                   pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus

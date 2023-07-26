@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.random
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, CountryBoosts}
 
 /**
   * Contains relevant, to the address request, data
@@ -15,13 +15,7 @@ case class AddressByRandomResponse(addresses: Seq[AddressResponseAddress],
                                    epoch: String,
                                    limit: Int,
                                    verbose: Boolean,
-                                   eboost: Double,
-                                   nboost: Double,
-                                   sboost: Double,
-                                   wboost: Double,
-                                   lboost: Double,
-                                   mboost: Double,
-                                   jboost: Double,
+                                   countryBoosts: CountryBoosts,
                                    pafdefault: Boolean)
 
 object AddressByRandomResponse {

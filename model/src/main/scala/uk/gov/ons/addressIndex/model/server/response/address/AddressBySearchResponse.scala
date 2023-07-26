@@ -26,13 +26,7 @@ case class AddressBySearchResponse(tokens: Map[String, String],
                                    maxScore: Double,
                                    matchthreshold: Float,
                                    verbose: Boolean,
-                                   eboost: Double,
-                                   nboost: Double,
-                                   sboost: Double,
-                                   wboost: Double,
-                                   lboost: Double,
-                                   mboost: Double,
-                                   jboost: Double,
+                                   countryBoosts: CountryBoosts,
                                    pafdefault: Boolean)
 
 object AddressBySearchResponse {

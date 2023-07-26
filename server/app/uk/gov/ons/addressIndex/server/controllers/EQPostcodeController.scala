@@ -48,7 +48,10 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
                     eboost: Option[String] = None,
                     nboost: Option[String] = None,
                     sboost: Option[String] = None,
-                    wboost: Option[String] = None
+                    wboost: Option[String] = None,
+                    lboost: Option[String] = None,
+                    mboost: Option[String] = None,
+                    jboost: Option[String] = None
                    ): Action[AnyContent] = Action async { implicit req =>
     val startingTime = System.currentTimeMillis()
     val tocLink = conf.config.termsAndConditionsLink

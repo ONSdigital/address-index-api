@@ -145,7 +145,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
         Some(futureJsonBadRequest(PartialEpochInvalid(queryValues)))
     }
 
-  override def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
+  override def validateBoosts(eboost: Option[String],nboost: Option[String],sboost: Option[String],wboost: Option[String],lboost: Option[String],mboost: Option[String],jboost: Option[String],queryValues: QueryValues, requestValues: RequestValues): Option[Future[Result]] = {
     val eboostVal = if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")
     val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
     val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")

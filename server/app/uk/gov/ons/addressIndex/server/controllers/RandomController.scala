@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsRandomError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, CountryBoosts, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
@@ -126,7 +126,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         .orElse(randomValidation.validateKeyStatus(queryValues,requestValues))
         .orElse(randomValidation.validateRandomFilter(classificationfilter, queryValues,requestValues))
         .orElse(randomValidation.validateEpoch(queryValues,requestValues))
-        .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
+        .orElse(randomValidation.validateBoosts(eboost,nboost,sboost,wboost,lboost,mboost,jboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -177,13 +177,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                   epoch = epochVal,
                   limit = limitInt,
                   verbose = verb,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble,
-                  lboost = lboostDouble,
-                  mboost = mboostDouble,
-                  jboost = jboostDouble,
+                  countryBoosts = CountryBoosts(eboostDouble,nboostDouble,sboostDouble,wboostDouble,lboostDouble,mboostDouble,jboostDouble),
                   pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus

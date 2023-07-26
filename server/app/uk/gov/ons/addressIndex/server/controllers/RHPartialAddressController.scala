@@ -154,7 +154,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues,requestValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues,requestValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues,requestValues))
-        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,lboost,mboost,jboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -215,13 +215,7 @@ class RHPartialAddressController @Inject()(val controllerComponents: ControllerC
                   maxScore = maxScore,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble,
-                  lboost = lboostDouble,
-                  mboost = mboostDouble,
-                  jboost = jboostDouble
+                  countryBoosts = CountryBoosts(eboostDouble,nboostDouble,sboostDouble,wboostDouble,lboostDouble,mboostDouble,jboostDouble)
                 ),
                 status = OkAddressResponseStatus
               )

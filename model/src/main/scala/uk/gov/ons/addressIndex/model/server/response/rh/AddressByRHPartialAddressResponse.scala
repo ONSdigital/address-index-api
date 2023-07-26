@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.rh
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressCustomRH, AddressResponseAddressRH}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressCustomRH, AddressResponseAddressRH, CountryBoosts}
 
 /**
   * Contains relevant, to the address request, data
@@ -29,13 +29,7 @@ case class AddressByRHPartialAddressResponse(input: String,
                                              maxScore: Double,
                                              favourpaf: Boolean,
                                              favourwelsh: Boolean,
-                                             eboost: Double,
-                                             nboost: Double,
-                                             sboost: Double,
-                                             wboost: Double,
-                                             lboost: Double,
-                                             mboost: Double,
-                                             jboost: Double
+                                             countryBoosts: CountryBoosts
                                             )
 
 object AddressByRHPartialAddressResponse {
