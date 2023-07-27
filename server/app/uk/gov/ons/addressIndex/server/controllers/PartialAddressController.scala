@@ -96,9 +96,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
     val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
     val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
     val wboostVal = if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
-    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
-    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
-    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
+    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else lboost.getOrElse("1.0")
+    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else mboost.getOrElse("1.0")
+    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else jboost.getOrElse("1.0")
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
@@ -126,7 +126,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        lboost = lboostVal, mboost = mboostVal, jboost = jboostVal, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 

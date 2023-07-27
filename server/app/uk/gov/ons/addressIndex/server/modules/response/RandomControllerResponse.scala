@@ -17,7 +17,8 @@ trait RandomControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        countryBoosts = CountryBoosts(queryValues.eboostOrDefault,
+        countryBoosts = CountryBoosts(
+          queryValues.eboostOrDefault,
           queryValues.nboostOrDefault,
           queryValues.sboostOrDefault,
           queryValues.wboostOrDefault,
@@ -69,7 +70,8 @@ trait RandomControllerResponse extends Response {
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       verbose = queryValues.verboseOrDefault,
-      countryBoosts = CountryBoosts(queryValues.eboostOrDefault,
+      countryBoosts = CountryBoosts(
+        queryValues.eboostOrDefault,
         queryValues.nboostOrDefault,
         queryValues.sboostOrDefault,
         queryValues.wboostOrDefault,

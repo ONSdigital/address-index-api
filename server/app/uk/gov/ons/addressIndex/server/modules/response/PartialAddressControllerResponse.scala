@@ -114,7 +114,8 @@ trait PartialAddressControllerResponse extends AddressResponse {
       highlight = queryValues.highlightOrDefault,
       favourpaf = queryValues.favourPafOrDefault,
       favourwelsh = queryValues.favourWelshOrDefault,
-      countryBoosts = CountryBoosts(queryValues.eboostOrDefault,
+      countryBoosts = CountryBoosts(
+        queryValues.eboostOrDefault,
         queryValues.nboostOrDefault,
         queryValues.sboostOrDefault,
         queryValues.wboostOrDefault,

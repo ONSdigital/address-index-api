@@ -94,7 +94,8 @@ trait Response {
       maxScore = 0f,
       matchthreshold = 5f,
       verbose = queryValues.verboseOrDefault,
-      countryBoosts = CountryBoosts(queryValues.eboostOrDefault,
+      countryBoosts = CountryBoosts(
+        queryValues.eboostOrDefault,
         queryValues.nboostOrDefault,
         queryValues.sboostOrDefault,
         queryValues.wboostOrDefault,

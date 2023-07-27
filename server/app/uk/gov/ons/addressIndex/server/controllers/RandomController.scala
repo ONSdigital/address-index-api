@@ -96,7 +96,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterid, pafDefault = pafDefault
+        lboost = lboostVal, mboost = mboostVal, jboost = jboostVal, endpoint = endpointType, activity = activity, clusterid = clusterid, pafDefault = pafDefault
       )
     }
 
