@@ -162,8 +162,7 @@ class PartialAddressControllerValidation @Inject()(implicit conf: ConfigModule, 
     val mboostDouble = Try(mboostVal.toDouble).toOption.getOrElse(99D)
     val jboostDouble = Try(jboostVal.toDouble).toOption.getOrElse(99D)
 
-    if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0) {
-      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
+    if (eboostDouble > 10 || nboostDouble > 10 || sboostDouble > 10 || wboostDouble > 10 || lboostDouble > 10 || mboostDouble > 10 || jboostDouble > 10 || eboostDouble < 0 || nboostDouble < 0 || sboostDouble < 0 || wboostDouble < 0 || lboostDouble < 0 || lboostDouble < 0 || jboostDouble < 0) {      logger.systemLog(ip=requestValues.ip,url=requestValues.url,endpoint=requestValues.endpoint,networkid=requestValues.networkid,
         responsecode = "400",badRequestMessage = CountryBoostsInvalidError.message)
       Some(futureJsonBadRequest(PartialCountryBoostsInvalid(queryValues)))
     } else None
