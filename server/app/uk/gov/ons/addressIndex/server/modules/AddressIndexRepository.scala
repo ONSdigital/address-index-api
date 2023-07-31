@@ -121,6 +121,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+    val lboost = args.lboost
+    val mboost = args.mboost
+    val jboost = args.jboost
 
     val timeout = args.timeout
     val timeDur: FiniteDuration = new FiniteDuration(timeout,duration.MILLISECONDS)
@@ -134,6 +137,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nTerms = termsQuery("countryCode","N")
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
+    val lTerms = termsQuery("countryCode","L")
+    val mTerms = termsQuery("countryCode","M")
+    val jTerms = termsQuery("countryCode","J")
 
     // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
@@ -141,6 +147,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+    val fromSourceQueryMustNot6 = if (lboost == 0) fromSourceQueryMustNot5 :+ lTerms else fromSourceQueryMustNot5
+    val fromSourceQueryMustNot7 = if (mboost == 0) fromSourceQueryMustNot6 :+ mTerms else fromSourceQueryMustNot6
+    val fromSourceQueryMustNot8 = if (jboost == 0) fromSourceQueryMustNot7 :+ jTerms else fromSourceQueryMustNot7
 
     val boostExponent = 1.2
 
@@ -150,7 +159,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
        termsQuery("countryCode","E").boost(math.pow(eboost,boostExponent)),
        termsQuery("countryCode","N").boost(math.pow(nboost,boostExponent)),
        termsQuery("countryCode","S").boost(math.pow(sboost,boostExponent)),
-       termsQuery("countryCode","W").boost(math.pow(wboost,boostExponent)))
+       termsQuery("countryCode","W").boost(math.pow(wboost,boostExponent)),
+       termsQuery("countryCode","L").boost(math.pow(nboost,boostExponent)),
+       termsQuery("countryCode","M").boost(math.pow(sboost,boostExponent)),
+       termsQuery("countryCode","J").boost(math.pow(wboost,boostExponent))
+      )
 
     // if there is only one number, give boost for pao or sao not both.
     // if there are two or more numbers, boost for either matching pao and first matching sao
@@ -190,7 +203,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
       prefixQuery("paf.mixedWelshPafStart",shortInput).boost(1.25))))
 
     val query = must(queryWithMatchType).filter(args.queryFilter)
-      .not(fromSourceQueryMustNot5)
+      .not(fromSourceQueryMustNot8)
       .should(numberQuery ++ fromSourceQueryShould ++ startQuery)
 
     val source = (if (args.historical) {
@@ -242,11 +255,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+    val lboost = args.lboost
+    val mboost = args.mboost
+    val jboost = args.jboost
 
     val eTerms = termsQuery("countryCode","E")
     val nTerms = termsQuery("countryCode","N")
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
+    val lTerms = termsQuery("countryCode","L")
+    val mTerms = termsQuery("countryCode","M")
+    val jTerms = termsQuery("countryCode","J")
 
     // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
@@ -254,8 +273,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+    val fromSourceQueryMustNot6 = if (lboost == 0) fromSourceQueryMustNot5 :+ lTerms else fromSourceQueryMustNot5
+    val fromSourceQueryMustNot7 = if (mboost == 0) fromSourceQueryMustNot6 :+ mTerms else fromSourceQueryMustNot6
+    val fromSourceQueryMustNot8 = if (jboost == 0) fromSourceQueryMustNot7 :+ jTerms else fromSourceQueryMustNot7
 
-    val query = bool(mustQueries=Seq(must(termQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot5)
+    val query = bool(mustQueries=Seq(must(termQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot8)
 
     val source = (if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -326,11 +348,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+    val lboost = args.lboost
+    val mboost = args.mboost
+    val jboost = args.jboost
 
     val eTerms = termsQuery("countryCode","E")
     val nTerms = termsQuery("countryCode","N")
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
+    val lTerms = termsQuery("countryCode","L")
+    val mTerms = termsQuery("countryCode","M")
+    val jTerms = termsQuery("countryCode","J")
 
     // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
@@ -338,8 +366,11 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+    val fromSourceQueryMustNot6 = if (lboost == 0) fromSourceQueryMustNot5 :+ lTerms else fromSourceQueryMustNot5
+    val fromSourceQueryMustNot7 = if (mboost == 0) fromSourceQueryMustNot6 :+ mTerms else fromSourceQueryMustNot6
+    val fromSourceQueryMustNot8 = if (jboost == 0) fromSourceQueryMustNot7 :+ jTerms else fromSourceQueryMustNot7
 
-    val query = bool(mustQueries=Seq(must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot5)
+    val query = bool(mustQueries=Seq(must(prefixQuery("postcode", postcodeFormatted)).filter(args.queryFilter)),shouldQueries=Seq.empty,notQueries =fromSourceQueryMustNot8)
 
     val source = if (args.historical) {
       if (args.verbose) hybridIndexHistoricalPostcode else hybridIndexHistoricalSkinnyPostcode
@@ -368,11 +399,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+    val lboost = args.lboost
+    val mboost = args.mboost
+    val jboost = args.jboost
 
     val eTerms = termsQuery("countryCode","E")
     val nTerms = termsQuery("countryCode","N")
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
+    val lTerms = termsQuery("countryCode","L")
+    val mTerms = termsQuery("countryCode","M")
+    val jTerms = termsQuery("countryCode","J")
 
     // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
@@ -380,10 +417,13 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+    val fromSourceQueryMustNot6 = if (lboost == 0) fromSourceQueryMustNot5 :+ lTerms else fromSourceQueryMustNot5
+    val fromSourceQueryMustNot7 = if (mboost == 0) fromSourceQueryMustNot6 :+ mTerms else fromSourceQueryMustNot6
+    val fromSourceQueryMustNot8 = if (jboost == 0) fromSourceQueryMustNot7 :+ jTerms else fromSourceQueryMustNot7
 
     val query = functionScoreQuery()
       .functions(randomScore(timestamp.toInt))
-      .query(boolQuery().filter(args.queryFilter).not(fromSourceQueryMustNot5))
+      .query(boolQuery().filter(args.queryFilter).not(fromSourceQueryMustNot8))
       .boostMode("replace")
 
     val source = if (args.historical) {
@@ -839,11 +879,17 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val nboost = args.nboost
     val sboost = args.sboost
     val wboost = args.wboost
+    val lboost = args.lboost
+    val mboost = args.mboost
+    val jboost = args.jboost
 
     val eTerms = termsQuery("countryCode","E")
     val nTerms = termsQuery("countryCode","N")
     val sTerms = termsQuery("countryCode","S")
     val wTerms = termsQuery("countryCode","W")
+    val lTerms = termsQuery("countryCode","L")
+    val mTerms = termsQuery("countryCode","M")
+    val jTerms = termsQuery("countryCode","J")
 
     // this is inelegant but we mustn't end up with a Seq(Any)
     val fromSourceQueryMustNot1 = Seq.empty[TermsQuery[String]]
@@ -851,6 +897,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     val fromSourceQueryMustNot3 = if (nboost == 0) fromSourceQueryMustNot2 :+ nTerms else fromSourceQueryMustNot2
     val fromSourceQueryMustNot4 = if (sboost == 0) fromSourceQueryMustNot3 :+ sTerms else fromSourceQueryMustNot3
     val fromSourceQueryMustNot5 = if (wboost == 0) fromSourceQueryMustNot4 :+ wTerms else fromSourceQueryMustNot4
+    val fromSourceQueryMustNot6 = if (lboost == 0) fromSourceQueryMustNot5 :+ lTerms else fromSourceQueryMustNot5
+    val fromSourceQueryMustNot7 = if (mboost == 0) fromSourceQueryMustNot6 :+ mTerms else fromSourceQueryMustNot6
+    val fromSourceQueryMustNot8 = if (jboost == 0) fromSourceQueryMustNot7 :+ jTerms else fromSourceQueryMustNot7
 
     // Be more forgiving for long address strings
     val wordCount = normalizedInput.split(" ").length
@@ -879,10 +928,10 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
 
     val fallbackQueryFilter = args.queryFilter ++ radiusQuery
 
-    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter).not(fromSourceQueryMustNot5)
+    val fallbackQuery = fallbackQueryStart.filter(fallbackQueryFilter).not(fromSourceQueryMustNot8)
 
     val blankQuery : BoolQuery = bool(
-    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter).not(fromSourceQueryMustNot5)
+    Seq(matchAllQuery()),Seq(),Seq()).filter(fallbackQueryFilter).not(fromSourceQueryMustNot8)
 
     val bestOfTheLotQueries = Seq(
 
@@ -933,7 +982,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
            should(shouldQuery.asInstanceOf[Iterable[Query]])
              .minimumShouldMatch(queryParams.mainMinimumShouldMatch)
              .filter(args.queryFilter ++ radiusQuery)
-             .not(fromSourceQueryMustNot5)
+             .not(fromSourceQueryMustNot8)
            , fallbackQuery)
            .tieBreaker(queryParams.topDisMaxTieBreaker)
        }
@@ -1083,6 +1132,9 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         nboost = 1.0,
         sboost = 1.0,
         wboost = 1.0,
+        lboost = 1.0,
+        mboost = 1.0,
+        jboost = 1.0,
         auth = args.auth,
         pafDefault = args.pafDefault
       )

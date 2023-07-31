@@ -17,10 +17,14 @@ trait RandomControllerResponse extends Response {
         historical = queryValues.historicalOrDefault,
         epoch = queryValues.epochOrDefault,
         verbose = queryValues.verboseOrDefault,
-        eboost = queryValues.eboostOrDefault,
-        nboost = queryValues.nboostOrDefault,
-        sboost = queryValues.sboostOrDefault,
-        wboost = queryValues.wboostOrDefault,
+        countryBoosts = CountryBoosts(
+          queryValues.eboostOrDefault,
+          queryValues.nboostOrDefault,
+          queryValues.sboostOrDefault,
+          queryValues.wboostOrDefault,
+          queryValues.lboostOrDefault,
+          queryValues.mboostOrDefault,
+          queryValues.jboostOrDefault),
         pafdefault = queryValues.pafDefaultOrDefault
       ),
       status = NotFoundAddressResponseStatus,
@@ -66,10 +70,14 @@ trait RandomControllerResponse extends Response {
       historical = queryValues.historicalOrDefault,
       epoch = queryValues.epochOrDefault,
       verbose = queryValues.verboseOrDefault,
-      eboost = queryValues.eboostOrDefault,
-      nboost = queryValues.nboostOrDefault,
-      sboost = queryValues.sboostOrDefault,
-      wboost = queryValues.wboostOrDefault,
+      countryBoosts = CountryBoosts(
+        queryValues.eboostOrDefault,
+        queryValues.nboostOrDefault,
+        queryValues.sboostOrDefault,
+        queryValues.wboostOrDefault,
+        queryValues.lboostOrDefault,
+        queryValues.mboostOrDefault,
+        queryValues.jboostOrDefault),
       pafdefault = queryValues.pafDefaultOrDefault
     )
   }

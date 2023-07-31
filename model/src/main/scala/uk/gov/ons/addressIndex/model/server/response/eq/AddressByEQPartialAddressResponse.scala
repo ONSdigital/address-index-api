@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.eq
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressCustomEQ, AddressResponseAddressEQ}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressCustomEQ, AddressResponseAddressEQ, CountryBoosts}
 
 /**
   * Contains relevant, to the address request, data
@@ -29,10 +29,7 @@ case class AddressByEQPartialAddressResponse(input: String,
                                              maxScore: Double,
                                              favourpaf: Boolean,
                                              favourwelsh: Boolean,
-                                             eboost: Double,
-                                             nboost: Double,
-                                             sboost: Double,
-                                             wboost: Double)
+                                             countryBoosts: CountryBoosts)
 
 
 object AddressByEQPartialAddressResponse {

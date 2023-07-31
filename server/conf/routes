@@ -88,6 +88,24 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -105,7 +123,7 @@ GET     /                   uk.gov.ons.addressIndex.server.controllers.general.A
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAddressController.addressQueryIDS(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAddressController.addressQueryIDS(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String])
 
 ###
 #  summary: Search for an address.
@@ -194,6 +212,24 @@ GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAd
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #    - name: pafdefault
 #      schema:
 #         type: boolean
@@ -216,7 +252,7 @@ GET     /addresses/ids          uk.gov.ons.addressIndex.server.controllers.IDSAd
 #      description: Internal server error. Failed to process the request due to an internal error.
 #
 ###
-GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
+GET     /addresses          uk.gov.ons.addressIndex.server.controllers.AddressController.addressQuery(input, offset: Option[String], limit: Option[String], classificationfilter: Option[String], rangekm: Option[String], lat: Option[String], lon: Option[String], historical: Option[String], matchthreshold: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Return a list of codelists supported by the API
@@ -452,6 +488,24 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #         format: decimal
 #         default: 1.0
 #      description: Weighting for addresses in Wales as a decimal from 0 to 10
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Channel Islands as a decimal from 0 to 10
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Isle of Man as a decimal from 0 to 10
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses outside country boundaries as a decimal from 0 to 10
 #    - name: timeout
 #      schema:
 #         type: integer
@@ -474,7 +528,7 @@ GET     /addresses/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.UPRN
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], timeout: Option[String])
+GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.PartialAddressController.partialAddressQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], highlight: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String], timeout: Option[String])
 
 ###
 #  summary: Search by partial address (for type ahead). RH version
@@ -543,6 +597,24 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #         format: decimal
 #         default: 1.0
 #      description: Weighting for addresses in Wales as a decimal from 0 to 10
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Channel Islands as a decimal from 0 to 10
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Isle of Man as a decimal from 0 to 10
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses outside country boundaries as a decimal from 0 to 10
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -559,7 +631,7 @@ GET     /addresses/partial    uk.gov.ons.addressIndex.server.controllers.Partial
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/rh/partial    uk.gov.ons.addressIndex.server.controllers.RHPartialAddressController.partialAddressQueryRH(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String])
 
 ###
 #  summary: Custom EQ UPRN endpoint. Gets an address by UPRN.
@@ -700,6 +772,24 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #         format: decimal
 #         default: 1.0
 #      description: Weighting for addresses in Wales as a decimal from 0 to 10
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Channel Islands as a decimal from 0 to 10
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses in Isle of Man as a decimal from 0 to 10
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Weighting for addresses outside country boundaries as a decimal from 0 to 10
 #    - name: groupfullpostcodes
 #      schema:
 #         type: string
@@ -724,7 +814,7 @@ GET     /addresses/rh/uprn/:uprn    uk.gov.ons.addressIndex.server.controllers.R
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], groupfullpostcodes: Option[String])
+GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController.eqQuery(input, fallback: Option[String], offset: Option[String], limit: Option[String], classificationfilter: Option[String], epoch: Option[String], favourpaf: Option[String], favourwelsh: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String], groupfullpostcodes: Option[String])
 
 ###
 #  summary: Search for an address by a partial postcode, with grouped results.
@@ -788,6 +878,24 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -804,7 +912,7 @@ GET     /addresses/eq    uk.gov.ons.addressIndex.server.controllers.EQController
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.server.controllers.GroupedPostcodeController.groupedPostcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String])
 
 ###
 #  summary: Search for an address by postcode.
@@ -868,6 +976,24 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #    - name: pafdefault
 #      schema:
 #         type: boolean
@@ -889,7 +1015,7 @@ GET     /addresses/groupedpostcode/:postcode          uk.gov.ons.addressIndex.se
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
+GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.PostcodeController.postcodeQuery(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Search for an address by postcode. RH version
@@ -957,6 +1083,24 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #  responses:
 #    200:
 #      description: Success. A json return of matched addresses.
@@ -973,7 +1117,7 @@ GET     /addresses/postcode/:postcode          uk.gov.ons.addressIndex.server.co
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String])
+GET     /addresses/rh/postcode/:postcode          uk.gov.ons.addressIndex.server.controllers.RHPostcodeController.postcodeQueryRH(postcode, offset: Option[String], limit: Option[String], classificationfilter: Option[String], favourpaf: Option[String], favourwelsh: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String])
 
 ###
 #  summary: Search for addresses in a postcode_street_town grouping (called a bucket)
@@ -1101,6 +1245,24 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #         format: decimal
 #         default: 1.0
 #      description: Set to 0 to exclude addresses in Wales
+#    - name: lboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Channel Islands
+#    - name: mboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses in Isle of Man
+#    - name: jboost
+#      schema:
+#         type: number
+#         format: decimal
+#         default: 1.0
+#      description: Set to 0 to exclude addresses outside country boundaries
 #    - name: pafdefault
 #      schema:
 #         type: boolean
@@ -1122,7 +1284,7 @@ GET     /addresses/eq/bucket          uk.gov.ons.addressIndex.server.controllers
 #    500:
 #      description: Internal server error. Failed to process the request due to an internal error.
 ###
-GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], pafdefault: Option[String])
+GET     /addresses/random          uk.gov.ons.addressIndex.server.controllers.RandomController.randomQuery(classificationfilter: Option[String], limit: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String], sboost: Option[String], wboost: Option[String], lboost: Option[String], mboost: Option[String], jboost: Option[String], pafdefault: Option[String])
 
 ###
 #  summary: Get version information.

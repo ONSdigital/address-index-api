@@ -114,10 +114,14 @@ trait PartialAddressControllerResponse extends AddressResponse {
       highlight = queryValues.highlightOrDefault,
       favourpaf = queryValues.favourPafOrDefault,
       favourwelsh = queryValues.favourWelshOrDefault,
-      eboost = queryValues.eboostOrDefault,
-      nboost = queryValues.nboostOrDefault,
-      sboost = queryValues.sboostOrDefault,
-      wboost = queryValues.wboostOrDefault,
+      countryBoosts = CountryBoosts(
+        queryValues.eboostOrDefault,
+        queryValues.nboostOrDefault,
+        queryValues.sboostOrDefault,
+        queryValues.wboostOrDefault,
+        queryValues.lboostOrDefault,
+        queryValues.mboostOrDefault,
+        queryValues.jboostOrDefault),
       timeout = queryValues.timeoutOrDefault
     )
   }

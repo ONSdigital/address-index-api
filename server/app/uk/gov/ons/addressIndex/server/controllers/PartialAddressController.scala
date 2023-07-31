@@ -53,6 +53,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                           nboost: Option[String] = None,
                           sboost: Option[String] = None,
                           wboost: Option[String] = None,
+                          lboost: Option[String] = None,
+                          mboost: Option[String] = None,
+                          jboost: Option[String] = None,
                           timeout: Option[String] = None
                          ): Action[AnyContent] = Action async { implicit req =>
 
@@ -88,15 +91,22 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       .mkString(" ")
 
     val epochVal = epoch.getOrElse("")
-    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
-    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
-    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
-    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+
+    val eboostVal = if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")
+    val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val wboostVal = if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
+    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else lboost.getOrElse("1.0")
+    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else mboost.getOrElse("1.0")
+    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else jboost.getOrElse("1.0")
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+    val lboostDouble = Try(lboostVal.toDouble).toOption.getOrElse(1.0D)
+    val mboostDouble = Try(mboostVal.toDouble).toOption.getOrElse(1.0D)
+    val jboostDouble = Try(jboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(responseCode: String = "200", doResponseTime: Boolean = true, badRequestErrorMessage: String = "", notFound: Boolean = false, formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
       val responseTime = if (doResponseTime) (System.currentTimeMillis() - startingTime).toString else ""
@@ -116,7 +126,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         historical = hist, epoch = epochVal, verbose = verb,
         eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterid
+        lboost = lboostVal, mboost = mboostVal, jboost = jboostVal, endpoint = endpointType, activity = activity, clusterid = clusterid
       )
     }
 
@@ -142,6 +152,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
       wboost = Some(wboostDouble),
+      lboost = Some(lboostDouble),
+      mboost = Some(mboostDouble),
+      jboost = Some(jboostDouble),
       timeout = Some(timeoutInt)
     )
 
@@ -154,7 +167,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         .orElse(partialAddressValidation.validateInput(inputVal, queryValues,requestValues))
         .orElse(partialAddressValidation.validateAddressFilter(classificationfilter, queryValues,requestValues))
         .orElse(partialAddressValidation.validateEpoch(queryValues,requestValues))
-        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
+        .orElse(partialAddressValidation.validateBoosts(eboost,nboost,sboost,wboost,lboost,mboost,jboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -179,6 +192,9 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
           nboost = nboostDouble,
           sboost = sboostDouble,
           wboost = wboostDouble,
+          lboost = lboostDouble,
+          mboost = mboostDouble,
+          jboost = jboostDouble,
           timeout = timeoutInt
         )
 
@@ -217,10 +233,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                   highlight = highVal,
                   favourpaf = favourPaf,
                   favourwelsh = favourWelsh,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble,
+                  countryBoosts = CountryBoosts(eboostDouble,nboostDouble,sboostDouble,wboostDouble,lboostDouble,mboostDouble,jboostDouble),
                   timeout = timeoutInt
                 ),
                 status = OkAddressResponseStatus

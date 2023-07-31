@@ -153,7 +153,35 @@
                  Optional
                 <br>Default: 1.0
             </td>
-        </tr>                     
+        </tr> 
+        </tr>
+            <tr class="table--row">
+                <td class="table--cell">lboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Weighting for addresses in Channel Islands as a decimal from 0 to 10</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">mboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Weighting for addresses in Isle of Man as a decimal from 0 to 10</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">jboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Weighting for addresses not allocated to a country as a decimal from 0 to 10</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
      </tbody>
   </table>
 
@@ -217,11 +245,7 @@
           "northing": 92461
         },
         "classificationCode": "CO01",
-        "census": {
-          "addressType": "NA",
-          "estabType": "NA",
-          "countryCode": "E"
-        },
+        "countryCode": "E",
         "lpiLogicalStatus": "1",
         "confidenceScore": 25,
         "underlyingScore": 5
