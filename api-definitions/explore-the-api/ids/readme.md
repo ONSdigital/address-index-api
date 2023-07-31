@@ -147,7 +147,34 @@
                      Optional
                     <br>Default: 1.0
                 </td>
-            </tr>        
+            </tr>  
+            <tr class="table--row">
+                <td class="table--cell">lboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Channel Islands</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">mboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Isle of Man</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">jboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses not allocated to a country </td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
      </tbody>
   </table>
     
