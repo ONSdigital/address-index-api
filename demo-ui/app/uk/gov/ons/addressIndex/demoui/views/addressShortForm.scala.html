@@ -50,12 +50,10 @@ expandRow: Int = 0
                 }
             </td>
         </tr>
-        @if(address.nisra.isEmpty) {
         <tr>
             <td class="mars">@messages("addressresult.la")</td>
             <td class="venus">@address.nag.map{ nag => @nag(0).localCustodianName }</td>
         </tr>
-        }
         <tr>
             <td class="mars">Score</td>
             <td class="venus">@{(BigDecimal(address.confidenceScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble).toString + "% match"}</td>
@@ -133,81 +131,7 @@ expandRow: Int = 0
             <h3 class="neptune">@messages("clerical.ta"):</h3>
 
             <table class="address-result-table-clerical mars">
-                @if(address.countryCode == "N") {
-                @*NISRA TABLE*@
-                <tr class="venus">
-                    <th>@messages("clerical.token_description")</th>
-                    <th>@messages("clerical.fieldnamePAF")</th>
-                    <th>@messages("clerical.inputdata")</th>
-                    <th>@messages("clerical.outputdata")</th>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.token.organisation_name")</td>
-                    <td>@messages("clerical.organisation_name")</td>
-                    <td>@tokens.getOrElse(Tokens.organisationName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.organisationName }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.token.sub_building_name")</td>
-                    <td>@messages("clerical.sub_building_name")</td>
-                    <td>@tokens.getOrElse(Tokens.subBuildingName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.subBuildingName }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.token.building_name")</td>
-                    <td>@messages("clerical.building_name")</td>
-                    <td>@tokens.getOrElse(Tokens.buildingName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.buildingName }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.token.building_number")</td>
-                    <td>@messages("clerical.building_number")</td>
-                    <td>@tokens.getOrElse(Tokens.buildingNumber, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.pao.paoStartNumber }</td>
-                </tr>
-                <tr>
-                    <td rowspan="3">@messages("clerical.token.street_name")</td>
-                    <td>@messages("clerical.thoroughfare")</td>
-                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.thoroughfare }</td>
-                </tr>
-                <tr>
-                    <td>@messages("clerical.dependent_thoroughfare")</td>
-                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.dependentThoroughfare }</td>
-                </tr>
-                <tr>
-                    <td>Alt Thoroughfare</td>
-                    <td>@tokens.getOrElse(Tokens.streetName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.altThoroughfare }</td>
-                </tr>
-                <tr>
-                    <td rowspan="2">@messages("clerical.token.locality")</td>
-                    <td>@messages("clerical.token.locality")</td>
-                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.locality }</td>
-                </tr>
-                <tr>
-                    <td>Townland</td>
-                    <td>@tokens.getOrElse(Tokens.locality, "")</td>
-                    <td><i>townland not in current index</i></td>
-                </tr>
 
-                <tr>
-                    <td>@messages("clerical.token.town_name")</td>
-                    <td>@messages("clerical.post_town")</td>
-                    <td>@tokens.getOrElse(Tokens.townName, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.townName }</td>
-                </tr>
-
-                <tr>
-                    <td>@messages("clerical.token.postcode")</td>
-                    <td>@messages("clerical.postcode")</td>
-                    <td>@tokens.getOrElse(Tokens.postcode, "")</td>
-                    <td>@address.nisra.map { nisra => @nisra.postcode }</td>
-                </tr>
-
-                } else {
                 @*PAF TABLE*@
                 <tr class="venus">
                     <th>@messages("clerical.token_description")</th>
@@ -467,7 +391,7 @@ expandRow: Int = 0
                     <td>@tokens.getOrElse(Tokens.postcode, "")</td>
                     <td>@address.nag.map { nag => @nag(0).postcodeLocator }</td>
                 </tr>
-                }
+
                 @*NAG TABLE*@
                 <tr class="venus">
                     <th>@messages("clerical.token_description")</th>
@@ -480,31 +404,23 @@ expandRow: Int = 0
                     <td>@messages("clerical.postcode_out")</td>
                     <td>@tokens.getOrElse(Tokens.postcodeOut, "")</td>
                     <td>
-                        @if(address.nisra.isEmpty) {
                             @if(address.paf.isEmpty) {
                             @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").headOption.getOrElse("") }
                             } else {
                             @address.paf.map { paf => @paf.postcode.split(" ").headOption.getOrElse("") }
                             }
-                        } else {
-                        @address.nisra.map { nisra => @nisra.postcode.split(" ").headOption.getOrElse("") }
-                        }
                     </td>
                 </tr>
                 <tr>
                     <td>@messages("clerical.postcode_in")</td>
                     <td>@tokens.getOrElse(Tokens.postcodeIn, "")</td>
                     <td>
-                        @if(address.nisra.isEmpty) {
                             @if(address.paf.isEmpty) {
                             @address.nag.map { nag => @nag(0).postcodeLocator.split(" ").lastOption.getOrElse("") }
                             } else {
                             @address.paf.map { paf => @paf.postcode.split(" ").lastOption.getOrElse("") }
                             }
-                        } else {
-                        @address.nisra.map { nisra => @nisra.postcode.split(" ").lastOption.getOrElse("") }
-                        }
-                    </td>
+                      </td>
                 </tr>
                 <tr>
                     <td rowspan="3">@messages("clerical.token.all")</td>

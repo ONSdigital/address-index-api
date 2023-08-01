@@ -25,8 +25,7 @@ object AddressResponseHighlight {
                             formattedAddressPaf: String,
                             welshFormattedAddressPaf: String,
                             formattedAddressNag: String,
-                            welshFormattedAddressNag: String,
-                            formattedAddressNisra: String): Option[AddressResponseHighlight] = {
+                            welshFormattedAddressNag: String): Option[AddressResponseHighlight] = {
     val hitList1 = if (formattedAddressPaf.isEmpty) List.empty else other.flatMap{hit =>
       hit._2.flatMap {lin =>
         AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"formattedAddressPaf",formattedAddressPaf)}}
@@ -39,11 +38,8 @@ object AddressResponseHighlight {
     val hitList4 = if (welshFormattedAddressNag.isEmpty) List.empty else other.flatMap{hit =>
       hit._2.flatMap {lin =>
         AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"welshFormattedAddressNag",welshFormattedAddressNag)}}
-    val hitList5 = if (formattedAddressNisra.isEmpty) List.empty else other.flatMap{hit =>
-      hit._2.flatMap {lin =>
-        AddressResponseHighlightHit.fromCombinedHighlight(hit,lin,"formattedAddressNisra",formattedAddressNisra)}}
 
-    val hitList = hitList1 ++ hitList2 ++ hitList3 ++ hitList4 ++ hitList5
+    val hitList = hitList1 ++ hitList2 ++ hitList3 ++ hitList4
     val optList = Option(hitList.toSeq)
     Some(AddressResponseHighlight(bestMatchAddress,
       hitList.headOption.map(hit => hit.source).getOrElse(""),

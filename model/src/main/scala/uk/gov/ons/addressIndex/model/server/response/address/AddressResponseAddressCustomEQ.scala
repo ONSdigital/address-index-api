@@ -28,7 +28,6 @@ object AddressResponseAddressCustomEQ {
       case Some(highlight) if highlight.source == "P" && highlight.lang == "W" => AddressResponseAddress.AddressTypes.welshPaf
       case Some(highlight) if highlight.source == "L" && highlight.lang == "E" => AddressResponseAddress.AddressTypes.nag
       case Some(highlight) if highlight.source == "L" && highlight.lang == "W" => AddressResponseAddress.AddressTypes.welshNag
-      case Some(highlight) if highlight.source == "N" => AddressResponseAddress.AddressTypes.nisra
       case None => ""
     }
 

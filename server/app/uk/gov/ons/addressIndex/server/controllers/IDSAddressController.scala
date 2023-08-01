@@ -140,7 +140,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
     }
 
     def addressesToIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressIDS] = {

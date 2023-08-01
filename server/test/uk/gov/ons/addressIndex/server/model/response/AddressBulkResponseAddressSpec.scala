@@ -138,7 +138,7 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
     "return a valid bulk response when paf is present" in {
       // Given
-      val hybrid = HybridAddress("", "", givenPaf.uprn, givenNag.parentUprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
+      val hybrid = HybridAddress("", "", givenPaf.uprn, givenNag.parentUprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq() )
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
@@ -164,7 +164,7 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
     "return a valid bulk response when paf is not present" in {
       // Given
-      val hybrid = HybridAddress("", "", givenNag.uprn, givenNag.parentUprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
+      val hybrid = HybridAddress("", "", givenNag.uprn, givenNag.parentUprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
