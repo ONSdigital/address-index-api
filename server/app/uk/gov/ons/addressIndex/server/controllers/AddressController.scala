@@ -139,7 +139,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)

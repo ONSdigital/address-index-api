@@ -40,9 +40,6 @@ object AddressResponseAddressEQ {
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra = other.nisra.headOption
-    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
-
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
     //Rules: PAF may not exist, NAG always exists but not necessarily WELSHNAG, if chosenNisra is not empty return that
@@ -63,13 +60,9 @@ object AddressResponseAddressEQ {
         }
       } else {
         if (favourWelsh) {
-          if (chosenNisra.isEmpty) {
             if (welshFormattedAddressNag.isEmpty) formattedAddressNag else welshFormattedAddressNag
-          } else {
-            formattedAddressNisra
-          }
         } else {
-          if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+          formattedAddressNag
         }
       }
 
@@ -83,8 +76,7 @@ object AddressResponseAddressEQ {
           formattedAddressPaf,
           welshFormattedAddressPaf,
           formattedAddressNag,
-          welshFormattedAddressNag,
-          formattedAddressNisra
+          welshFormattedAddressNag
         ),
       confidenceScore = 100D,
       underlyingScore = if (other.distance == 0) other.score else (other.distance / 1000).toFloat

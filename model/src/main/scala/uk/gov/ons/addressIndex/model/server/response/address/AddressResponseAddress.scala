@@ -10,7 +10,6 @@ import uk.gov.ons.addressIndex.model.db.index._
   * @param formattedAddress cannonical address form
   * @param paf              optional, information from Paf index
   * @param nag              optional, information from Nag index
-  * @param nisra            optional, information from Nisra index
   * @param underlyingScore  score from elastic search
   *
   */
@@ -28,7 +27,6 @@ case class AddressResponseAddress(addressEntryId: String,
                                   highlights: Option[AddressResponseHighlight],
                                   paf: Option[AddressResponsePaf],
                                   nag: Option[Seq[AddressResponseNag]],
-                                  nisra: Option[AddressResponseNisra],
                                   geo: Option[AddressResponseGeo],
                                   classificationCode: String,
                                   countryCode:String,
@@ -69,9 +67,6 @@ object AddressResponseAddress {
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra = other.nisra.headOption
-    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
-
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
     val formattedAddress = if (chosenPaf.isDefined && pafdefault) removeConcatenatedPostcode(formattedAddressPaf)
@@ -102,17 +97,13 @@ object AddressResponseAddress {
           formattedAddressPaf,
           welshFormattedAddressPaf,
           formattedAddressNag,
-          welshFormattedAddressNag,
-          formattedAddressNisra
+          welshFormattedAddressNag
         ),
       paf = {
         if (verbose) chosenPaf.map(AddressResponsePaf.fromPafAddress) else None
       },
       nag = {
         if (verbose) Some(other.lpi.map(AddressResponseNag.fromNagAddress).sortBy(_.logicalStatus)) else None
-      },
-      nisra = {
-        if (verbose) chosenNisra.map(AddressResponseNisra.fromNisraAddress) else None
       },
       geo = geo,
       classificationCode = other.classificationCode,

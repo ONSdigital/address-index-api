@@ -36,16 +36,13 @@ object AddressResponseAddressPostcodeEQ {
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra = other.nisra.headOption
-    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
-
     //Rules: PAF may not exist, NAG always exists but not necessarily WELSHNAG, if chosenNisra is not empty return that
     val (formattedAddress, addressType) =
       if (favourPaf) {
         if (favourWelsh) {
           if (welshFormattedAddressPaf.isEmpty) {
             if (welshFormattedAddressNag.isEmpty) {
-              if (chosenNisra.isEmpty) (formattedAddressNag, AddressTypes.nag) else (formattedAddressNisra, AddressTypes.nisra)
+              (formattedAddressNag, AddressTypes.nag)
             }
             else (welshFormattedAddressNag, AddressTypes.welshNag)
           } else {
@@ -53,20 +50,16 @@ object AddressResponseAddressPostcodeEQ {
           }
         } else {
           if (formattedAddressPaf.isEmpty) {
-            if (chosenNisra.isEmpty) (formattedAddressNag, AddressTypes.nag) else (formattedAddressNisra, AddressTypes.nisra)
+            (formattedAddressNag, AddressTypes.nag)
           } else {
             (formattedAddressPaf, AddressTypes.paf)
           }
         }
       } else {
         if (favourWelsh) {
-          if (chosenNisra.isEmpty) {
-            if (welshFormattedAddressNag.isEmpty) (formattedAddressNag, AddressTypes.nag) else (welshFormattedAddressNag, AddressTypes.welshNag)
-          } else {
-            (formattedAddressNisra, AddressTypes.nisra)
-          }
+             if (welshFormattedAddressNag.isEmpty) (formattedAddressNag, AddressTypes.nag) else (welshFormattedAddressNag, AddressTypes.welshNag)
         } else {
-          if (chosenNisra.isEmpty) (formattedAddressNag, AddressTypes.nag) else (formattedAddressNisra, AddressTypes.nisra)
+           (formattedAddressNag, AddressTypes.nag)
         }
       }
 

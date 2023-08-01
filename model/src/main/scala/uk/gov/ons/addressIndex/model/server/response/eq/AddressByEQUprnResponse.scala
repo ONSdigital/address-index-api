@@ -37,9 +37,6 @@ object AddressByEQUprnResponse {
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra = other.nisra.headOption
-    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
-
     val foundAddressTypeTemp = addressType match {
       case AddressTypes.paf => if (formattedAddressPaf.isEmpty) AddressTypes.nag else AddressTypes.paf
       case AddressTypes.welshPaf => if (welshFormattedAddressPaf.isEmpty)
@@ -47,17 +44,17 @@ object AddressByEQUprnResponse {
       else AddressTypes.welshPaf
       case AddressTypes.nag => AddressTypes.nag
       case AddressTypes.welshNag => if (welshFormattedAddressNag.isEmpty) AddressTypes.nag else AddressTypes.welshNag
-      case AddressTypes.nisra => if (formattedAddressNisra.isEmpty) AddressTypes.nag else AddressTypes.nisra
+      case AddressTypes.nisra => AddressTypes.nag
     }
 
-    val foundAddressType = if (formattedAddressNisra.isEmpty) foundAddressTypeTemp else AddressTypes.nisra
+    val foundAddressType = foundAddressTypeTemp
 
     val formattedAddress = foundAddressType match {
       case AddressTypes.paf => formattedAddressPaf
       case AddressTypes.welshPaf => welshFormattedAddressPaf
       case AddressTypes.nag => formattedAddressNag
       case AddressTypes.welshNag => welshFormattedAddressNag
-      case AddressTypes.nisra => formattedAddressNisra
+      case AddressTypes.nisra => formattedAddressNag
     }
 
     val townName = foundAddressType match {
@@ -77,8 +74,8 @@ object AddressByEQUprnResponse {
         case Some(nagAddress) => nagAddress.townName
         case None => ""
       }
-      case AddressTypes.nisra => chosenNisra match {
-        case Some(nisraAddress) => nisraAddress.townName
+      case AddressTypes.nisra => chosenNag match {
+        case Some(nagAddress) => nagAddress.townName
         case None => ""
       }
     }
@@ -96,15 +93,14 @@ object AddressByEQUprnResponse {
         case Some(nagAddress) => nagAddress.postcodeLocator
         case None => ""
       }
-      case AddressTypes.nisra => chosenNisra match {
-        case Some(nisraAddress) => nisraAddress.postcode
+      case AddressTypes.nisra => chosenNag match {
+        case Some(nagAddress) => nagAddress.postcodeLocator
         case None => ""
       }
     }
 
     val addressLines = foundAddressType match {
-      case AddressTypes.nisra => formatAddressLines(chosenNisra.map(_.addressLines).getOrElse(Nil),
-        removeConcatenatedPostcode(formattedAddress), townName, postcode)
+      case AddressTypes.nisra => formatAddressLines(Nil, removeConcatenatedPostcode(formattedAddress), townName, postcode)
       case _ => formatAddressLines(Nil, removeConcatenatedPostcode(formattedAddress), townName, postcode)
     }
 

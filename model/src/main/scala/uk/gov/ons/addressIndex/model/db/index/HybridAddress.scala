@@ -15,7 +15,6 @@ case class HybridAddress(addressEntryId: String,
                          postcodeOut: Option[String],
                          lpi: Seq[NationalAddressGazetteerAddress],
                          paf: Seq[PostcodeAddressFileAddress],
-                         nisra: Seq[NisraAddress],
                          score: Float,
                          classificationCode: String,
                          censusAddressType: String,
@@ -40,7 +39,6 @@ object HybridAddress {
     postcodeOut = Some(""),
     lpi = Seq.empty,
     paf = Seq.empty,
-    nisra = Seq.empty,
     score = 0,
     classificationCode = "",
     censusAddressType = "",
@@ -77,10 +75,6 @@ object HybridAddress {
         hit.sourceAsMap("paf").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
       }.getOrElse(Seq.empty)
 
-      val nisras: Seq[Map[String, AnyRef]] = Try {
-        hit.sourceAsMap("nisra").asInstanceOf[List[Map[String, AnyRef]]].map(_.toMap)
-      }.getOrElse(Seq.empty)
-
       val sorts = hit.asInstanceOf[SearchHit].sort
       val slist = sorts.getOrElse(Seq())
       val centimetre = if (slist.isEmpty) 0 else 0.01
@@ -107,7 +101,6 @@ object HybridAddress {
         postcodeOut = if (Try(hit.sourceAsMap("postcodeOut").toString).isFailure) None else Some(hit.sourceAsMap("postcodeOut").toString),
         lpi = lpis.map(NationalAddressGazetteerAddress.fromEsMap),
         paf = pafs.map(PostcodeAddressFileAddress.fromEsMap),
-        nisra = nisras.map(NisraAddress.fromEsMap),
         score = hit.score,
         classificationCode = Try(hit.sourceAsMap("classificationCode").toString).getOrElse(""),
         censusAddressType = Try(hit.sourceAsMap("censusAddressType").toString.trim).getOrElse(""),
