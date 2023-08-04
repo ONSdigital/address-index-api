@@ -110,47 +110,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     mixedWelshNag = "mixedWelshNag"
   )
 
-  val validNisraAddress: NisraAddress = NisraAddress(
-    organisationName = "1",
-    subBuildingName = "2",
-    buildingName = "3",
-    buildingNumber = "4",
-    addressLines = Nil,
-    paoText = "",
-    paoStartNumber = "4",
-    paoStartSuffix = "",
-    paoEndNumber = "",
-    paoEndSuffix = "",
-    saoText = "",
-    saoStartNumber = "4",
-    saoStartSuffix = "",
-    saoEndNumber = "",
-    saoEndSuffix = "",
-    thoroughfare = "5",
-    altThoroughfare = "6",
-    dependentThoroughfare = "7",
-    locality = "8",
-    townName = "10",
-    postcode = "BT36 5SN",
-    uprn = "11",
-    classificationCode = "12",
-    udprn = "13",
-    postTown = "14",
-    easting = "15",
-    northing = "16",
-    creationDate = "17",
-    commencementDate = "18",
-    archivedDate = "19",
-    latitude = "20",
-    longitude = "21",
-    addressStatus = "APPROVED",
-    buildingStatus = "DEMOLISHED",
-    localCouncil = "BELFAST",
-    LGDCode = "N09000003",
-    mixedNisra = "mixedNisra"
- )
-
-  val validRelative: Relative = Relative(
+    val validRelative: Relative = Relative(
     level = 1,
     siblings = Array(6L, 7L),
     parents = Array(8L, 9L)
@@ -188,7 +148,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     postcodeOut = Some("3"),
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
-    nisra = Seq(),
     score = 1f,
     classificationCode = "29",
     censusAddressType = "NA",
@@ -209,7 +168,6 @@ class AddressControllerSpec extends PlaySpec with Results {
     postcodeOut = None,
     paf = Seq(validPafAddress),
     lpi = Seq(validNagAddress),
-    nisra = Seq(validNisraAddress),
     score = 1f,
     classificationCode = "29",
     censusAddressType = "NA",
@@ -475,7 +433,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   }
 
   val postcodeControllerKaput : PostcodeController = new PostcodeController(components, elasticRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation) {
-    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
+    override def postcodeQuery(postcode: String, offset: Option[String], limit: Option[String], classificationfilter: Option[String], historical: Option[String], verbose: Option[String], epoch: Option[String], eboost: Option[String], nboost: Option[String],sboost: Option[String],wboost: Option[String], lboost: Option[String],mboost: Option[String],jboost: Option[String], pafdefault: Option[String]): Action[AnyContent] = Action {
       ImATeapot
     }
   }
@@ -733,10 +691,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -766,10 +721,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = true,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -810,10 +762,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         OkAddressResponseStatus
@@ -851,10 +800,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           epoch = "",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
         ),
         OkAddressResponseStatus
       ))
@@ -893,10 +839,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         OkAddressResponseStatus
@@ -936,10 +879,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         OkAddressResponseStatus
@@ -1226,10 +1166,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           epoch = "",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
         ),
         OkAddressResponseStatus
       ))
@@ -1293,10 +1230,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight= "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         OkAddressResponseStatus
@@ -1334,10 +1268,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -1375,10 +1306,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -1416,10 +1344,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -1457,10 +1382,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -1498,10 +1420,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = true,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -1539,10 +1458,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1581,10 +1497,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 42,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,42.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1624,10 +1537,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1666,10 +1576,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1709,10 +1616,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1784,10 +1688,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1850,10 +1751,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1892,10 +1790,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -1934,10 +1829,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2009,10 +1901,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2075,10 +1964,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 0,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2116,10 +2002,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         BadRequestAddressResponseStatus,
@@ -2157,10 +2040,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 3
         ),
         BadRequestAddressResponseStatus,
@@ -2198,10 +2078,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 9999999
         ),
         BadRequestAddressResponseStatus,
@@ -2240,10 +2117,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2315,10 +2189,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2381,10 +2252,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 999999,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2414,10 +2282,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "epoch",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2456,10 +2321,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2498,10 +2360,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2540,10 +2399,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2582,10 +2438,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2624,10 +2477,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2666,10 +2516,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2708,10 +2555,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2750,10 +2594,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         BadRequestAddressResponseStatus,
@@ -2791,10 +2632,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         BadRequestAddressResponseStatus,
@@ -2832,10 +2670,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         BadRequestAddressResponseStatus,
@@ -2962,10 +2797,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         OkAddressResponseStatus
@@ -2990,10 +2822,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         TooManyRequestsResponseStatus,
@@ -3019,10 +2848,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         TooManyRequestsResponseStatus,
@@ -3048,10 +2874,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         TooManyRequestsResponseStatus,
@@ -3178,10 +3001,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           matchthreshold = 5f,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         TooManyRequestsResponseStatus,
@@ -3256,10 +3076,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           limit = 1,
           verbose = false,
           epoch = "",
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           pafdefault = false
         ),
         TooManyRequestsResponseStatus,
@@ -3304,10 +3121,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           highlight = "on",
           favourpaf = true,
           favourwelsh = false,
-          eboost = 1,
-          nboost = 1,
-          sboost = 1,
-          wboost = 1,
+          countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
           timeout = 250
         ),
         TooManyRequestsResponseStatus,

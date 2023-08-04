@@ -57,6 +57,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                    nboost: Option[String] = None,
                    sboost: Option[String] = None,
                    wboost: Option[String] = None,
+                   lboost: Option[String] = None,
+                   mboost: Option[String] = None,
+                   jboost: Option[String] = None,
                    pafdefault: Option[String] = None
                   ): Action[AnyContent] = Action async { implicit req =>
 
@@ -99,15 +102,21 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     val epochVal = epoch.getOrElse("")
 
-    val eboostVal = {if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")}
-    val nboostVal = {if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")}
-    val sboostVal = {if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")}
-    val wboostVal = {if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")}
+    val eboostVal = if (eboost.getOrElse("1.0").isEmpty) "1.0" else eboost.getOrElse("1.0")
+    val nboostVal = if (nboost.getOrElse("1.0").isEmpty) "1.0" else nboost.getOrElse("1.0")
+    val sboostVal = if (sboost.getOrElse("1.0").isEmpty) "1.0" else sboost.getOrElse("1.0")
+    val wboostVal = if (wboost.getOrElse("1.0").isEmpty) "1.0" else wboost.getOrElse("1.0")
+    val lboostVal = if (lboost.getOrElse("1.0").isEmpty) "1.0" else lboost.getOrElse("1.0")
+    val mboostVal = if (mboost.getOrElse("1.0").isEmpty) "1.0" else mboost.getOrElse("1.0")
+    val jboostVal = if (jboost.getOrElse("1.0").isEmpty) "1.0" else jboost.getOrElse("1.0")
 
     val eboostDouble = Try(eboostVal.toDouble).toOption.getOrElse(1.0D)
     val nboostDouble = Try(nboostVal.toDouble).toOption.getOrElse(1.0D)
     val sboostDouble = Try(sboostVal.toDouble).toOption.getOrElse(1.0D)
     val wboostDouble = Try(wboostVal.toDouble).toOption.getOrElse(1.0D)
+    val lboostDouble = Try(lboostVal.toDouble).toOption.getOrElse(1.0D)
+    val mboostDouble = Try(mboostVal.toDouble).toOption.getOrElse(1.0D)
+    val jboostDouble = Try(jboostVal.toDouble).toOption.getOrElse(1.0D)
 
     def writeLog(responseCode: String = "200", badRequestErrorMessage: String = "", formattedOutput: String = "", numOfResults: String = "", score: String = "", activity: String = ""): Unit = {
 
@@ -126,11 +135,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
         verbose = verb, eboost = eboostVal, nboost = nboostVal, sboost = sboostVal, wboost = wboostVal,
-        endpoint = endpointType, activity = activity, clusterid = clusterId, pafDefault = pafDefault)
+        lboost = lboostVal, mboost = mboostVal, jboost = jboostVal, endpoint = endpointType, activity = activity, clusterid = clusterId, pafDefault = pafDefault)
     }
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
-      fullAddresses.map { address => address.copy(nag = None, paf = None, nisra = None, relatives = None, crossRefs = None) }
+      fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
@@ -154,6 +163,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       nboost = Some(nboostDouble),
       sboost = Some(sboostDouble),
       wboost = Some(wboostDouble),
+      lboost = Some(lboostDouble),
+      mboost = Some(mboostDouble),
+      jboost = Some(jboostDouble),
       pafDefault = Some(pafDefault)
     )
 
@@ -172,6 +184,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       nboost = nboostDouble,
       sboost = sboostDouble,
       wboost = wboostDouble,
+      lboost = lboostDouble,
+      mboost = mboostDouble,
+      jboost = jboostDouble,
       auth = req.headers.get("authorization").getOrElse("Anon"),
       pafDefault = pafDefault
     )
@@ -187,7 +202,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateInput(input, queryValues,requestValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues,requestValues))
         .orElse(addressValidation.validateEpoch(queryValues,requestValues))
-        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,queryValues,requestValues))
+        .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,lboost,mboost,jboost,queryValues,requestValues))
         .orElse(None)
 
     result match {
@@ -274,10 +289,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   sampleSize = limitExpanded,
                   matchthreshold = thresholdFloat,
                   verbose = verb,
-                  eboost = eboostDouble,
-                  nboost = nboostDouble,
-                  sboost = sboostDouble,
-                  wboost = wboostDouble,
+                  countryBoosts = CountryBoosts(eboostDouble,nboostDouble,sboostDouble,wboostDouble,lboostDouble,mboostDouble,jboostDouble),
                   pafdefault = pafDefault
                 ),
                 status = OkAddressResponseStatus

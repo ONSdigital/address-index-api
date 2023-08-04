@@ -110,6 +110,8 @@
             "id": "1",
             "inputAddress": "45 Wheatlands Stevenage SG2 0JT",
             "uprn": "100080900305",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "45 Wheatlands, Stevenage, SG2 0JT",
             "tokens": {
                 "StreetName": "WHEATLANDS",
@@ -127,6 +129,8 @@
             "id": "2",
             "inputAddress": "86 Truro Drive Kidderminster DY11 6DL",
             "uprn": "100120740838",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "86 Truro Drive, Kidderminster, DY11 6DL",
             "tokens": {
                 "StreetName": "TRURO DRIVE",
@@ -144,6 +148,8 @@
             "id": "3",
             "inputAddress": "61 Elmhurst Mansions Edgeley Road London SW4 6EU",
             "uprn": "100021835420",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "61, Elmhurst Mansions, Edgeley Road, London, SW4 6EU",
             "tokens": {
                 "StreetName": "EDGELEY ROAD",
@@ -161,6 +167,8 @@
             "id": "3",
             "inputAddress": "61 Elmhurst Mansions Edgeley Road London SW4 6EU",
             "uprn": "200000462484",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "Flats 61 To 66, Elmhurst Mansions, Edgeley Road, London, SW4 6EU",
             "tokens": {
                 "StreetName": "EDGELEY ROAD",
@@ -178,6 +186,8 @@
             "id": "3",
             "inputAddress": "61 Elmhurst Mansions Edgeley Road London SW4 6EU",
             "uprn": "10023852933",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "84A, Elmhurst Mansions, Edgeley Road, London, SW4 6EU",
             "tokens": {
                 "StreetName": "EDGELEY ROAD",
@@ -195,6 +205,8 @@
             "id": "3",
             "inputAddress": "61 Elmhurst Mansions Edgeley Road London SW4 6EU",
             "uprn": "100021835414",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "55, Elmhurst Mansions, Edgeley Road, London, SW4 6EU",
             "tokens": {
                 "StreetName": "EDGELEY ROAD",
@@ -212,6 +224,8 @@
             "id": "3",
             "inputAddress": "61 Elmhurst Mansions Edgeley Road London SW4 6EU",
             "uprn": "100021835415",
+            "parentuprn": "0",
+            "udprn": "",
             "matchedFormattedAddress": "56, Elmhurst Mansions, Edgeley Road, London, SW4 6EU",
             "tokens": {
                 "StreetName": "EDGELEY ROAD",

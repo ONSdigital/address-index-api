@@ -27,6 +27,9 @@ case class QueryValues(input: Option[String] = None,
                        nboost: Option[Double] = None,
                        sboost: Option[Double] = None,
                        wboost: Option[Double] = None,
+                       lboost: Option[Double] = None,
+                       mboost: Option[Double] = None,
+                       jboost: Option[Double] = None,
                        groupFullPostcodes: Option[String] = None,
                        timeout: Option[Int] = None,
                        pafDefault: Option[Boolean] = None
@@ -77,6 +80,12 @@ case class QueryValues(input: Option[String] = None,
   def sboostOrDefault: Double = this.sboost.getOrElse(1.0D)
 
   def wboostOrDefault: Double = this.wboost.getOrElse(1.0D)
+
+  def lboostOrDefault: Double = this.lboost.getOrElse(1.0D)
+
+  def mboostOrDefault: Double = this.mboost.getOrElse(1.0D)
+
+  def jboostOrDefault: Double = this.jboost.getOrElse(1.0D)
 
   def highlightOrDefault: String = this.highlight.getOrElse("on")
 

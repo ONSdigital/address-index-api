@@ -45,10 +45,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     matchthreshold = 5f,
     verbose = true,
     epoch = "",
-    eboost = 1,
-    nboost = 1,
-    sboost = 1,
-    wboost = 1,
+    countryBoosts = CountryBoosts(1.0,1.0,1.0,42.0,1.0,1.0,1.0),
     pafdefault = false
   )
 
@@ -180,43 +177,6 @@ object AddressIndexClientMock {
     lpiStartDate = ""
   )
 
-  val mockNisraAddress1: AddressResponseNisra = AddressResponseNisra(
-    organisationName = "",
-    subBuildingName = "",
-    buildingName = "",
-    buildingNumber = "7",
-    pao = AddressResponsePao(
-      paoText = "",
-      paoStartNumber = "7",
-      paoStartSuffix = "",
-      paoEndNumber = "",
-      paoEndSuffix = ""
-    ),
-    sao = AddressResponseSao(
-      saoText = "",
-      saoStartNumber = "",
-      saoStartSuffix = "",
-      saoEndNumber = "",
-      saoEndSuffix = ""
-    ),
-    thoroughfare = "",
-    altThoroughfare = "",
-    dependentThoroughfare = "GATE REACH",
-    locality = "",
-    townName = "EXETER",
-    postcode = "PO7 6GA",
-    uprn = "",
-    classificationCode = "",
-    udprn = "",
-    creationDate = "",
-    commencementDate = "",
-    archivedDate = "",
-    mixedNisra = "",
-    addressStatus = "APPROVED",
-    buildingStatus = "",
-    localCouncil = "BELFAST"
-  )
-
   val mockAuxiliaryAddress: AddressResponseAuxiliary = AddressResponseAuxiliary(
     uprn = "1",
     organisationName = "2",
@@ -264,7 +224,6 @@ object AddressIndexClientMock {
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
-    nisra = Some(mockNisraAddress1),
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",

@@ -108,6 +108,33 @@
                     </td>
                 </tr>
             <tr class="table--row">
+                <td class="table--cell">lboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Channel Islands</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">mboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses in Isle of Man</td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
+                <td class="table--cell">jboost</td>
+                <td class="table--cell">string</td>
+                <td class="table--cell">Set to 0 to exclude addresses not allocated to a country </td>
+                <td class="table--cell">
+                     Optional
+                    <br>Default: 1.0
+                </td>
+            </tr> 
+            <tr class="table--row">
                 <td class="table--cell">pafdefault</td>
                 <td class="table--cell">string</td>
                 <td class="table--cell">Set to true to use PAF instead of NAG as default formatted address where possible</td>
@@ -174,11 +201,7 @@
            "northing": 92717
          },
          "classificationCode": "CR08",
-         "census": {
-           "addressType": "NA",
-           "estabType": "NA",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -199,11 +222,7 @@
            "northing": 92717
          },
          "classificationCode": "RD06",
-         "census": {
-           "addressType": "HH",
-           "estabType": "Household",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -224,11 +243,7 @@
            "northing": 92721
          },
          "classificationCode": "C",
-         "census": {
-           "addressType": "NA",
-           "estabType": "NA",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -274,11 +289,7 @@
            "northing": 92721
          },
          "classificationCode": "RD",
-         "census": {
-           "addressType": "HH",
-           "estabType": "Household",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -299,11 +310,7 @@
            "northing": 92727
          },
          "classificationCode": "RD",
-         "census": {
-           "addressType": "HH",
-           "estabType": "Household",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -324,11 +331,7 @@
            "northing": 92727
          },
          "classificationCode": "RD06",
-         "census": {
-           "addressType": "HH",
-           "estabType": "Household",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -349,11 +352,7 @@
            "northing": 92729
          },
          "classificationCode": "CR08",
-         "census": {
-           "addressType": "HH",
-           "estabType": "Household",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -399,11 +398,7 @@
            "northing": 92733
          },
          "classificationCode": "CI",
-         "census": {
-           "addressType": "NA",
-           "estabType": "NA",
-           "countryCode": "E"
-         },
+         "countryCode": "E",
          "lpiLogicalStatus": "1",
          "confidenceScore": 100,
          "underlyingScore": 0
@@ -416,7 +411,17 @@
      "offset": 0,
      "total": 74,
      "maxScore": 0,
-     "verbose": false
+    "verbose": false,
+    "countryBoosts": {
+      "eboost": 1,
+      "nboost": 1,
+      "sboost": 1,
+      "wboost": 1,
+      "lboost": 1,
+      "mboost": 1,
+      "jboost": 1
+     },
+    "pafdefault": false     "verbose": false
    },
    "status": {
      "code": 200,

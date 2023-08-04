@@ -196,7 +196,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
-    nisra = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -220,7 +219,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress2)),
-    nisra = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -245,7 +243,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, PO7 PO7",
     paf = Some(mockPafAddress2),
     nag = Some(Seq(mockNagAddress2)),
-    nisra = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -270,7 +267,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
     welshFormattedAddressPaf = "7, GATE REACH, EXETER, EX2 9GA",
     paf = Some(mockPafAddress1),
     nag = Some(Seq(mockNagAddress1)),
-    nisra = None,
     geo = None,
     classificationCode = "RD",
     lpiLogicalStatus = "1",
@@ -590,7 +586,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
   it should "boost the scores for addresses according to addressBasePostal = N " in {
     // Given
     val expected = 1F
-    val scaleFactor = 23
     // When
     val actual = HopperScoreHelper.getBoostedUnderlyingScore(mockAddressResponseAddress)
 
@@ -601,7 +596,6 @@ class HopperScoreHelperTest extends AnyFlatSpec with should.Matchers {
   it should "boost the scores for addresses according to addressBasePostal = D " in {
     // Given
     val expected = 10.0199995F
-    val scaleFactor = 23
     // When
     val actual = HopperScoreHelper.getBoostedUnderlyingScore(mockAddressResponseAddress2)
 

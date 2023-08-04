@@ -46,9 +46,6 @@ object AddressResponseAddressRH {
     val formattedAddressPaf = chosenPaf.map(_.mixedPaf).getOrElse("")
     val welshFormattedAddressPaf = chosenPaf.map(_.mixedWelshPaf).getOrElse("")
 
-    val chosenNisra = other.nisra.headOption
-    val formattedAddressNisra = chosenNisra.map(_.mixedNisra).getOrElse("")
-
     val testHigh = other.highlights.headOption.getOrElse(Map()) == Map()
 
     //Rules: PAF may not exist, NAG always exists but not necessarily WELSHNAG, if chosenNisra is not empty return that
@@ -69,13 +66,9 @@ object AddressResponseAddressRH {
         }
       } else {
         if (favourWelsh) {
-          if (chosenNisra.isEmpty) {
             if (welshFormattedAddressNag.isEmpty) formattedAddressNag else welshFormattedAddressNag
-          } else {
-            formattedAddressNisra
-          }
         } else {
-          if (chosenNisra.isEmpty) formattedAddressNag else formattedAddressNisra
+          formattedAddressNag
         }
       }
 
@@ -89,8 +82,7 @@ object AddressResponseAddressRH {
           formattedAddressPaf,
           welshFormattedAddressPaf,
           formattedAddressNag,
-          welshFormattedAddressNag,
-          formattedAddressNisra
+          welshFormattedAddressNag
         ),
       censusAddressType = other.censusAddressType.trim,
       censusEstabType = other.censusEstabType,

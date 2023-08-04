@@ -10,7 +10,6 @@ import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, NationalAddressGaz
   * @param formattedAddress cannonical address form
   * @param paf              optional, information from Paf index
   * @param nag              optional, information from Nag index
-  * @param nisra            optional, information from Nisra index
   * @param underlyingScore  score from elastic search
   *
   */
