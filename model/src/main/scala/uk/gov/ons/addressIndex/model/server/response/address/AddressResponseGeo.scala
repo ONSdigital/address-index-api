@@ -13,7 +13,7 @@ import scala.util.Try
   * @param easting   easting
   * @param northing  northing
   */
-case class AddressResponseGeo(latitude: BigDecimal, longitude: BigDecimal, easting: Int, northing: Int)
+case class AddressResponseGeo(latitude: BigDecimal, longitude: BigDecimal, easting: Int = 0, northing: Int = 0)
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
