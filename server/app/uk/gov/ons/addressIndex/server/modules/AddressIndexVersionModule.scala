@@ -123,7 +123,7 @@ class AddressIndexVersionModule @Inject()
     Option(index).map(removeBaseIndexName)
       .map(removeLetters)
       .filter(_.length >= 2) // epoch number should contain at least 2 numbers
-      .map(_.substring(0, 2))
+      .map(_.substring(0))
       .getOrElse("NA")
   }
 
