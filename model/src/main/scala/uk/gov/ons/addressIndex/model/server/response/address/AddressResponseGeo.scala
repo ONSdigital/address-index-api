@@ -13,7 +13,7 @@ import scala.util.Try
   * @param easting   easting
   * @param northing  northing
   */
-case class AddressResponseGeo(latitude: BigDecimal, longitude: BigDecimal, easting: Int = 0, northing: Int = 0)
+case class AddressResponseGeo(latitude: BigDecimal, longitude: BigDecimal, easting: Int, northing: Int)
 
 object AddressResponseGeo {
   implicit lazy val addressResponseGeoFormat: Format[AddressResponseGeo] = Json.format[AddressResponseGeo]
@@ -29,7 +29,7 @@ object AddressResponseGeo {
       longitude <- Try(BigDecimal(other.longitude))
       easting <- Try(other.easting.split("\\.").headOption.map(_.toInt).get)
       northing <- Try(other.northing.split("\\.").headOption.map(_.toInt).get)
-    } yield AddressResponseGeo(latitude, longitude, easting, northing)).toOption
+    } yield AddressResponseGeo(latitude, longitude, Option(easting).getOrElse(0), Option(northing).getOrElse(0))).toOption
 
   /**
     * Creates GEO information from NISRA elastic search object
