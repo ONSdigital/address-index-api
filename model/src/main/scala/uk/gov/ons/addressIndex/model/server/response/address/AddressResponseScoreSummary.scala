@@ -20,6 +20,9 @@ case class AddressResponseScoreSummary(maxConfidenceScore: Double,
                                 topMatchConfidenceZone: String,
                                 unambiguityScore: Double,
                                 topMatchUnambiguityZone: String)
+{
+  def this() = this(0,0,"",0,"",0,"")
+}
 
 object AddressResponseScoreSummary {
   implicit lazy val addressResponseScoreSummaryFormat: Format[AddressResponseScoreSummary] = Json.format[AddressResponseScoreSummary]

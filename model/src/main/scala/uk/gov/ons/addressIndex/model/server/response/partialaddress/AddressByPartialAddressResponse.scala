@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.partialaddress
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponse, AddressResponseAddress, CountryBoosts}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressBySearchResponse, AddressResponseAddress, CountryBoosts, AddressResponseScoreSummary}
 
 /**
   * Contains relevant, to the address request, data
@@ -36,6 +36,7 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
 
   new AddressBySearchResponse(
     tokens = Map("input" -> partResponse.input),
+      score = new AddressResponseScoreSummary(),
       addresses = partResponse.addresses,
       filter = partResponse.filter,
       historical = partResponse.historical,

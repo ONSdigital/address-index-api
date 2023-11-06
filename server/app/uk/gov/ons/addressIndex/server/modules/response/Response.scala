@@ -80,6 +80,7 @@ trait Response {
   def Error(queryValues: QueryValues): AddressBySearchResponse = {
     AddressBySearchResponse(
       Map.empty,
+      score = new AddressResponseScoreSummary(),
       addresses = Seq.empty,
       filter = queryValues.filterOrDefault,
       historical = queryValues.historicalOrDefault,
