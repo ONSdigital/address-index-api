@@ -260,6 +260,39 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
 
+            // assign the match as non-match, single match or multiple match
+            val matchType = newTotal match {
+              case 0 => "N"
+              case 1 => "S"
+              case _ => "M"
+            }
+
+            val maxConfidenceScore: Double = sortedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
+            val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
+            val unambiguityScore: Double = maxConfidenceScore - secondConfidenceScore
+
+            val topMatchConfidenceZone = maxConfidenceScore match {
+              case i if (i < 50) => "L"
+              case i if (i > 65) => "H"
+              case _ => "M"
+            }
+
+            val topMatchUnambiguityZone = maxConfidenceScore match {
+              case i if (i < 10) => "L"
+              case i if (i > 50) => "H"
+              case _ => "M"
+            }
+
+            val scoreSummary: AddressResponseScoreSummary = AddressResponseScoreSummary(
+              maxConfidenceScore = maxConfidenceScore,
+              maxUnderlyingScore = maxScore,
+              matchType = matchType,
+              confidenceThreshold = thresholdFloat,
+              topMatchConfidenceZone = topMatchConfidenceZone,
+              unambiguityScore = unambiguityScore,
+              topMatchUnambiguityZone = topMatchUnambiguityZone
+            )
+
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
@@ -275,6 +308,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 dataVersion = dataVersion,
                 response = AddressBySearchResponse(
                   tokens = tokens,
+                  score = scoreSummary,
                   addresses = finalAddresses,
                   filter = filterString,
                   historical = hist,
