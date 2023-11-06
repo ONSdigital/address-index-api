@@ -269,7 +269,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
             val maxConfidenceScore: Double = sortedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
             val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
-            val unambiguityScore: Double = maxConfidenceScore - secondConfidenceScore
+            val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
 
             val topMatchConfidenceZone = maxConfidenceScore match {
               case i if (i < 50) => "L"
@@ -277,8 +277,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               case _ => "M"
             }
 
-            val topMatchUnambiguityZone = maxConfidenceScore match {
-              case i if (i < 10) => "L"
+            val topMatchUnambiguityZone = unambiguityScore match {
+              case i if (i < 20) => "L"
               case i if (i > 50) => "H"
               case _ => "M"
             }
