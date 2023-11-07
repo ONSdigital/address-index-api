@@ -273,13 +273,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
             val topMatchConfidenceZone = maxConfidenceScore match {
               case i if (i < 50) => "L"
-              case i if (i > 65) => "H"
+              case i if (i > 66) => "H"
               case _ => "M"
             }
 
             val topMatchUnambiguityZone = unambiguityScore match {
               case i if (i < 20) => "L"
-              case i if (i > 50) => "H"
+              case i if (i > 40) => "H"
               case _ => "M"
             }
 

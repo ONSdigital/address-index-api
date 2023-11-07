@@ -6,9 +6,9 @@ import play.api.libs.json.{Format, Json}
   * Score summary object return at top level in response
   *
   * @param maxConfindenceScore 0-100
-  * @param maxUnderlyingScore 0-about 50 (moved here from maxScore)
+  * @param maxUnderlyingScore 0-about 50 (copied here from maxScore)
   * @param matchType N, S, M
-  * @param confidenceThreshold default 10 (duplicated for convenience)
+  * @param confidenceThreshold default 10 (copied from matchThreshold)
   * @param topMatchConfidenceZone H, M, L
   * @param unambiguityScore (best match vs. second best match)
   * @param topMatchUnambiguityZone H, M, L
