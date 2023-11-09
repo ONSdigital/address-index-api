@@ -283,6 +283,24 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               case _ => "M"
             }
 
+            val reccomendationCode = {
+              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") 1
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") 1
+              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") 2
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") 2
+              else 3
+            }
+
+            val reccomendationText = {
+              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Use top match"
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Use top match"
+              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "Clerical intervention required"
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "Clerical intervention required"
+              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "Low score, but top match could be right"
+              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "M") "Low score, top match unlikely to be right"
+              else "Reject result"
+            }
+
             val scoreSummary: AddressResponseScoreSummary = AddressResponseScoreSummary(
               maxConfidenceScore = maxConfidenceScore,
               maxUnderlyingScore = maxScore,
@@ -290,7 +308,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               confidenceThreshold = thresholdFloat,
               topMatchConfidenceZone = topMatchConfidenceZone,
               unambiguityScore = unambiguityScore,
-              topMatchUnambiguityZone = topMatchUnambiguityZone
+              topMatchUnambiguityZone = topMatchUnambiguityZone,
+              reccomendationCode = reccomendationCode,
+              reccomendationText = reccomendationText
             )
 
             // trim the result list according to offset and limit paramters
