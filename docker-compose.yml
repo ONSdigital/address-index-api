@@ -1,7 +1,7 @@
 version: '3'
 services:
   es:
-    image: "europe-west2-docker.pkg.dev/ons-ci-aims/aims-api-demo/elasticsearch-aims-7.11.1:latest"
+    image: "thornsj/address-index-es:271023"
     container_name: elasticsearch
     environment:
       - cluster.name=docker-cluster-ai
@@ -27,7 +27,7 @@ services:
     depends_on:
       - es
   address-index-api:
-    image: "europe-west2-docker.pkg.dev/ons-ci-aims/aims-api-demo/address-index-server:1.0.17"
+    image: "thornsj/address-index-api:271023"
     ports:
       - "9001:9000"
     depends_on:
@@ -38,7 +38,7 @@ services:
       - ONS_AI_API_ES_PORT=9200
       - ONS_AI_API_MIN_PARTIAL_SIZE=2
   address-index-ui:
-    image: "europe-west2-docker.pkg.dev/ons-ci-aims/aims-api-demo/address-index-ui:1.0.8"
+    image: "thornsj/address-index-ui:311023"
     ports:
       - "5000:5000"
     depends_on:
