@@ -22,10 +22,10 @@ case class AddressResponseScoreSummary(maxConfidenceScore: Double,
                                 topMatchConfidenceZone: String,
                                 unambiguityScore: Double,
                                 topMatchUnambiguityZone: String,
-                                reccomendationCode: Int,
+                                reccomendationCode: String,
                                 reccomendationText: String)
 {
-  def this() = this(0,0,"",0,"",0,"",0,"")
+  def this() = this(0,0,"",0,"",0,"","","")
 }
 
 object AddressResponseScoreSummary {

@@ -283,12 +283,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               case _ => "M"
             }
 
+            // AIR rating Accept, Investigate, Reject
             val reccomendationCode = {
-              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") 1
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") 1
-              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") 2
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") 2
-              else 3
+              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
+              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "I"
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
+              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
+              else "R"
             }
 
             val reccomendationText = {
