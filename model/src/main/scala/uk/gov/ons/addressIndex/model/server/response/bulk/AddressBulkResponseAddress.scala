@@ -28,7 +28,8 @@ case class AddressBulkResponseAddress(id: String,
                                       matchedAddress: Option[AddressResponseAddress],
                                       tokens: Map[String, String],
                                       confidenceScore: Double,
-                                      underlyingScore: Float)
+                                      underlyingScore: Float,
+                                      airRating:String)
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
@@ -48,6 +49,7 @@ object AddressBulkResponseAddress {
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
-    underlyingScore = bulkAddress.hybridAddress.score
+    underlyingScore = bulkAddress.hybridAddress.score,
+    airRating = addressResponseAddress.classificationCode
   )
 }
