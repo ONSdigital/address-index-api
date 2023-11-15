@@ -50,6 +50,6 @@ object AddressBulkResponseAddress {
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
     underlyingScore = bulkAddress.hybridAddress.score,
-    airRating = addressResponseAddress.classificationCode
+    airRating = ""
   )
 }
