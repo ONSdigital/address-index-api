@@ -1183,7 +1183,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             }
 
             val maxConfidenceScore: Double = thresholdedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
-            val maxUnderlyingScore: Double = thresholdedAddresses.headOption.map(_.underlyingScore).getOrElse(0D)
+            val maxUnderlyingScore: Float = thresholdedAddresses.headOption.map(_.underlyingScore).getOrElse(0F)
             val secondConfidenceScore: Double = Try(thresholdedAddresses(1).confidenceScore).getOrElse(0D)
             val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
 
