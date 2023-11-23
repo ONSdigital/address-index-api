@@ -1194,16 +1194,16 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             }
 
             val topMatchUnambiguityZone = unambiguityScore match {
-              case i if (i < 30) => "L"
-              case i if (i > 45) => "H"
+              case i if (i < 40) => "L"
+              case i if (i > 60) => "H"
               case _ => "M"
             }
 
             // AIR rating Accept, Investigate, Reject
             val reccomendationCode = {
-              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
+              if (maxUnderlyingScore > 5 && topMatchConfidenceZone == ("H") && unambiguityScore != 0) "A"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "I"
+              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && unambiguityScore == 0) "I"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
               else "R"
