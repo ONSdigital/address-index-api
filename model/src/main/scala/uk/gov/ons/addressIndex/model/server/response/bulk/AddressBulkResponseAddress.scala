@@ -29,6 +29,7 @@ case class AddressBulkResponseAddress(id: String,
                                       tokens: Map[String, String],
                                       confidenceScore: Double,
                                       underlyingScore: Float,
+                                      unambiguityScore: Double,
                                       airRating:String)
 
 object AddressBulkResponseAddress {
@@ -50,6 +51,7 @@ object AddressBulkResponseAddress {
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
     underlyingScore = bulkAddress.hybridAddress.score,
+    unambiguityScore = 0D,
     airRating = ""
   )
 }

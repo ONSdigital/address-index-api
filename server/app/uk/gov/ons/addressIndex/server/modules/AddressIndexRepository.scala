@@ -1188,20 +1188,20 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
 
             val topMatchConfidenceZone = maxConfidenceScore match {
-              case i if (i < 55) => "L"
-              case i if (i > 66) => "H"
+              case i if (i < 54) => "L"
+              case i if (i > 63) => "H"
               case _ => "M"
             }
 
             val topMatchUnambiguityZone = unambiguityScore match {
               case i if (i < 30) => "L"
-              case i if (i > 50) => "H"
+              case i if (i > 45) => "H"
               case _ => "M"
             }
 
             // AIR rating Accept, Investigate, Reject
             val reccomendationCode = {
-              if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
+              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "I"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
@@ -1219,7 +1219,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               else "Reject result"
             }
 
-            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(airRating = reccomendationCode)
+            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(airRating = reccomendationCode,unambiguityScore = unambiguityScore)
 
             val airList = Seq(airAddress) ++ thresholdedAddresses.drop(1)
 
