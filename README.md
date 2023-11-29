@@ -8,7 +8,7 @@
 
 Address Index is a Play Framework (2.8.8) application which matches addresses. 
 
-The system works via large Elasticsearch (7.9.3) indices build primarily from AddressBase Premium data.
+The system works via large Elasticsearch (7.17.1) indices build primarily from AddressBase Premium data.
 
 The input can be a complete address (from any source), and the system uses advanced data science techniques to determine the most likely matching AddressBase entries with UPRNs (Unique Property Reference Numbers).
 
@@ -20,10 +20,10 @@ Plans to deploy the application as a service available to all members of the Pub
 
 ### How do I get a sneek peak of the API? ###
 
-Two Docker images have been created which give a feel for the API. The Docker images include an Elasticsearch 7.3.1 cluster prebuilt with the required Address Index indices. The indices are a subset of AddressBase (the Exeter subset).
-The other Docker image contains a version of the API that will work with the Elasticsearch indices. The ```docker-compose.yml``` file also contains a Kibana and Cerebro service to view the cluster. To get started:
+Docker images have been created which give a feel for the API. The Docker images include an Elasticsearch 7.17.1 cluster prebuilt with the required Address Index indices. The indices are a subset of AddressBase (the Exeter subset).
+Another Docker image contains a version of the API that will work with the Elasticsearch indices. We have recently added a third image to deploy the improved Python UI. The ```docker-compose.yml``` file also contains a Kibana and Cerebro service to view the cluster.  Unfortunately none of the current images are publicly available at the moment, but we hope to remedy this soon. To get started:
 
-1) Run ```docker-compose up``` on https://github.com/ONSdigital/address-index-api/blob/master/docker-compose.yml
+1) Run ```docker-compose up``` on https://github.com/ONSdigital/address-index-api/blob/develop/docker-compose.yml
 
 2) The cluster status can be viewed with either Cerebro or Kibana:
 
@@ -44,6 +44,10 @@ The other Docker image contains a version of the API that will work with the Ela
     
     https://editor.swagger.io/
 
+4) The UI points to the local API and is available on
+
+        http://localhost:5000/
+
 ### How do I get set up for development? ###
 
 1) Required Installations
@@ -51,7 +55,7 @@ The other Docker image contains a version of the API that will work with the Ela
     * Java 11 
     * sbt 1.5.5
     * Scala 2.13.6
-    * Elasticsearch 7.9.3
+    * Elasticsearch 7.17.1
     * An IDE such as IntelliJ is recommended
 
 2) Create Project from GitHub (IntelliJ shown as example)

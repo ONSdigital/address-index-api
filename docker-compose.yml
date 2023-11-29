@@ -1,14 +1,13 @@
 version: '3'
 services:
   es:
-    image: "thornsj/address-index-es:190420"
+    image: "thornsj/address-index-es:271023"
     container_name: elasticsearch
     environment:
       - cluster.name=docker-cluster-ai
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
-      # - "ELASTIC_PASSWORD=elastic"
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -20,17 +19,15 @@ services:
       - es
   kibana:
     container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.3.1
+    image: docker.elastic.co/kibana/kibana:7.17.1
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      # - ELASTICSEARCH_USERNAME=elastic
-      # - ELASTICSEARCH_PASSWORD=elastic
     ports:
       - 5601:5601
     depends_on:
       - es
   address-index-api:
-    image: "thornsj/address-index-api:190420"
+    image: "thornsj/address-index-api:271023"
     ports:
       - "9001:9000"
     depends_on:
@@ -39,3 +36,19 @@ services:
       - ONS_AI_API_ES_CLUSTER_NAME=docker-cluster-ai
       - ONS_AI_API_ES_URI=es
       - ONS_AI_API_ES_PORT=9200
+      - ONS_AI_API_MIN_PARTIAL_SIZE=2
+  address-index-ui:
+    image: "thornsj/address-index-ui:311023"
+    ports:
+      - "5000:5000"
+    depends_on:
+      - address-index-api
+    environment:
+      - API_URL=http://host.docker.internal:9001
+      - BM_API_URL=http://host.docker.internal:9001
+      - PROJECT_DOMAIN=http://localhost:9001
+      - FLASK_ENV=production
+      - FLASK_APP=aims_ui
+      - API_AUTH_TYPE=JWT
+      - JWT_TOKEN=abc123
+      - SECRET_KEY=secret
