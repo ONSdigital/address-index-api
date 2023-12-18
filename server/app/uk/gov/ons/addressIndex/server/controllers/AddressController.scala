@@ -142,6 +142,14 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
       fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
     }
 
+    def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
+      normalAddresses.map { address => transformToNonIDS(address) }
+    }
+
+    def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+      AddressResponseAddressNonIDS.fromAddress(addressIn)
+    }
+
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)
     val offsetInt = Try(offVal.toInt).toOption.getOrElse(defOffset)
     val thresholdFloat = Try(threshVal.toFloat).toOption.getOrElse(defThreshold)
@@ -267,6 +275,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               case _ => "M"
             }
 
+            //todo: the code below will be tidied and/or refactored when output is finalised
+
             val maxConfidenceScore: Double = sortedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
             val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
             val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
@@ -284,23 +294,35 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             }
 
             // AIR rating Accept, Investigate, Reject
-            val reccomendationCode = {
+//            val reccomendationCode = {
+//              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
+//              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
+//              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "I"
+//              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
+//              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
+//              else "R"
+//            }
+
+            val recommendationCode = {
               if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
               else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "I"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
-              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
-              else "R"
+              else "I"
             }
 
-            val reccomendationText = {
-              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Use top match"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Use top match"
-              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "Clerical intervention required"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "Clerical intervention required"
-              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "Low score, but top match could be right"
-              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "M") "Low score, top match unlikely to be right"
-              else "Reject result"
+//            val recommendationText = {
+//              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Use top match"
+//              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Use top match"
+//              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "Clerical intervention required"
+//              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "Clerical intervention required"
+//              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "Low score, but top match could be right"
+//              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "M") "Low score, top match unlikely to be right"
+//              else "Reject result"
+//            }
+
+            val recommendationText = {
+              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Accept result"
+              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Accept result"
+              else "Requires clerical intervention"
             }
 
             val scoreSummary: AddressResponseScoreSummary = AddressResponseScoreSummary(
@@ -311,8 +333,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
               topMatchConfidenceZone = topMatchConfidenceZone,
               unambiguityScore = unambiguityScore,
               topMatchUnambiguityZone = topMatchUnambiguityZone,
-              reccomendationCode = reccomendationCode,
-              reccomendationText = reccomendationText
+              recommendationCode = recommendationCode,
+              recommendationText = recommendationText
             )
 
             // trim the result list according to offset and limit paramters
@@ -330,8 +352,8 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 dataVersion = dataVersion,
                 response = AddressBySearchResponse(
                   tokens = tokens,
-                  score = scoreSummary,
-                  addresses = finalAddresses,
+                  recommendationCode = recommendationCode,
+                  addresses = addressesToNonIDS(finalAddresses),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

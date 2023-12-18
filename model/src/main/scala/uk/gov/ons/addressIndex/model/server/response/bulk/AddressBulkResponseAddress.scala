@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response.bulk
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS}
 
 /**
   *
@@ -25,7 +25,7 @@ case class AddressBulkResponseAddress(id: String,
                                       addressEntryId: String,
                                       addressEntryIdAlphanumericBackup: String,
                                       matchedFormattedAddress: String,
-                                      matchedAddress: Option[AddressResponseAddress],
+                                      matchedAddress: Option[AddressResponseAddressNonIDS],
                                       tokens: Map[String, String],
                                       confidenceScore: Double,
                                       underlyingScore: Float,
@@ -36,7 +36,7 @@ object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
   def fromBulkAddress(bulkAddress: BulkAddress,
-                      addressResponseAddress: AddressResponseAddress,
+                      addressResponseAddress: AddressResponseAddressNonIDS,
                       includeFullAddress: Boolean
                      ): AddressBulkResponseAddress = AddressBulkResponseAddress(
     id = bulkAddress.id,

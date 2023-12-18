@@ -13,7 +13,7 @@ import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, Highl
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS}
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
@@ -1112,6 +1112,14 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
     }
   }
 
+  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
+    normalAddresses.map { address => transformToNonIDS(address) }
+  }
+
+  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+    AddressResponseAddressNonIDS.fromAddress(addressIn)
+  }
+
   override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {
     val minimumSample = conf.config.bulk.minimumSample
     val scaleFactor = conf.config.bulk.scaleFactor
@@ -1146,7 +1154,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           // something that will indicate an empty result
           val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor)
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor))
           val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
@@ -1163,7 +1171,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             // add the Hopper and hybrid scores to the address
             // val matchThreshold = 5
             val threshold = Try(args.matchThreshold.toDouble).getOrElse(5.0D)
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor)
+            val scoredAddresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor))
 
  // temp code here
 
@@ -1200,16 +1208,22 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             }
 
             // AIR rating Accept, Investigate, Reject
-            val reccomendationCode = {
+//            val reccomendationCode = {
+//              if (maxUnderlyingScore > 5 && topMatchConfidenceZone == ("H") && unambiguityScore != 0) "A"
+//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
+//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && unambiguityScore == 0) "I"
+//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
+//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
+//              else "R"
+//            }
+
+            val recommendationCode = {
               if (maxUnderlyingScore > 5 && topMatchConfidenceZone == ("H") && unambiguityScore != 0) "A"
               else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && unambiguityScore == 0) "I"
-              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
-              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
-              else "R"
+              else "I"
             }
 
-            val reccomendationText = {
+            val recommendationText = {
               if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Use top match"
               else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Use top match"
               else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "Clerical intervention required"
@@ -1219,7 +1233,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               else "Reject result"
             }
 
-            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(airRating = reccomendationCode,unambiguityScore = unambiguityScore)
+            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(airRating = recommendationCode,unambiguityScore = unambiguityScore)
 
             val airList = Seq(airAddress) ++ thresholdedAddresses.drop(1)
 

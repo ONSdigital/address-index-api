@@ -31,6 +31,14 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
 
   val startboost: Int = conf.config.elasticSearch.defaultStartBoost
 
+  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
+    normalAddresses.map { address => transformToNonIDS(address) }
+  }
+
+  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+    AddressResponseAddressNonIDS.fromAddress(addressIn)
+  }
+
   /**
     * PartialAddress query API
     *
@@ -220,7 +228,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = inputVal,
-                  addresses = sortAddresses,
+                  addresses = addressesToNonIDS(sortAddresses),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,

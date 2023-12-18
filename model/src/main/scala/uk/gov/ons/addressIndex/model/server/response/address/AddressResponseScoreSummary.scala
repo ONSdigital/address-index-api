@@ -12,8 +12,8 @@ import play.api.libs.json.{Format, Json}
   * @param topMatchConfidenceZone H, M, L
   * @param unambiguityScore (best match vs. second best match)
   * @param topMatchUnambiguityZone H, M, L
-  * @param reccomendationCode 1, 2, 3
-  * @param reccomendationText don't use
+  * @param recommendationCode A,I
+  * @param recommendationText needed?
   */
 case class AddressResponseScoreSummary(maxConfidenceScore: Double,
                                 maxUnderlyingScore: Double,
@@ -22,8 +22,8 @@ case class AddressResponseScoreSummary(maxConfidenceScore: Double,
                                 topMatchConfidenceZone: String,
                                 unambiguityScore: Double,
                                 topMatchUnambiguityZone: String,
-                                reccomendationCode: String,
-                                reccomendationText: String)
+                                recommendationCode: String,
+                                recommendationText: String)
 {
   def this() = this(0,0,"",0,"",0,"","","")
 }

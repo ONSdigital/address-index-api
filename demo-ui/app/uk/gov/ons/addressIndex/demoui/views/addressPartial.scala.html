@@ -1,11 +1,11 @@
 @import uk.gov.ons.addressIndex.parsers.Tokens
 @import java.text.SimpleDateFormat
 
-@import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+@import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS
 
 @import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative
 @(
-    address: AddressResponseAddress,
+    address: AddressResponseAddressNonIDS,
     filter: String,
     classification: Option[Map[String, String]],
     tokens: Map[String, String] = Map.empty[String, String],
