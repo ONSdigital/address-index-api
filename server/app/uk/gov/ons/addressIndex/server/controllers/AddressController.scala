@@ -352,6 +352,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 dataVersion = dataVersion,
                 response = AddressBySearchResponse(
                   tokens = tokens,
+                  matchtype = matchType,
                   recommendationCode = recommendationCode,
                   addresses = addressesToNonIDS(finalAddresses),
                   filter = filterString,

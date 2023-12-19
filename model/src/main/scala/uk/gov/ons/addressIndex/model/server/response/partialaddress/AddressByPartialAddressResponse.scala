@@ -37,6 +37,7 @@ def toAddressBySearchResponse(partResponse: AddressByPartialAddressResponse): Ad
   new AddressBySearchResponse(
     tokens = Map("input" -> partResponse.input),
       recommendationCode = "A",
+      matchtype = "S",
       addresses = partResponse.addresses,
       filter = partResponse.filter,
       historical = partResponse.historical,

@@ -22,15 +22,13 @@ case class AddressBulkResponseAddress(id: String,
                                       uprn: String,
                                       parentUprn: String,
                                       udprn: String,
-                                      addressEntryId: String,
-                                      addressEntryIdAlphanumericBackup: String,
                                       matchedFormattedAddress: String,
                                       matchedAddress: Option[AddressResponseAddressNonIDS],
                                       tokens: Map[String, String],
                                       confidenceScore: Double,
                                       underlyingScore: Float,
-                                      unambiguityScore: Double,
-                                      airRating:String)
+                                      recommendationCode: String,
+                                      matchtype:String)
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
@@ -44,14 +42,12 @@ object AddressBulkResponseAddress {
     uprn = bulkAddress.hybridAddress.uprn,
     parentUprn = bulkAddress.hybridAddress.parentUprn,
     udprn = bulkAddress.hybridAddress.paf.headOption.map(_.udprn).getOrElse(""),
-    addressEntryId = bulkAddress.hybridAddress.addressEntryId,
-    addressEntryIdAlphanumericBackup = bulkAddress.hybridAddress.addressEntryIdAlphanumericBackup,
     matchedFormattedAddress = addressResponseAddress.formattedAddress,
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
     underlyingScore = bulkAddress.hybridAddress.score,
-    unambiguityScore = 0D,
-    airRating = ""
+    recommendationCode = "",
+    matchtype = ""
   )
 }

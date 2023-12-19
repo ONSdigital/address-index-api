@@ -81,6 +81,7 @@ trait Response {
     AddressBySearchResponse(
       Map.empty,
       recommendationCode = "",
+      matchtype = "",
       addresses = Seq.empty,
       filter = queryValues.filterOrDefault,
       historical = queryValues.historicalOrDefault,

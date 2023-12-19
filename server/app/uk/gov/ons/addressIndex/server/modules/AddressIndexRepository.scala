@@ -1233,7 +1233,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               else "Reject result"
             }
 
-            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(airRating = recommendationCode,unambiguityScore = unambiguityScore)
+            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(recommendationCode = recommendationCode,matchtype = matchType)
 
             val airList = Seq(airAddress) ++ thresholdedAddresses.drop(1)
 

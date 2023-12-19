@@ -13,6 +13,7 @@ import play.api.libs.json.{Format, Json}
   */
 case class AddressBySearchResponse(tokens: Map[String, String],
                                    addresses: Seq[AddressResponseAddressNonIDS],
+                                   matchtype: String,
                                    recommendationCode: String,
                                    filter: String,
                                    historical: Boolean,
