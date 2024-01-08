@@ -3,7 +3,7 @@ package uk.gov.ons.addressIndex.model.server.response.address
 import play.api.libs.json.{Format, Json}
 
 /**
-  * Score summary object return at top level in response
+  * Score summary object return at top level in response - still in test / development
   *
   * @param maxConfindenceScore 0-100
   * @param maxUnderlyingScore 0-about 50 (copied here from maxScore)
@@ -16,16 +16,16 @@ import play.api.libs.json.{Format, Json}
   * @param recommendationText needed?
   */
 case class AddressResponseScoreSummary(maxConfidenceScore: Double,
-                                maxUnderlyingScore: Double,
-                                matchType: String,
-                                confidenceThreshold: Float,
+//                                maxUnderlyingScore: Double,
+//                                matchType: String,
+//                                confidenceThreshold: Float,
                                 topMatchConfidenceZone: String,
                                 unambiguityScore: Double,
                                 topMatchUnambiguityZone: String,
                                 recommendationCode: String,
                                 recommendationText: String)
 {
-  def this() = this(0,0,"",0,"",0,"","","")
+  def this() = this(0,"",0,"","","")
 }
 
 object AddressResponseScoreSummary {

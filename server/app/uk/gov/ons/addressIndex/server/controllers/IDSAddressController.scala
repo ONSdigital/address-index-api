@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -275,28 +275,6 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                  case _ => "M"
             }
 
-            val maxConfidenceScore: Double = sortedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
-            val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
-            val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
-
-            val topMatchConfidenceZone = maxConfidenceScore match {
-              case i if (i < 50) => "L"
-              case i if (i > 66) => "H"
-              case _ => "M"
-            }
-
-            val topMatchUnambiguityZone = unambiguityScore match {
-              case i if (i < 20) => "L"
-              case i if (i > 40) => "H"
-              case _ => "M"
-            }
-
-            val recommendationCode = {
-              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "A"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-              else "I"
-            }
-
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
@@ -316,7 +294,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                 response = AddressBySearchResponseIDS(
                   addresses = addressesToIDS(finalAddresses),
                   matchtype = matchType,
-                  recommendationCode = recommendationCode
+                  recommendationCode = AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode
                 ),
                 status = OkAddressResponseStatus
               )

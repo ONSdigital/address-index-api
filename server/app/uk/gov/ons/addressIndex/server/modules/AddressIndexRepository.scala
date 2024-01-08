@@ -18,7 +18,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future, duration}
@@ -1183,50 +1183,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
               case _ => "M"
             }
 
-            val maxConfidenceScore: Double = thresholdedAddresses.headOption.map(_.confidenceScore).getOrElse(0D)
-            val maxUnderlyingScore: Float = thresholdedAddresses.headOption.map(_.underlyingScore).getOrElse(0F)
-            val secondConfidenceScore: Double = Try(thresholdedAddresses(1).confidenceScore).getOrElse(0D)
-            val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
-
-            val topMatchConfidenceZone = maxConfidenceScore match {
-              case i if (i < 54) => "L"
-              case i if (i > 63) => "H"
-              case _ => "M"
-            }
-
-            val topMatchUnambiguityZone = unambiguityScore match {
-              case i if (i < 40) => "L"
-              case i if (i > 60) => "H"
-              case _ => "M"
-            }
-
-            // AIR rating Accept, Investigate, Reject
-//            val reccomendationCode = {
-//              if (maxUnderlyingScore > 5 && topMatchConfidenceZone == ("H") && unambiguityScore != 0) "A"
-//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("H") && unambiguityScore == 0) "I"
-//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "I"
-//              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "I"
-//              else "R"
-//            }
-
-            val recommendationCode = {
-              if (maxUnderlyingScore > 5 && topMatchConfidenceZone == ("H") && unambiguityScore != 0) "A"
-              else if (maxUnderlyingScore > 15 && topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "A"
-              else "I"
-            }
-
-            val recommendationText = {
-              if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone != "L") "Use top match"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone == "H") "Use top match"
-              else if (topMatchConfidenceZone == ("H") && topMatchUnambiguityZone == "L") "Clerical intervention required"
-              else if (topMatchConfidenceZone == ("M") && topMatchUnambiguityZone != "H") "Clerical intervention required"
-              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "H") "Low score, but top match could be right"
-              else if (topMatchConfidenceZone == ("L") && topMatchUnambiguityZone == "M") "Low score, top match unlikely to be right"
-              else "Reject result"
-            }
-
-            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(recommendationCode = recommendationCode,matchtype = matchType)
+            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(recommendationCode = AIRatingHelper.calculateAIRatingBulk(thresholdedAddresses).recommendationCode,matchtype = matchType)
 
             val airList = Seq(airAddress) ++ thresholdedAddresses.drop(1)
 
