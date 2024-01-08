@@ -13,7 +13,8 @@ import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, Highl
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
@@ -1110,14 +1111,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
         // catchall for any other endpoint
         client.execute(query).map(HybridAddressCollection.fromResponse)
     }
-  }
-
-  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-    normalAddresses.map { address => transformToNonIDS(address) }
-  }
-
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
   }
 
   override def runBulkQuery(args: BulkArgs): Future[LazyList[Either[BulkAddressRequestData, Seq[AddressBulkResponseAddress]]]] = {

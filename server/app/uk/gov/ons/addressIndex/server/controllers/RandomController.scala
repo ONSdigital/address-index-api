@@ -4,7 +4,8 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS, CountryBoosts, FailedRequestToEsRandomError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, CountryBoosts, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
@@ -27,14 +28,6 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
   extends PlayHelperController(versionProvider) with RandomControllerResponse {
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:RandomController")
-
-  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-    normalAddresses.map { address => transformToNonIDS(address) }
-  }
-
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
-  }
 
   /**
     * Random query API

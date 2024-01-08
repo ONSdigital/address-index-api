@@ -3,9 +3,10 @@ package uk.gov.ons.addressIndex.server.controllers
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressCollection}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
@@ -30,14 +31,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:MultiUPRNController")
-
-  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-    normalAddresses.map { address => transformToNonIDS(address) }
-  }
-
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
-  }
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`

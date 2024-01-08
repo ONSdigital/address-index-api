@@ -11,6 +11,7 @@ import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.eq._
@@ -192,13 +193,6 @@ class AddressControllerSpec extends PlaySpec with Results {
   val validClassificationList: String = "{\"classifications\"" +
     ":[{\"code\":\"C\",\"label\":\"Commercial\"}"
 
-  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-    normalAddresses.map { address => transformToNonIDS(address) }
-  }
-
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
-  }
 
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result

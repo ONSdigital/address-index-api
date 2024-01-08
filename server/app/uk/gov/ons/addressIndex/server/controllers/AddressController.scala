@@ -5,6 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
@@ -140,14 +141,6 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
     def trimAddresses(fullAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddress] = {
       fullAddresses.map { address => address.copy(nag = None, paf = None, relatives = None, crossRefs = None) }
-    }
-
-    def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-      normalAddresses.map { address => transformToNonIDS(address) }
-    }
-
-    def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-      AddressResponseAddressNonIDS.fromAddress(addressIn)
     }
 
     val limitInt = Try(limVal.toInt).toOption.getOrElse(defLimit)

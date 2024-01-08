@@ -5,6 +5,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 /**
@@ -132,10 +133,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
     crossReference = "E05011011",
     source = "7666OW"
   )
-
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
-  }
 
   "Address response Bulk Address model" should {
 

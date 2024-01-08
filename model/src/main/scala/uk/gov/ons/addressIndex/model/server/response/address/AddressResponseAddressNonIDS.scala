@@ -36,6 +36,14 @@ case class AddressResponseAddressNonIDS(uprn: String,
 object AddressResponseAddressNonIDS {
   implicit lazy val addressResponseAddressNonIDSFormat: Format[AddressResponseAddressNonIDS] = Json.format[AddressResponseAddressNonIDS]
 
+  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
+    normalAddresses.map { address => transformToNonIDS(address) }
+  }
+
+  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+    AddressResponseAddressNonIDS.fromAddress(addressIn)
+  }
+
   def fromAddress(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
     new AddressResponseAddressNonIDS(
       uprn = addressIn.uprn,
