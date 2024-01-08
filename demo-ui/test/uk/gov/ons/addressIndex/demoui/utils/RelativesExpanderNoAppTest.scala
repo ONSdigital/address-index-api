@@ -12,7 +12,7 @@ import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModuleMock
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressNonIDS, AddressResponseRelative}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponseNonIDS, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 
 import scala.concurrent.{ExecutionContext, Future}
 

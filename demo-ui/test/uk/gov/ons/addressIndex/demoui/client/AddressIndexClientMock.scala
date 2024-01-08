@@ -46,7 +46,9 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     verbose = true,
     epoch = "",
     countryBoosts = CountryBoosts(1.0,1.0,1.0,42.0,1.0,1.0,1.0),
-    pafdefault = false
+    pafdefault = false,
+    matchtype = "",
+    recommendationCode = ""
   )
 
   val mockAddressByPostcodeResponse: AddressByPostcodeResponse = AddressByPostcodeResponse(

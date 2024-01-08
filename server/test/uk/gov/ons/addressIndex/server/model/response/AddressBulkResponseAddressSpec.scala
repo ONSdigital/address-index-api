@@ -133,6 +133,9 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
     source = "7666OW"
   )
 
+  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+    AddressResponseAddressNonIDS.fromAddress(addressIn)
+  }
 
   "Address response Bulk Address model" should {
 
@@ -142,8 +145,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
-        addressEntryId = "",
-        addressEntryIdAlphanumericBackup = "",
         uprn = givenPaf.uprn,
         parentUprn = givenNag.parentUprn,
         udprn = givenPaf.udprn,
@@ -151,12 +152,14 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
         confidenceScore = 100,
         underlyingScore = 1,
         matchedAddress  = None,
-        tokens = Map.empty[String, String]
+        tokens = Map.empty[String, String],
+        matchtype = "",
+        recommendationCode = ""
       )
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
 
       // Then
       result shouldBe expected
@@ -168,8 +171,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
-        addressEntryId = "",
-        addressEntryIdAlphanumericBackup = "",
         uprn = givenNag.uprn,
         parentUprn = givenNag.parentUprn,
         udprn = "",
@@ -177,12 +178,14 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
         confidenceScore = 100,
         underlyingScore = 1,
         matchedAddress = None,
-        tokens = Map.empty[String, String]
+        tokens = Map.empty[String, String],
+        matchtype = "",
+        recommendationCode = ""
       )
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
 
       // Then
       result shouldBe expected
