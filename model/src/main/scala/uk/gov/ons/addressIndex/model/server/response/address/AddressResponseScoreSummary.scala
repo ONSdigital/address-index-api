@@ -16,9 +16,6 @@ import play.api.libs.json.{Format, Json}
   * @param recommendationText needed?
   */
 case class AddressResponseScoreSummary(maxConfidenceScore: Double,
-//                                maxUnderlyingScore: Double,
-//                                matchType: String,
-//                                confidenceThreshold: Float,
                                 topMatchConfidenceZone: String,
                                 unambiguityScore: Double,
                                 topMatchUnambiguityZone: String,

@@ -1166,8 +1166,6 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             val threshold = Try(args.matchThreshold.toDouble).getOrElse(5.0D)
             val scoredAddresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor))
 
- // temp code here
-
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
               AddressBulkResponseAddress.fromBulkAddress(b, s, args.includeFullAddress)
             }
