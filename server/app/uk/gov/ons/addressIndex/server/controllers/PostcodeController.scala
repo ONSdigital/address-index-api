@@ -6,6 +6,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
@@ -192,7 +193,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 dataVersion = dataVersion,
                 response = AddressByPostcodeResponse(
                   postcode = postcode,
-                  addresses = addresses,
+                  addresses = addressesToNonIDS(addresses),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.demoui.client.AddressIndexClientMock.mockAddressR
 import uk.gov.ons.addressIndex.demoui.modules.DemouiConfigModuleMock
 import uk.gov.ons.addressIndex.model.AddressIndexUPRNRequest
 import uk.gov.ons.addressIndex.model.db.index.{ExpandedRelative, ExpandedSibling}
-import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseRelative}
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddressNonIDS, AddressResponseRelative}
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +43,7 @@ class RelativesExpanderNoAppTest extends AnyFlatSpec with should.Matchers with M
         errors = Seq.empty)
     }
 
-    private def anAddressResponseFor(uprn: Long)(formattedAddress: String): AddressResponseAddress =
+    private def anAddressResponseFor(uprn: Long)(formattedAddress: String): AddressResponseAddressNonIDS =
       AddressIndexClientMock.mockAddressResponseAddress.copy(uprn = uprn.toString, formattedAddress = formattedAddress)
 
     def aUprnRequest(withUprn: BigInt, withApiKey: String, withHistorical: Boolean): FunctionAdapter2[AddressIndexUPRNRequest, ExecutionContext, Boolean] =

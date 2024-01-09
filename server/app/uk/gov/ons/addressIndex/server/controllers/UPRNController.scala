@@ -6,6 +6,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddress
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.transformToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByUprnResponse, AddressByUprnResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
@@ -123,7 +124,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = AddressResponseAddress.fromHybridAddress(hybridAddress, verb, pafdefault=pafDefault)
+            val address = transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybridAddress, verb, pafdefault=pafDefault))
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",

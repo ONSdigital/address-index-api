@@ -9,7 +9,7 @@ import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -293,7 +293,8 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                 matchDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDateTime.now),
                 response = AddressBySearchResponseIDS(
                   addresses = addressesToIDS(finalAddresses),
-                  matchtype = matchType
+                  matchtype = matchType,
+                  recommendationCode = AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode
                 ),
                 status = OkAddressResponseStatus
               )

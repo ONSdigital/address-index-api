@@ -3,9 +3,10 @@ package uk.gov.ons.addressIndex.server.controllers
 import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
-import uk.gov.ons.addressIndex.model.db.index.{HybridAddress, HybridAddressCollection}
+import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer, AddressByUprnResponse, AddressByUprnResponseContainer}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
+import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules._
@@ -136,7 +137,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByMultiUprnResponse(
-                  addresses = addresses,
+                  addresses = addressesToNonIDS(addresses),
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,

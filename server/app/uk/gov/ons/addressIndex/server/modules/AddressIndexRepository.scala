@@ -13,11 +13,12 @@ import com.sksamuel.elastic4s.requests.searches.{GeoPoint, HighlightField, Highl
 import javax.inject.{Inject, Singleton}
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.parsers.Tokens
 import uk.gov.ons.addressIndex.server.model.dao.ElasticClientProvider
-import uk.gov.ons.addressIndex.server.utils.{ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, ConfidenceScoreHelper, GenericLogger, HopperScoreHelper}
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future, duration}
@@ -1146,7 +1147,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           // something that will indicate an empty result
           val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor)
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor))
           val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
@@ -1163,13 +1164,28 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             // add the Hopper and hybrid scores to the address
             // val matchThreshold = 5
             val threshold = Try(args.matchThreshold.toDouble).getOrElse(5.0D)
-            val scoredAddresses = HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor)
+            val scoredAddresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor))
+
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
               AddressBulkResponseAddress.fromBulkAddress(b, s, args.includeFullAddress)
             }
             val thresholdedAddresses = addressBulkResponseAddresses.filter(_.confidenceScore > threshold).sortBy(_.confidenceScore)(Ordering[Double].reverse).take(args.limit)
 
-            if (thresholdedAddresses.isEmpty) Seq(emptyBulkAddress) else thresholdedAddresses
+            // capture the number of matches before applying offset and limit
+            val newTotal = thresholdedAddresses.length
+
+            // assign the match as non-match, single match or multiple match
+            val matchType = newTotal match {
+              case 0 => "N"
+              case 1 => "S"
+              case _ => "M"
+            }
+
+            val airAddress = thresholdedAddresses.headOption.getOrElse(emptyBulkAddress).copy(recommendationCode = AIRatingHelper.calculateAIRatingBulk(thresholdedAddresses).recommendationCode,matchtype = matchType)
+
+            val airList = Seq(airAddress) ++ thresholdedAddresses.drop(1)
+
+            if (thresholdedAddresses.isEmpty) Seq(airAddress) else airList
           }
         }
 

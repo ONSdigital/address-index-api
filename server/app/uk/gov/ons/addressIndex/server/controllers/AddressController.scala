@@ -5,12 +5,13 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -260,6 +261,13 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
             // capture the number of matches before applying offset and limit
             val newTotal = sortedAddresses.length
 
+            // assign the match as non-match, single match or multiple match
+            val matchType = newTotal match {
+              case 0 => "N"
+              case 1 => "S"
+              case _ => "M"
+            }
+
             // trim the result list according to offset and limit paramters
             val limitedSortedAddresses = sortedAddresses.slice(offsetInt, offsetInt + limitInt)
 
@@ -275,7 +283,9 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 dataVersion = dataVersion,
                 response = AddressBySearchResponse(
                   tokens = tokens,
-                  addresses = finalAddresses,
+                  matchtype = matchType,
+                  recommendationCode = AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode,
+                  addresses = addressesToNonIDS(finalAddresses),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

@@ -11,6 +11,7 @@ import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.model.config.AddressIndexConfig
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.db.{BulkAddress, BulkAddressRequestData, BulkAddresses}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS._
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 import uk.gov.ons.addressIndex.model.server.response.eq._
@@ -192,6 +193,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val validClassificationList: String = "{\"classifications\"" +
     ":[{\"code\":\"C\",\"label\":\"Commercial\"}"
 
+
   // injected value, change implementations accordingly when needed
   // mock that will return one address as a result
   val elasticRepositoryMock: ElasticsearchRepository = new ElasticsearchRepository {
@@ -222,7 +224,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor)
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor))
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
@@ -266,7 +268,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Thread.sleep(500)
       args.requestsData.map(requestData => {
         val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-        val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor)
+        val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor))
         val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
         Right(Seq(filledBulkAddress))
@@ -297,7 +299,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor)
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor))
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
@@ -324,7 +326,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
           case requestData =>
             val emptyBulk = BulkAddress.empty(requestData)
-            val emptyScored = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor)
+            val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor))
             val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
             Right(Seq(emptyBulkAddress))
@@ -496,7 +498,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault=false)),
+          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault=false))),
           historical = true,
           verbose = false,
           epoch = "",
@@ -522,7 +524,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)),
+          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false))),
           historical = true,
           verbose = true,
           epoch = "",
@@ -548,7 +550,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByMultiUprnResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false))),
           historical = true,
           verbose = false,
           epoch = "",
@@ -586,7 +588,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault=false)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault=false))),
           filter = "",
           historical = false,
           limit = 100,
@@ -619,7 +621,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false))),
           filter = "",
           historical = false,
           limit = 100,
@@ -685,7 +687,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault = false))),
           filter = "",
           historical = true,
           limit = 1,
@@ -715,7 +717,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByRandomResponse(
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault=false)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault=false))),
           filter = "",
           historical = true,
           limit = 1,
@@ -749,7 +751,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = sortAddresses,
+          addresses = addressesToNonIDS(sortAddresses),
           filter = "",
           fallback = false,
           historical = false,
@@ -826,7 +828,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "12345",
-          addresses = sortAddresses,
+          addresses = addressesToNonIDS(sortAddresses),
           filter = "",
           fallback = false,
           historical = false,
@@ -866,7 +868,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "123456",
-          addresses = sortAddresses,
+          addresses = addressesToNonIDS(sortAddresses),
           filter = "",
           fallback = false,
           historical = false,
@@ -1217,7 +1219,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPartialAddressResponse(
           input = "some query",
-          addresses = Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false).copy(confidenceScore=5)),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false).copy(confidenceScore=5))),
           filter = "",
           fallback = false,
           historical = false,
@@ -1254,7 +1256,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12)),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1269,7 +1271,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "S",
+          recommendationCode = "A"
         ),
         OkAddressResponseStatus
       ))
@@ -1292,7 +1296,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12)),
           filter = "",
           historical = true,
           rangekm = "",
@@ -1307,7 +1311,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "S",
+          recommendationCode = "A"
         ),
         OkAddressResponseStatus
       ))
@@ -1330,7 +1336,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 6),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 6)),
           filter = "commercial",
           historical = true,
           rangekm = "20",
@@ -1345,7 +1351,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "S",
+          recommendationCode = "A"
         ),
         OkAddressResponseStatus
       ))
@@ -1368,7 +1376,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 12)),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1383,7 +1391,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "S",
+          recommendationCode = "A"
         ),
         OkAddressResponseStatus
       ))
@@ -1406,7 +1416,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), Map.empty, -1D, 12)),
           filter = "",
           historical = true,
           rangekm = "1",
@@ -1421,7 +1431,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = true,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "S",
+          recommendationCode = "A"
         ),
         OkAddressResponseStatus
       ))
@@ -1459,7 +1471,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(CountryBoostsInvalidError)
@@ -1498,7 +1512,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,42.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(CountryBoostsInvalidError)
@@ -1538,7 +1554,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(FilterInvalidError)
@@ -1577,7 +1595,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(MixedFilterError)
@@ -1617,7 +1637,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetNotNumericAddressResponseError)
@@ -1689,7 +1711,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitNotNumericAddressResponseError)
@@ -1791,7 +1815,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyRadiusQueryAddressResponseError)
@@ -1830,7 +1856,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(OffsetTooSmallAddressResponseError)
@@ -1902,7 +1930,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LimitTooSmallAddressResponseError)
@@ -2118,7 +2148,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.OffsetTooLargeAddressResponseErrorCustom)
@@ -2190,7 +2222,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(addressValidation.LimitTooLargeAddressResponseErrorCustom)
@@ -2322,7 +2356,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(RangeNotNumericAddressResponseError)
@@ -2361,7 +2397,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeNotNumericAddressResponseError)
@@ -2400,7 +2438,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeNotNumericAddressResponseError)
@@ -2439,7 +2479,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarNorthAddressResponseError)
@@ -2478,7 +2520,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarEastAddressResponseError)
@@ -2517,7 +2561,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LatitudeTooFarSouthAddressResponseError)
@@ -2556,7 +2602,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(LongitudeTooFarWestAddressResponseError)
@@ -2595,7 +2643,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         BadRequestAddressResponseStatus,
         errors = Seq(EmptyQueryAddressResponseError)
@@ -2783,7 +2833,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, scaleFactor)),
           filter = "",
           historical = true,
           rangekm = "",
@@ -2798,7 +2848,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         OkAddressResponseStatus
       ))
@@ -2823,7 +2875,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
@@ -2849,7 +2903,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(cbError)
@@ -2875,7 +2931,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(cbTimeoutError)
@@ -3002,7 +3060,9 @@ class AddressControllerSpec extends PlaySpec with Results {
           verbose = false,
           epoch = "",
           countryBoosts = CountryBoosts(1.0,1.0,1.0,1.0,1.0,1.0,1.0),
-          pafdefault = false
+          pafdefault = false,
+          matchtype = "",
+          recommendationCode = ""
         ),
         TooManyRequestsResponseStatus,
         errors = Seq(enhancedError)
