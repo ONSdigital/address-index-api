@@ -31,6 +31,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:RHUPRNController")
+  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
   /**
     * UPRN query API
@@ -118,6 +119,7 @@ class RHUPRNController @Inject()(val controllerComponents: ControllerComponents,
 
         val request: Future[Option[HybridAddress]] =
           retry.Pause(3, 1.seconds).apply { ()  =>
+            if (circuitBreakerDisabled) esRepo.runUPRNQuery(args) else
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.runUPRNQuery(args)
             )

@@ -28,6 +28,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
   extends PlayHelperController(versionProvider) with PostcodeControllerResponse {
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:EQPostcodeController")
+  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
   /**
     * EQ POSTCODE query API
@@ -174,6 +175,7 @@ class EQPostcodeController @Inject()(val controllerComponents: ControllerCompone
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )

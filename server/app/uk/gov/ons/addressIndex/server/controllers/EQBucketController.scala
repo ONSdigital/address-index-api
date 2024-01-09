@@ -47,6 +47,7 @@ class EQBucketController @Inject()(val controllerComponents: ControllerComponent
     val startingTime = System.currentTimeMillis()
     val tocLink = conf.config.termsAndConditionsLink
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
     // get the defaults and maxima for the paging parameters from the config
     val defLimit = conf.config.elasticSearch.defaultLimitPostcode
@@ -138,6 +139,7 @@ class EQBucketController @Inject()(val controllerComponents: ControllerComponent
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )

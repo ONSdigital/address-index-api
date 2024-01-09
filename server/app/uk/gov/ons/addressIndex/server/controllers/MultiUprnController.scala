@@ -31,6 +31,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:MultiUPRNController")
+  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
@@ -115,6 +116,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
 
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
+            if (circuitBreakerDisabled) esRepo.runMultiUPRNQuery(args) else
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.runMultiUPRNQuery(args)
             )
