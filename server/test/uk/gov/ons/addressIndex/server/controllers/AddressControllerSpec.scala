@@ -358,6 +358,7 @@ class AddressControllerSpec extends PlaySpec with Results {
   val tweakedCBConfig: ConfigModule = new ConfigModule {
     override def config: AddressIndexConfig = testConfig.config.copy(
       elasticSearch = testConfig.config.elasticSearch.copy(
+        circuitBreakerDisabled = false,
         circuitBreakerMaxFailures = 1,
         circuitBreakerCallTimeout = 250,
         circuitBreakerResetTimeout = 250,
@@ -3036,7 +3037,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for address" in {
       // Given
-      val controller = new AddressController(components, failingRepositoryMock, parser, testConfig, versions, overloadProtection, addressValidation)
+      val controller = new AddressController(components, failingRepositoryMock, parser, tweakedCBConfig, versions, overloadProtection, addressValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsError.code, FailedRequestToEsError.message.replace("see logs", "test failure"))
 
@@ -3083,7 +3084,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for postcode" in {
       // Given
-      val controller = new PostcodeController(components, failingRepositoryMock, testConfig, versions, overloadProtection, postcodeValidation)
+      val controller = new PostcodeController(components, failingRepositoryMock, tweakedCBConfig, versions, overloadProtection, postcodeValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsPostcodeError.code, FailedRequestToEsPostcodeError.message.replace("see logs", "test failure"))
 
@@ -3122,7 +3123,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for a random address" in {
       // Given
-      val controller = new RandomController(components, failingRepositoryMock, testConfig, versions, overloadProtection, randomValidation)
+      val controller = new RandomController(components, failingRepositoryMock, tweakedCBConfig, versions, overloadProtection, randomValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsRandomError.code, FailedRequestToEsRandomError.message.replace("see logs", "test failure"))
 
@@ -3159,7 +3160,7 @@ class AddressControllerSpec extends PlaySpec with Results {
     "reply with a 429 error if Elastic threw exception (request failed) while querying for a partial address" in {
       // Given
 
-      val controller = new PartialAddressController(components, failingRepositoryMock, testConfig, versions, overloadProtection, partialAddressValidation)
+      val controller = new PartialAddressController(components, failingRepositoryMock, tweakedCBConfig, versions, overloadProtection, partialAddressValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsPartialAddressError.code, FailedRequestToEsPartialAddressError.message.replace("see logs", "test failure"))
 
@@ -3203,7 +3204,7 @@ class AddressControllerSpec extends PlaySpec with Results {
 
     "reply with a 429 error if Elastic threw exception (request failed) while querying for uprn" in {
       // Given
-      val controller = new UPRNController(components, failingRepositoryMock, testConfig, versions, overloadProtection, uprnValidation)
+      val controller = new UPRNController(components, failingRepositoryMock, tweakedCBConfig, versions, overloadProtection, uprnValidation)
 
       val enhancedError = new AddressResponseError(FailedRequestToEsUprnError.code, FailedRequestToEsUprnError.message.replace("see logs", "test failure"))
 
