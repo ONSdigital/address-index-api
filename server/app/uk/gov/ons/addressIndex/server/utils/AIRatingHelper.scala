@@ -9,7 +9,7 @@ object AIRatingHelper {
 
   //todo: the code below will be tidied and/or refactored when output is finalised
 
-  def makeScoreSummary(maxConfidenceScore:Double, secondConfidenceScore: Double, unambiguityScore:Double): AddressResponseScoreSummary ={
+  def makeScoreSummary(maxConfidenceScore:Double, unambiguityScore:Double): AddressResponseScoreSummary ={
 
     val topMatchConfidenceZone = maxConfidenceScore match {
       case i if (i < 50) => "L"
@@ -51,7 +51,7 @@ object AIRatingHelper {
     val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
     val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
 
-    makeScoreSummary(maxConfidenceScore, secondConfidenceScore, unambiguityScore)
+    makeScoreSummary(maxConfidenceScore, unambiguityScore)
 
   }
 
@@ -64,7 +64,7 @@ object AIRatingHelper {
     val secondConfidenceScore: Double = Try(sortedAddresses(1).confidenceScore).getOrElse(0D)
     val unambiguityScore: Double = BigDecimal(maxConfidenceScore - secondConfidenceScore).setScale(4, BigDecimal.RoundingMode.HALF_UP).toDouble
 
-    makeScoreSummary(maxConfidenceScore, secondConfidenceScore, unambiguityScore)
+    makeScoreSummary(maxConfidenceScore, unambiguityScore)
 
   }
 

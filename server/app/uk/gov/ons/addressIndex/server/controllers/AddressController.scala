@@ -65,6 +65,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
     val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
@@ -231,6 +232,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
+            if (circuitBreakerDisabled) esRepo.runMultiResultQuery(finalArgs) else
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.runMultiResultQuery(finalArgs)
             )

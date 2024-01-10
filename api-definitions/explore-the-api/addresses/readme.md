@@ -255,6 +255,8 @@
         "underlyingScore": 27.280841827392578
       }
     ],
+    "matchtype": "S",
+    "recommendationCode": "A"
     "filter": "",
     "historical": true,
     "epoch": "",
@@ -415,6 +417,8 @@
           "underlyingScore": 27.280841827392578
         }
       ],
+      "matchtype": "S",
+      "recommendationCode": "A"
       "filter": "",
       "historical": true,
       "epoch": "",

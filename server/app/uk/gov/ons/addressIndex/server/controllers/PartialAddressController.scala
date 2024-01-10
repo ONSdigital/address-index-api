@@ -29,7 +29,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PartialAddressController")
-
+  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
   val startboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
@@ -200,6 +200,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )

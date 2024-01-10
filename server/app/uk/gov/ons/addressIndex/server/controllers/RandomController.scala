@@ -51,7 +51,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
-
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
     val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val defLimit = conf.config.elasticSearch.defaultLimitRandom
@@ -154,6 +154,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )

@@ -65,6 +65,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
                   ): Action[AnyContent] = Action async { implicit req =>
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.address
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
 
     val startingTime: Long = System.currentTimeMillis()
     val ip: String = req.remoteAddress
@@ -238,6 +239,7 @@ class IDSAddressController @Inject()(val controllerComponents: ControllerCompone
 
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
+            if (circuitBreakerDisabled) esRepo.runMultiResultQuery(finalArgs) else
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.runMultiResultQuery(finalArgs)
             )
