@@ -1,7 +1,7 @@
 package uk.gov.ons.addressIndex.model.server.response.postcode
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS}
 
 /**
   * Contains relevant, to the address request, data
@@ -13,7 +13,7 @@ import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddr
   * @param total     total number of found addresses
   */
 case class AddressByPostcodeResponse(postcode: String,
-                                     addresses: Seq[AddressResponseAddress],
+                                     addresses: Seq[AddressResponseAddressNonIDS],
                                      filter: String,
                                      historical: Boolean,
                                      epoch: String,

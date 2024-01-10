@@ -43,21 +43,8 @@
           "favourwelsh": {
             "type": "boolean"
           },
-          "eboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "nboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "sboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "wboost": {
-            "type": "number",
-            "format": "double"
+          "countryBoosts": {
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts"
           }
         },
         "required": [
@@ -72,31 +59,23 @@
           "maxScore",
           "favourpaf",
           "favourwelsh",
-          "eboost",
-          "nboost",
-          "sboost",
-          "wboost"
+          "countryBoosts"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressBySearchResponse": {
         "properties": {
+          "recommendationCode": {
+            "type": "string"
+          },
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
             }
           },
           "offset": {
             "type": "integer",
             "format": "int32"
-          },
-          "wboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "sboost": {
-            "type": "number",
-            "format": "double"
           },
           "latitude": {
             "type": "string"
@@ -106,10 +85,6 @@
           },
           "epoch": {
             "type": "string"
-          },
-          "eboost": {
-            "type": "number",
-            "format": "double"
           },
           "sampleSize": {
             "type": "integer",
@@ -135,9 +110,15 @@
           "pafdefault": {
             "type": "boolean"
           },
+          "countryBoosts": {
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts"
+          },
           "limit": {
             "type": "integer",
             "format": "int32"
+          },
+          "matchtype": {
+            "type": "string"
           },
           "tokens": {
             "type": "array",
@@ -149,10 +130,6 @@
             "type": "number",
             "format": "float"
           },
-          "nboost": {
-            "type": "number",
-            "format": "double"
-          },
           "longitude": {
             "type": "string"
           }
@@ -160,6 +137,8 @@
         "required": [
           "tokens",
           "addresses",
+          "matchtype",
+          "recommendationCode",
           "filter",
           "historical",
           "epoch",
@@ -173,10 +152,7 @@
           "maxScore",
           "matchthreshold",
           "verbose",
-          "eboost",
-          "nboost",
-          "sboost",
-          "wboost",
+          "countryBoosts",
           "pafdefault"
         ]
       },
@@ -351,18 +327,31 @@
           "uprn": {
             "type": "string"
           },
-          "confidenceScore": {
-            "type": "number",
-            "format": "double"
+          "recommendationCode": {
+            "type": "string"
+          },
+          "udprn": {
+            "type": "string"
           },
           "underlyingScore": {
             "type": "number",
             "format": "float"
           },
-          "addressEntryId": {
+          "inputAddress": {
             "type": "string"
           },
-          "inputAddress": {
+          "parentUprn": {
+            "type": "string"
+          },
+          "matchedAddress": {
+            "nullable": true,
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
+          },
+          "confidenceScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "matchtype": {
             "type": "string"
           },
           "tokens": {
@@ -376,39 +365,20 @@
           },
           "matchedFormattedAddress": {
             "type": "string"
-          },
-          "matchedAddress": {
-            "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
           }
         },
         "required": [
           "id",
           "inputAddress",
           "uprn",
-          "addressEntryId",
+          "parentUprn",
+          "udprn",
           "matchedFormattedAddress",
           "tokens",
           "confidenceScore",
-          "underlyingScore"
-        ]
-      },
-      "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCensus": {
-        "properties": {
-          "addressType": {
-            "type": "string"
-          },
-          "estabType": {
-            "type": "string"
-          },
-          "countryCode": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "addressType",
-          "estabType",
-          "countryCode"
+          "underlyingScore",
+          "recommendationCode",
+          "matchtype"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.rh.AddressByRHPostcodeResponseContainer": {
@@ -641,7 +611,7 @@
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
             }
           },
           "historical": {
@@ -652,13 +622,17 @@
           },
           "verbose": {
             "type": "boolean"
+          },
+          "pafdefault": {
+            "type": "boolean"
           }
         },
         "required": [
           "addresses",
           "historical",
           "epoch",
-          "verbose"
+          "verbose",
+          "pafdefault"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressCustomEQ": {
@@ -689,11 +663,15 @@
           },
           "matchtype": {
             "type": "string"
+          },
+          "recommendationCode": {
+            "type": "string"
           }
         },
         "required": [
           "addresses",
-          "matchtype"
+          "matchtype",
+          "recommendationCode"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.random.AddressByRandomResponse": {
@@ -701,7 +679,7 @@
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
             }
           },
           "filter": {
@@ -720,21 +698,8 @@
           "verbose": {
             "type": "boolean"
           },
-          "eboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "nboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "sboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "wboost": {
-            "type": "number",
-            "format": "double"
+          "countryBoosts": {
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts"
           },
           "pafdefault": {
             "type": "boolean"
@@ -747,10 +712,7 @@
           "epoch",
           "limit",
           "verbose",
-          "eboost",
-          "nboost",
-          "sboost",
-          "wboost",
+          "countryBoosts",
           "pafdefault"
         ]
       },
@@ -1117,7 +1079,7 @@
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
             }
           },
           "filter": {
@@ -1160,21 +1122,8 @@
           "favourwelsh": {
             "type": "boolean"
           },
-          "eboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "nboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "sboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "wboost": {
-            "type": "number",
-            "format": "double"
+          "countryBoosts": {
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts"
           },
           "timeout": {
             "type": "integer",
@@ -1196,119 +1145,15 @@
           "highlight",
           "favourpaf",
           "favourwelsh",
-          "eboost",
-          "nboost",
-          "sboost",
-          "wboost",
+          "countryBoosts",
           "timeout"
-        ]
-      },
-      "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress": {
-        "properties": {
-          "addressEntryId": {
-            "type": "string"
-          },
-          "uprn": {
-            "type": "string"
-          },
-          "parentUprn": {
-            "type": "string"
-          },
-          "relatives": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative"
-            }
-          },
-          "crossRefs": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCrossRef"
-            }
-          },
-          "formattedAddress": {
-            "type": "string"
-          },
-          "formattedAddressNag": {
-            "type": "string"
-          },
-          "formattedAddressPaf": {
-            "type": "string"
-          },
-          "formattedAddressNisra": {
-            "type": "string"
-          },
-          "welshFormattedAddressNag": {
-            "type": "string"
-          },
-          "welshFormattedAddressPaf": {
-            "type": "string"
-          },
-          "highlights": {
-            "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseHighlight"
-          },
-          "paf": {
-            "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePaf"
-          },
-          "nag": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNag"
-            }
-          },
-          "nisra": {
-            "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra"
-          },
-          "geo": {
-            "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo"
-          },
-          "classificationCode": {
-            "type": "string"
-          },
-          "census": {
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCensus"
-          },
-          "lpiLogicalStatus": {
-            "type": "string"
-          },
-          "confidenceScore": {
-            "type": "number",
-            "format": "double"
-          },
-          "underlyingScore": {
-            "type": "number",
-            "format": "float"
-          }
-        },
-        "required": [
-          "addressEntryId",
-          "uprn",
-          "parentUprn",
-          "formattedAddress",
-          "formattedAddressNag",
-          "formattedAddressPaf",
-          "formattedAddressNisra",
-          "welshFormattedAddressNag",
-          "welshFormattedAddressPaf",
-          "classificationCode",
-          "census",
-          "lpiLogicalStatus",
-          "confidenceScore",
-          "underlyingScore"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.uprn.AddressByUprnResponse": {
         "properties": {
           "address": {
             "nullable": true,
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
           },
           "historical": {
             "type": "boolean"
@@ -1564,6 +1409,95 @@
           "localCustodianGeogCode",
           "lpiEndDate",
           "lpiStartDate"
+        ]
+      },
+      "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS": {
+        "properties": {
+          "uprn": {
+            "type": "string"
+          },
+          "parentUprn": {
+            "type": "string"
+          },
+          "relatives": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseRelative"
+            }
+          },
+          "crossRefs": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseCrossRef"
+            }
+          },
+          "formattedAddress": {
+            "type": "string"
+          },
+          "formattedAddressNag": {
+            "type": "string"
+          },
+          "formattedAddressPaf": {
+            "type": "string"
+          },
+          "welshFormattedAddressNag": {
+            "type": "string"
+          },
+          "welshFormattedAddressPaf": {
+            "type": "string"
+          },
+          "highlights": {
+            "nullable": true,
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseHighlight"
+          },
+          "paf": {
+            "nullable": true,
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePaf"
+          },
+          "nag": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNag"
+            }
+          },
+          "geo": {
+            "nullable": true,
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseGeo"
+          },
+          "classificationCode": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          },
+          "lpiLogicalStatus": {
+            "type": "string"
+          },
+          "confidenceScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "underlyingScore": {
+            "type": "number",
+            "format": "float"
+          }
+        },
+        "required": [
+          "uprn",
+          "parentUprn",
+          "formattedAddress",
+          "formattedAddressNag",
+          "formattedAddressPaf",
+          "welshFormattedAddressNag",
+          "welshFormattedAddressPaf",
+          "classificationCode",
+          "countryCode",
+          "lpiLogicalStatus",
+          "confidenceScore",
+          "underlyingScore"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseHighlight": {
@@ -1846,7 +1780,7 @@
           "addresses": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress"
+              "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS"
             }
           },
           "filter": {
@@ -1876,6 +1810,9 @@
           },
           "verbose": {
             "type": "boolean"
+          },
+          "pafdefault": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -1888,7 +1825,8 @@
           "offset",
           "total",
           "maxScore",
-          "verbose"
+          "verbose",
+          "pafdefault"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseStatus": {
@@ -1904,100 +1842,6 @@
         "required": [
           "code",
           "message"
-        ]
-      },
-      "uk.gov.ons.addressIndex.model.server.response.address.AddressResponseNisra": {
-        "properties": {
-          "organisationName": {
-            "type": "string"
-          },
-          "subBuildingName": {
-            "type": "string"
-          },
-          "buildingName": {
-            "type": "string"
-          },
-          "buildingNumber": {
-            "type": "string"
-          },
-          "pao": {
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponsePao"
-          },
-          "sao": {
-            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.AddressResponseSao"
-          },
-          "thoroughfare": {
-            "type": "string"
-          },
-          "altThoroughfare": {
-            "type": "string"
-          },
-          "dependentThoroughfare": {
-            "type": "string"
-          },
-          "locality": {
-            "type": "string"
-          },
-          "townName": {
-            "type": "string"
-          },
-          "postcode": {
-            "type": "string"
-          },
-          "uprn": {
-            "type": "string"
-          },
-          "classificationCode": {
-            "type": "string"
-          },
-          "udprn": {
-            "type": "string"
-          },
-          "creationDate": {
-            "type": "string"
-          },
-          "commencementDate": {
-            "type": "string"
-          },
-          "archivedDate": {
-            "type": "string"
-          },
-          "addressStatus": {
-            "type": "string"
-          },
-          "buildingStatus": {
-            "type": "string"
-          },
-          "localCouncil": {
-            "type": "string"
-          },
-          "mixedNisra": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "organisationName",
-          "subBuildingName",
-          "buildingName",
-          "buildingNumber",
-          "pao",
-          "sao",
-          "thoroughfare",
-          "altThoroughfare",
-          "dependentThoroughfare",
-          "locality",
-          "townName",
-          "postcode",
-          "uprn",
-          "classificationCode",
-          "udprn",
-          "creationDate",
-          "commencementDate",
-          "archivedDate",
-          "addressStatus",
-          "buildingStatus",
-          "localCouncil",
-          "mixedNisra"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.eq.AddressByEQPostcodeResponseContainer": {
@@ -2031,6 +1875,47 @@
           "response",
           "status",
           "errors"
+        ]
+      },
+      "uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts": {
+        "properties": {
+          "eboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "nboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "sboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "wboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "lboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "mboost": {
+            "type": "number",
+            "format": "double"
+          },
+          "jboost": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "eboost",
+          "nboost",
+          "sboost",
+          "wboost",
+          "lboost",
+          "mboost",
+          "jboost"
         ]
       },
       "AddressBulkResponse": {
@@ -2256,21 +2141,8 @@
           "favourwelsh": {
             "type": "boolean"
           },
-          "eboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "nboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "sboost": {
-            "type": "number",
-            "format": "double"
-          },
-          "wboost": {
-            "type": "number",
-            "format": "double"
+          "countryBoosts": {
+            "$ref": "#/components/schemas/uk.gov.ons.addressIndex.model.server.response.address.CountryBoosts"
           }
         },
         "required": [
@@ -2285,10 +2157,7 @@
           "maxScore",
           "favourpaf",
           "favourwelsh",
-          "eboost",
-          "nboost",
-          "sboost",
-          "wboost"
+          "countryBoosts"
         ]
       },
       "uk.gov.ons.addressIndex.model.server.response.postcode.AddressByGroupedPostcodeResponseContainer": {
@@ -2589,6 +2458,42 @@
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
             "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
+            "required": false
           }
         ],
         "responses": {
@@ -2792,6 +2697,42 @@
             "in": "query",
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
             "required": false
           },
           {
@@ -3272,6 +3213,42 @@
           },
           {
             "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Weighting for addresses in Channel Islands as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Weighting for addresses in Isle of Man as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Weighting for addresses outside country boundaries as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
               "default": 250,
               "nullable": true,
               "maximum": 5000,
@@ -3450,6 +3427,42 @@
             "in": "query",
             "name": "wboost",
             "description": "Weighting for addresses in Wales as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Weighting for addresses in Channel Islands as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Weighting for addresses in Isle of Man as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Weighting for addresses outside country boundaries as a decimal from 0 to 10",
             "required": false
           }
         ],
@@ -3762,6 +3775,42 @@
           },
           {
             "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Weighting for addresses in Channel Islands as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Weighting for addresses in Isle of Man as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Weighting for addresses outside country boundaries as a decimal from 0 to 10",
+            "required": false
+          },
+          {
+            "schema": {
               "default": false,
               "nullable": true,
               "type": "string"
@@ -3939,6 +3988,42 @@
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
             "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
+            "required": false
           }
         ],
         "responses": {
@@ -4097,6 +4182,42 @@
             "in": "query",
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
             "required": false
           },
           {
@@ -4267,6 +4388,42 @@
             "in": "query",
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
             "required": false
           }
         ],
@@ -4540,6 +4697,42 @@
             "in": "query",
             "name": "wboost",
             "description": "Set to 0 to exclude addresses in Wales",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "lboost",
+            "description": "Set to 0 to exclude addresses in Channel Islands",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "mboost",
+            "description": "Set to 0 to exclude addresses in Isle of Man",
+            "required": false
+          },
+          {
+            "schema": {
+              "default": 1,
+              "nullable": true,
+              "format": "decimal",
+              "type": "number"
+            },
+            "in": "query",
+            "name": "jboost",
+            "description": "Set to 0 to exclude addresses outside country boundaries",
             "required": false
           },
           {

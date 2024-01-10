@@ -6,6 +6,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsPostcodeError, OkAddressResponseStatus}
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.postcode.{AddressByPostcodeResponse, AddressByPostcodeResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.PostcodeControllerResponse
@@ -56,7 +57,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
     val startingTime = System.currentTimeMillis()
 
     val clusterId = conf.config.elasticSearch.clusterPolicies.postcode
-
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
     val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     // get the defaults and maxima for the paging parameters from the config
@@ -172,6 +173,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
 
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
+            if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
             overloadProtection.breaker.withCircuitBreaker(
               esRepo.runMultiResultQuery(args)
             )
@@ -192,7 +194,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 dataVersion = dataVersion,
                 response = AddressByPostcodeResponse(
                   postcode = postcode,
-                  addresses = addresses,
+                  addresses = addressesToNonIDS(addresses),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

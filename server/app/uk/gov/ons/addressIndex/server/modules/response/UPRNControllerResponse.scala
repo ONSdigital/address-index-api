@@ -47,7 +47,7 @@ trait UPRNControllerResponse extends Response {
     )
   }
 
-  def searchUprnContainerTemplate(queryValues: QueryValues, optAddresses: Option[AddressResponseAddress]): AddressByUprnResponseContainer = {
+  def searchUprnContainerTemplate(queryValues: QueryValues, optAddresses: Option[AddressResponseAddressNonIDS]): AddressByUprnResponseContainer = {
     AddressByUprnResponseContainer(
       apiVersion = apiVersion,
       dataVersion = dataVersion,

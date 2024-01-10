@@ -5,6 +5,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.ons.addressIndex.model.db.BulkAddress
 import uk.gov.ons.addressIndex.model.db.index._
 import uk.gov.ons.addressIndex.model.server.response.address._
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS._
 import uk.gov.ons.addressIndex.model.server.response.bulk.AddressBulkResponseAddress
 
 /**
@@ -133,7 +134,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
     source = "7666OW"
   )
 
-
   "Address response Bulk Address model" should {
 
     "return a valid bulk response when paf is present" in {
@@ -142,8 +142,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
-        addressEntryId = "",
-        addressEntryIdAlphanumericBackup = "",
         uprn = givenPaf.uprn,
         parentUprn = givenNag.parentUprn,
         udprn = givenPaf.udprn,
@@ -151,12 +149,14 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
         confidenceScore = 100,
         underlyingScore = 1,
         matchedAddress  = None,
-        tokens = Map.empty[String, String]
+        tokens = Map.empty[String, String],
+        matchtype = "",
+        recommendationCode = ""
       )
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
 
       // Then
       result shouldBe expected
@@ -168,8 +168,6 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
       val expected = AddressBulkResponseAddress(
         id = "1",
         inputAddress = "some input",
-        addressEntryId = "",
-        addressEntryIdAlphanumericBackup = "",
         uprn = givenNag.uprn,
         parentUprn = givenNag.parentUprn,
         udprn = "",
@@ -177,12 +175,14 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
         confidenceScore = 100,
         underlyingScore = 1,
         matchedAddress = None,
-        tokens = Map.empty[String, String]
+        tokens = Map.empty[String, String],
+        matchtype = "",
+        recommendationCode = ""
       )
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
 
       // Then
       result shouldBe expected

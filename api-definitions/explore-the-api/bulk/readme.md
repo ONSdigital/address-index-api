@@ -124,6 +124,8 @@
             },
             "confidenceScore": 97.1951,
             "underlyingScore": 38.15106964111328
+            "matchtype": "S",
+            "recommendationCode": "A"
         },
         {
             "id": "2",
@@ -143,6 +145,8 @@
             },
             "confidenceScore": 96.9148,
             "underlyingScore": 41.054481506347656
+            "matchtype": "S",
+            "recommendationCode": "A"
         },
         {
             "id": "3",
@@ -162,6 +166,8 @@
             },
             "confidenceScore": 82.6124,
             "underlyingScore": 46.813934326171875
+            "matchtype": "S",
+            "recommendationCode": "A"
         },
         {
             "id": "3",
@@ -181,6 +187,8 @@
             },
             "confidenceScore": 52.8627,
             "underlyingScore": 41.701568603515625
+            "matchtype": "M",
+            "recommendationCode": "I"
         },
         {
             "id": "3",
@@ -200,6 +208,8 @@
             },
             "confidenceScore": 52.7931,
             "underlyingScore": 40.90314483642578
+            "matchtype": "M",
+            "recommendationCode": "I"
         },
         {
             "id": "3",
@@ -219,6 +229,8 @@
             },
             "confidenceScore": 52.7931,
             "underlyingScore": 40.90314483642578
+            "matchtype": "M",
+            "recommendationCode": "I"
         },
         {
             "id": "3",
@@ -238,6 +250,8 @@
             },
             "confidenceScore": 52.7931,
             "underlyingScore": 40.90314483642578
+            "matchtype": "M",
+            "recommendationCode": "I"
         }
     ],
     "status": {

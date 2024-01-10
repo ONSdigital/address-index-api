@@ -12,7 +12,9 @@ import play.api.libs.json.{Format, Json}
   * @param total     total number of found addresses
   */
 case class AddressBySearchResponse(tokens: Map[String, String],
-                                   addresses: Seq[AddressResponseAddress],
+                                   addresses: Seq[AddressResponseAddressNonIDS],
+                                   matchtype: String,
+                                   recommendationCode: String,
                                    filter: String,
                                    historical: Boolean,
                                    epoch: String,

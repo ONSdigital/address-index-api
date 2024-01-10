@@ -31,7 +31,7 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
 
   val mockAddressBySearchResponse: AddressBySearchResponse = AddressBySearchResponse(
     tokens = mockAddressTokens,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddressNonIDS),
     limit = 1,
     offset = 1,
     filter = "",
@@ -46,12 +46,14 @@ class AddressIndexClientMock @Inject()(override val client: WSClient, conf: Demo
     verbose = true,
     epoch = "",
     countryBoosts = CountryBoosts(1.0,1.0,1.0,42.0,1.0,1.0,1.0),
-    pafdefault = false
+    pafdefault = false,
+    matchtype = "",
+    recommendationCode = ""
   )
 
   val mockAddressByPostcodeResponse: AddressByPostcodeResponse = AddressByPostcodeResponse(
     postcode = mockPostcode,
-    addresses = Seq(mockAddressResponseAddress: AddressResponseAddress),
+    addresses = Seq(mockAddressResponseAddress: AddressResponseAddressNonIDS),
     limit = 1,
     offset = 1,
     filter = "",
@@ -210,9 +212,7 @@ object AddressIndexClientMock {
     unitScoreDebug = "0",
     ambiguityPenalty = 1d)
 
-  val mockAddressResponseAddress: AddressResponseAddress = AddressResponseAddress(
-    addressEntryId = "",
-    addressEntryIdAlphanumericBackup = "",
+  val mockAddressResponseAddress: AddressResponseAddressNonIDS = AddressResponseAddressNonIDS(
     uprn = "",
     parentUprn = "",
     relatives = Some(Seq(mockRelativeResponse)),
@@ -234,7 +234,7 @@ object AddressIndexClientMock {
   )
 
   val mockAddressByUprnResponse: AddressByUprnResponse = AddressByUprnResponse(
-    address = Some(mockAddressResponseAddress: AddressResponseAddress),
+    address = Some(mockAddressResponseAddress: AddressResponseAddressNonIDS),
     historical = true,
     verbose = true,
     epoch = "",

@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc._
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, CountryBoosts, FailedRequestToEsRandomError, OkAddressResponseStatus}
 import uk.gov.ons.addressIndex.model.server.response.random.{AddressByRandomResponse, AddressByRandomResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
@@ -50,7 +51,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
     val startingTime = System.currentTimeMillis()
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.random
-
+    val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
     val pafDefault = pafdefault.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
     val defLimit = conf.config.elasticSearch.defaultLimitRandom
@@ -153,6 +154,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )
@@ -171,7 +173,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByRandomResponse(
-                  addresses = addresses,
+                  addresses = addressesToNonIDS(addresses),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

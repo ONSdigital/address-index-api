@@ -231,6 +231,7 @@
             }
         ],
         "matchtype": "M"
+        "recommendationCode": "A"
     },
     "status": {
         "code": 200,

@@ -2,7 +2,7 @@ package uk.gov.ons.addressIndex.model.server.response.bulk
 
 import play.api.libs.json.{Format, Json}
 import uk.gov.ons.addressIndex.model.db.BulkAddress
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddress
+import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, AddressResponseAddressNonIDS}
 
 /**
   *
@@ -22,19 +22,19 @@ case class AddressBulkResponseAddress(id: String,
                                       uprn: String,
                                       parentUprn: String,
                                       udprn: String,
-                                      addressEntryId: String,
-                                      addressEntryIdAlphanumericBackup: String,
                                       matchedFormattedAddress: String,
-                                      matchedAddress: Option[AddressResponseAddress],
+                                      matchedAddress: Option[AddressResponseAddressNonIDS],
                                       tokens: Map[String, String],
                                       confidenceScore: Double,
-                                      underlyingScore: Float)
+                                      underlyingScore: Float,
+                                      recommendationCode: String,
+                                      matchtype:String)
 
 object AddressBulkResponseAddress {
   implicit lazy val addressBulkResponseAddressFormat: Format[AddressBulkResponseAddress] = Json.format[AddressBulkResponseAddress]
 
   def fromBulkAddress(bulkAddress: BulkAddress,
-                      addressResponseAddress: AddressResponseAddress,
+                      addressResponseAddress: AddressResponseAddressNonIDS,
                       includeFullAddress: Boolean
                      ): AddressBulkResponseAddress = AddressBulkResponseAddress(
     id = bulkAddress.id,
@@ -42,12 +42,12 @@ object AddressBulkResponseAddress {
     uprn = bulkAddress.hybridAddress.uprn,
     parentUprn = bulkAddress.hybridAddress.parentUprn,
     udprn = bulkAddress.hybridAddress.paf.headOption.map(_.udprn).getOrElse(""),
-    addressEntryId = bulkAddress.hybridAddress.addressEntryId,
-    addressEntryIdAlphanumericBackup = bulkAddress.hybridAddress.addressEntryIdAlphanumericBackup,
     matchedFormattedAddress = addressResponseAddress.formattedAddress,
     matchedAddress = if (includeFullAddress) Some(addressResponseAddress) else None,
     tokens = bulkAddress.tokens,
     confidenceScore = addressResponseAddress.confidenceScore,
-    underlyingScore = bulkAddress.hybridAddress.score
+    underlyingScore = bulkAddress.hybridAddress.score,
+    recommendationCode = "",
+    matchtype = ""
   )
 }

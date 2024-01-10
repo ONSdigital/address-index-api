@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.address._
 import uk.gov.ons.addressIndex.model.server.response.partialaddress.{AddressByPartialAddressResponse, AddressByPartialAddressResponseContainer}
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
@@ -28,7 +29,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
   extends PlayHelperController(versionProvider) with PartialAddressControllerResponse {
 
   lazy val logger: AddressAPILogger = AddressAPILogger("address-index-server:PartialAddressController")
-
+  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
   val startboost: Int = conf.config.elasticSearch.defaultStartBoost
 
   /**
@@ -199,6 +200,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
         )
 
         val request: Future[HybridAddressCollection] =
+          if (circuitBreakerDisabled) esRepo.runMultiResultQuery(args) else
           overloadProtection.breaker.withCircuitBreaker(
             esRepo.runMultiResultQuery(args)
           )
@@ -220,7 +222,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = inputVal,
-                  addresses = sortAddresses,
+                  addresses = addressesToNonIDS(sortAddresses),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,
