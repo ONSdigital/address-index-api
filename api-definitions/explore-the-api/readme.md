@@ -1,6 +1,6 @@
 <h1>Explore the API</h1>
 
-<p>The ONS Address Index API lets you retrieve the official version of addresses in England and Wales. The data is currently updated on a 6 week rolling basis.</p>
+<p>The ONS Address Index API lets you retrieve the official version of addresses in the UK. The data is currently updated on a 6 week rolling basis.</p>
 
 <h2>Principle Endpoints</h2>
 
