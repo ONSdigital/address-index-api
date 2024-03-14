@@ -11,7 +11,7 @@ import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
 import uk.gov.ons.addressIndex.server.modules.response.AddressControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.AddressControllerValidation
 import uk.gov.ons.addressIndex.server.modules._
-import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper}
+import uk.gov.ons.addressIndex.server.utils.{AIRatingHelper, APIThrottle, AddressAPILogger, ConfidenceScoreHelper, HopperScoreHelper, DecodeHelper}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
@@ -88,9 +88,11 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     val hist = historical.flatMap(x => Try(x.toBoolean).toOption).getOrElse(true)
     val verb = verbose.flatMap(x => Try(x.toBoolean).toOption).getOrElse(false)
 
+    val decodedInput = DecodeHelper.decodeUrl(input)
+
     // reduce scalefactor for short input
     val sigmoidScaleFactorNormal = conf.config.elasticSearch.scaleFactor
-    val inputTokenCount = input.replace(",", " ").split("\\s+").size
+    val inputTokenCount = decodedInput.replace(",", " ").split("\\s+").size
     val sigmoidScaleFactor = inputTokenCount match {
       case 1 => 6
       case 2 => 12
@@ -132,7 +134,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
 
 
       logger.systemLog(responsecode = responseCode, ip = ip, url = url, responseTimeMillis = (System.currentTimeMillis() - startingTime).toString,
-        input = input, offset = offVal, limit = limVal, filter = filterString,
+        input = decodedInput, offset = offVal, limit = limVal, filter = filterString,
         historical = hist, epoch = epochVal, rangekm = rangeVal, lat = latVal, lon = lonVal,
         badRequestMessage = badRequestErrorMessage, formattedOutput = formattedOutput,
         numOfResults = numOfResults, score = score, networkid = networkId, organisation = organisation,
@@ -172,7 +174,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
     )
 
     val args = AddressArgs(
-      input = input,
+      input = decodedInput,
       tokens = Map.empty, // temporary, filled later
       region = Region.fromStrings(rangeVal, latVal, lonVal),
       epoch = epochVal,
@@ -201,7 +203,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         .orElse(addressValidation.validateKeyStatus(queryValues,requestValues))
         .orElse(addressValidation.validateLimit(limit, queryValues,requestValues))
         .orElse(addressValidation.validateOffset(offset, queryValues,requestValues))
-        .orElse(addressValidation.validateInput(input, queryValues,requestValues))
+        .orElse(addressValidation.validateInput(decodedInput, queryValues,requestValues))
         .orElse(addressValidation.validateLocation(lat, lon, rangekm, queryValues,requestValues))
         .orElse(addressValidation.validateEpoch(queryValues,requestValues))
         .orElse(addressValidation.validateBoosts(eboost,nboost,sboost,wboost,lboost,mboost,jboost,queryValues,requestValues))
@@ -215,7 +217,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
         val tokens = if (input.isEmpty && rangeVal != "" && latVal != "" && lonVal != "" && filterString != "") {
           parser.parse("*")
         } else {
-          parser.parse(input)
+          parser.parse(decodedInput)
         }
 
         // try to get enough results to accurately calculate the hybrid score (may need to be more sophisticated)
