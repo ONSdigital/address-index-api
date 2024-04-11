@@ -30,7 +30,8 @@ case class AddressResponseAddressNonIDS(uprn: String,
                                         countryCode:String,
                                         lpiLogicalStatus: String,
                                         confidenceScore: Double,
-                                        underlyingScore: Float
+                                        underlyingScore: Float,
+                                        airRating:String
                                       )
 
 object AddressResponseAddressNonIDS {
