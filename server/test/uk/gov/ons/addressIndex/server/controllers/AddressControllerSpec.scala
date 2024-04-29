@@ -499,7 +499,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault=false))),
+          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault=false), "A")),
           historical = true,
           verbose = false,
           epoch = "",
@@ -525,7 +525,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByUprnResponse(
-          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false))),
+          address = Some(transformToNonIDS(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false), "A")),
           historical = true,
           verbose = true,
           epoch = "",
