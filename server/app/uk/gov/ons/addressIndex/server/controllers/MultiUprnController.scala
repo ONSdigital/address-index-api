@@ -139,7 +139,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByMultiUprnResponse(
-                  addresses = addressesToNonIDS(addresses),
+                  addresses = addressesToNonIDS(addresses, "I"),
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,

@@ -224,7 +224,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Future.successful {
         args.requestsData.map(requestData => {
           val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor))
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor), "A")
           val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
           Right(Seq(filledBulkAddress))
@@ -268,7 +268,7 @@ class AddressControllerSpec extends PlaySpec with Results {
       Thread.sleep(500)
       args.requestsData.map(requestData => {
         val filledBulk = BulkAddress.fromHybridAddress(getHybridAddress(args), requestData)
-        val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor))
+        val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(filledBulk.hybridAddress, verbose = true, pafdefault=false)), requestData.tokens, 1D,scaleFactor), "I")
         val filledBulkAddress = AddressBulkResponseAddress.fromBulkAddress(filledBulk, emptyScored.head, includeFullAddress = false)
 
         Right(Seq(filledBulkAddress))
@@ -326,7 +326,7 @@ class AddressControllerSpec extends PlaySpec with Results {
           case requestData if requestData.tokens.values.exists(_ == "failed") => Left(requestData)
           case requestData =>
             val emptyBulk = BulkAddress.empty(requestData)
-            val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor))
+            val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault = false)), requestData.tokens, 1D, scaleFactor), "I")
             val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
 
             Right(Seq(emptyBulkAddress))
@@ -551,7 +551,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         apiVersion = apiVersionExpected,
         dataVersion = dataVersionExpected,
         response = AddressByMultiUprnResponse(
-          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false))),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), "A"),
           historical = true,
           verbose = false,
           epoch = "",
@@ -589,7 +589,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault=false))),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddressSkinny, verbose = false, pafdefault=false)), "A"),
           filter = "",
           historical = false,
           limit = 100,
@@ -622,7 +622,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         response = AddressByPostcodeResponse(
           postcode = "ab123cd",
-          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false))),
+          addresses = addressesToNonIDS(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = true, pafdefault = false)), "A"),
           filter = "",
           historical = false,
           limit = 100,

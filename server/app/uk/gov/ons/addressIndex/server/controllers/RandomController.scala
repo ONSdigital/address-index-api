@@ -173,7 +173,7 @@ class RandomController @Inject()(val controllerComponents: ControllerComponents,
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByRandomResponse(
-                  addresses = addressesToNonIDS(addresses),
+                  addresses = addressesToNonIDS(addresses, "A"),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

@@ -289,7 +289,7 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                   tokens = tokens,
                   matchtype = matchType,
                   recommendationCode = AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode,
-                  addresses = addressesToNonIDS(finalAddresses),
+                  addresses = addressesToNonIDS(finalAddresses, "I"),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

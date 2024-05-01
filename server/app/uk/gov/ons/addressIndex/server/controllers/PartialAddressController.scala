@@ -222,7 +222,7 @@ class PartialAddressController @Inject()(val controllerComponents: ControllerCom
                 dataVersion = dataVersion,
                 response = AddressByPartialAddressResponse(
                   input = inputVal,
-                  addresses = addressesToNonIDS(sortAddresses),
+                  addresses = addressesToNonIDS(sortAddresses, "A"),
                   filter = filterString,
                   fallback = fall,
                   historical = hist,

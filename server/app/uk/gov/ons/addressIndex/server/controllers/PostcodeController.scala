@@ -194,7 +194,7 @@ class PostcodeController @Inject()(val controllerComponents: ControllerComponent
                 dataVersion = dataVersion,
                 response = AddressByPostcodeResponse(
                   postcode = postcode,
-                  addresses = addressesToNonIDS(addresses),
+                  addresses = addressesToNonIDS(addresses, "A"),
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,
