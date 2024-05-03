@@ -38,10 +38,6 @@ object AddressResponseAddressNonIDS {
   implicit lazy val addressResponseAddressNonIDSFormat: Format[AddressResponseAddressNonIDS] = Json.format[AddressResponseAddressNonIDS]
 
   val airRating = "A"
-//
-//  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-//   normalAddresses.map { address => transformToNonIDS(address, airRating) }
-//  }
 
   def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
     recommendationCode match {
