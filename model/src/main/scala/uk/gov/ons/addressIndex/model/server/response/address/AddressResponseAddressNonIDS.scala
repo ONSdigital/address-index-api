@@ -49,6 +49,10 @@ object AddressResponseAddressNonIDS {
     }
   }
 
+  def UprnAddressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
+    normalAddresses.map { address => transformToNonIDS(address, "A") }
+  }
+
   def transformToNonIDS(addressIn: AddressResponseAddress, airRating: String): AddressResponseAddressNonIDS = {
     AddressResponseAddressNonIDS.fromAddress(addressIn, airRating)
   }
