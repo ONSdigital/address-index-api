@@ -288,8 +288,10 @@ class AddressController @Inject()(val controllerComponents: ControllerComponents
                 response = AddressBySearchResponse(
                   tokens = tokens,
                   matchtype = matchType,
-                  recommendationCode = AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode,
-                  addresses = addressesToNonIDS(finalAddresses, "I"),
+                  recommendationCode =
+                    AIRatingHelper.calculateAIRatingSingle(sortedAddresses).recommendationCode,
+                  addresses = addressesToNonIDS(finalAddresses, recommendationCode),
+
                   filter = filterString,
                   historical = hist,
                   epoch = epochVal,

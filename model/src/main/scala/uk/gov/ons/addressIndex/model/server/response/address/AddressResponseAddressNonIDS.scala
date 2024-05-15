@@ -37,8 +37,6 @@ case class AddressResponseAddressNonIDS(uprn: String,
 object AddressResponseAddressNonIDS {
   implicit lazy val addressResponseAddressNonIDSFormat: Format[AddressResponseAddressNonIDS] = Json.format[AddressResponseAddressNonIDS]
 
-  val airRating = "A"
-
   def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
     recommendationCode match {
       case "I" =>
@@ -49,7 +47,7 @@ object AddressResponseAddressNonIDS {
     }
   }
 
-  def UprnAddressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
+  def uprnAddressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
     normalAddresses.map { address => transformToNonIDS(address, "A") }
   }
 

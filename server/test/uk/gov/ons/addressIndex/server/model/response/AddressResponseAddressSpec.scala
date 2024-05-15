@@ -1462,7 +1462,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2")
     }
 
-    "create AddressResponseAddressNonIDS collection and check AIR rating is 'I'" in {
+    "create AddressResponseAddressNonIDS collection and check AIR rating is 'A'" in {
       // Given
       val hybrid = HybridAddress("", "", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
       val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
@@ -1547,7 +1547,7 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
         underlyingScore = 1,
         countryCode = "E",
         highlights = None,
-        airRating = "I"
+        airRating = "A"
       )
 
       val nonIDS2 = AddressResponseAddressNonIDS(
@@ -1574,13 +1574,13 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
         underlyingScore = 1,
         countryCode = "E",
         highlights = None,
-        airRating = "I"
+        airRating = "R"
       )
 
       val expected = Seq(nonIDS1, nonIDS2)
 
       // When
-      val result = AddressResponseAddressNonIDS.addressesToNonIDS(addresses, "I")
+      val result = AddressResponseAddressNonIDS.addressesToNonIDS(addresses, "A")
       // Then
       result shouldBe expected
     }
