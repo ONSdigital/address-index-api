@@ -30,21 +30,32 @@ case class AddressResponseAddressNonIDS(uprn: String,
                                         countryCode:String,
                                         lpiLogicalStatus: String,
                                         confidenceScore: Double,
-                                        underlyingScore: Float
-                                      )
+                                        underlyingScore: Float,
+                                        airRating:String
+                                       )
 
 object AddressResponseAddressNonIDS {
   implicit lazy val addressResponseAddressNonIDSFormat: Format[AddressResponseAddressNonIDS] = Json.format[AddressResponseAddressNonIDS]
 
-  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress]): Seq[AddressResponseAddressNonIDS] = {
-    normalAddresses.map { address => transformToNonIDS(address) }
+  def addressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
+    recommendationCode match {
+      case "I" =>
+        normalAddresses.map { address => transformToNonIDS(address, "I") }
+      case "A" => normalAddresses.zipWithIndex.map { case (address, index) =>
+        if (index == 0) transformToNonIDS(address, "A") else transformToNonIDS(address, "R")  }
+      case _ => normalAddresses.map { address => transformToNonIDS(address, "") }
+    }
   }
 
-  def transformToNonIDS(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
-    AddressResponseAddressNonIDS.fromAddress(addressIn)
+  def uprnAddressesToNonIDS(normalAddresses: Seq[AddressResponseAddress], recommendationCode: String): Seq[AddressResponseAddressNonIDS] = {
+    normalAddresses.map { address => transformToNonIDS(address, "A") }
   }
 
-  def fromAddress(addressIn: AddressResponseAddress): AddressResponseAddressNonIDS = {
+  def transformToNonIDS(addressIn: AddressResponseAddress, airRating: String): AddressResponseAddressNonIDS = {
+    AddressResponseAddressNonIDS.fromAddress(addressIn, airRating)
+  }
+
+  def fromAddress(addressIn: AddressResponseAddress, airRating: String): AddressResponseAddressNonIDS = {
     new AddressResponseAddressNonIDS(
       uprn = addressIn.uprn,
       parentUprn = addressIn.parentUprn,
@@ -55,7 +66,7 @@ object AddressResponseAddressNonIDS {
       formattedAddressPaf = addressIn.formattedAddressPaf,
       welshFormattedAddressNag = addressIn.welshFormattedAddressNag,
       welshFormattedAddressPaf = addressIn.welshFormattedAddressPaf,
-      highlights=  addressIn.highlights,
+      highlights =  addressIn.highlights,
       paf = addressIn.paf,
       nag = addressIn.nag,
       geo = addressIn.geo,
@@ -63,12 +74,10 @@ object AddressResponseAddressNonIDS {
       countryCode = addressIn.countryCode,
       lpiLogicalStatus = addressIn.lpiLogicalStatus,
       confidenceScore = addressIn.confidenceScore,
-      underlyingScore = addressIn.underlyingScore
+      underlyingScore = addressIn.underlyingScore,
+      airRating = airRating
     )
   }
 
 
 }
-
-
-

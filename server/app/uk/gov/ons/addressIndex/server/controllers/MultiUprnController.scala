@@ -13,8 +13,8 @@ import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
-
 import javax.inject.{Inject, Singleton}
+
 import scala.concurrent.duration.{Duration, DurationInt}
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Try
@@ -139,7 +139,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByMultiUprnResponse(
-                  addresses = addressesToNonIDS(addresses),
+                  addresses = addressesToNonIDS(addresses, "A"),
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,

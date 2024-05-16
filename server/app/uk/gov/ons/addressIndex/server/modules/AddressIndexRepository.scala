@@ -1147,7 +1147,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
           // something that will indicate an empty result
           val tokens = requestData.tokens
           val emptyBulk = BulkAddress.empty(requestData)
-          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor))
+          val emptyScored = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(emptyBulk.hybridAddress, verbose = true, pafdefault=false)), tokens, 1D,scaleFactor), "I")
           val emptyBulkAddress = AddressBulkResponseAddress.fromBulkAddress(emptyBulk, emptyScored.head, includeFullAddress = false)
           if (hybridAddresses.isEmpty) Seq(emptyBulkAddress)
           else {
@@ -1164,7 +1164,7 @@ class AddressIndexRepository @Inject()(conf: ConfigModule,
             // add the Hopper and hybrid scores to the address
             // val matchThreshold = 5
             val threshold = Try(args.matchThreshold.toDouble).getOrElse(5.0D)
-            val scoredAddresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor))
+            val scoredAddresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(addressResponseAddresses, tokens, elasticDenominator,scaleFactor), "A")
 
             val addressBulkResponseAddresses = (bulkAddresses zip scoredAddresses).map { case (b, s) =>
               AddressBulkResponseAddress.fromBulkAddress(b, s, args.includeFullAddress)

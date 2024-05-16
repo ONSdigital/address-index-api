@@ -1461,5 +1461,129 @@ class AddressResponseAddressSpec extends AnyWordSpec with should.Matchers {
       // Then
       result shouldBe Map("addressLine1" -> "address line 1", "addressLine2" -> "address line 2")
     }
+
+    "create AddressResponseAddressNonIDS collection and check AIR rating is 'A'" in {
+      // Given
+      val hybrid = HybridAddress("", "", givenPaf.uprn, givenPaf.uprn, Some(Seq(givenRelative)), Some(Seq(givenCrossRef)), Some("postcodeIn"), Some("postcodeOut"), Seq(givenNag), Seq(givenPaf), 1, "classificationCode", "NA", "NA", "EW", "E", 0D, Seq())
+      val expectedPaf = AddressResponsePaf.fromPafAddress(givenPaf)
+      val expectedNag = AddressResponseNag.fromNagAddress(givenNag)
+      val address1 = AddressResponseAddress(
+        addressEntryId = "",
+        addressEntryIdAlphanumericBackup = "",
+        uprn = givenPaf.uprn,
+        parentUprn = givenPaf.uprn,
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        welshFormattedAddressNag = "",
+        welshFormattedAddressPaf = "mixedWelshPaf",
+        paf = Some(expectedPaf),
+        nag = Some(Seq(expectedNag)),
+        geo = Some(AddressResponseGeo(
+          latitude = 50.7341677,
+          longitude = -3.540302,
+          easting = 291398,
+          northing = 93861
+        )),
+        classificationCode = "classificationCode",
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        confidenceScore = 95,
+        underlyingScore = 1,
+        countryCode = "E",
+        highlights = None
+      )
+      val address2 = AddressResponseAddress(
+        addressEntryId = "",
+        addressEntryIdAlphanumericBackup = "",
+        uprn = givenPaf.uprn,
+        parentUprn = givenPaf.uprn,
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        welshFormattedAddressNag = "",
+        welshFormattedAddressPaf = "mixedWelshPaf",
+        paf = Some(expectedPaf),
+        nag = Some(Seq(expectedNag)),
+        geo = Some(AddressResponseGeo(
+          latitude = 50.7341677,
+          longitude = -3.540302,
+          easting = 291398,
+          northing = 93861
+        )),
+        classificationCode = "classificationCode",
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        confidenceScore = 5,
+        underlyingScore = 1,
+        countryCode = "E",
+        highlights = None
+      )
+      val addresses: Seq[AddressResponseAddress] = Seq(address1,address2)
+
+      val nonIDS1 = AddressResponseAddressNonIDS(
+        uprn = givenPaf.uprn,
+        parentUprn = givenPaf.uprn,
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        welshFormattedAddressNag = "",
+        welshFormattedAddressPaf = "mixedWelshPaf",
+        paf = Some(expectedPaf),
+        nag = Some(Seq(expectedNag)),
+        geo = Some(AddressResponseGeo(
+          latitude = 50.7341677,
+          longitude = -3.540302,
+          easting = 291398,
+          northing = 93861
+        )),
+        classificationCode = "classificationCode",
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        confidenceScore = 95,
+        underlyingScore = 1,
+        countryCode = "E",
+        highlights = None,
+        airRating = "A"
+      )
+
+      val nonIDS2 = AddressResponseAddressNonIDS(
+        uprn = givenPaf.uprn,
+        parentUprn = givenPaf.uprn,
+        relatives = Some(Seq(givenRelativeResponse)),
+        crossRefs = Some(Seq(givenCrossRefResponse)),
+        formattedAddress = "mixedNag",
+        formattedAddressNag = "mixedNag",
+        formattedAddressPaf = "mixedPaf",
+        welshFormattedAddressNag = "",
+        welshFormattedAddressPaf = "mixedWelshPaf",
+        paf = Some(expectedPaf),
+        nag = Some(Seq(expectedNag)),
+        geo = Some(AddressResponseGeo(
+          latitude = 50.7341677,
+          longitude = -3.540302,
+          easting = 291398,
+          northing = 93861
+        )),
+        classificationCode = "classificationCode",
+        lpiLogicalStatus = givenNag.lpiLogicalStatus,
+        confidenceScore = 5,
+        underlyingScore = 1,
+        countryCode = "E",
+        highlights = None,
+        airRating = "R"
+      )
+
+      val expected = Seq(nonIDS1, nonIDS2)
+
+      // When
+      val result = AddressResponseAddressNonIDS.addressesToNonIDS(addresses, "A")
+      // Then
+      result shouldBe expected
+    }
+
   }
 }
