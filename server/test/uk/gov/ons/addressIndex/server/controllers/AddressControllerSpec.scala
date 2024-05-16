@@ -1338,7 +1338,7 @@ class AddressControllerSpec extends PlaySpec with Results {
         dataVersion = dataVersionExpected,
         AddressBySearchResponse(
           tokens = Map.empty,
-          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 6), "I"),
+          addresses = addressesToNonIDS(HopperScoreHelper.getScoresForAddresses(Seq(AddressResponseAddress.fromHybridAddress(validHybridAddress, verbose = false, pafdefault = false)), Map.empty, -1D, 6), "A"),
           filter = "commercial",
           historical = true,
           rangekm = "20",
