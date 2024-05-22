@@ -126,7 +126,7 @@ class UPRNController @Inject()(val controllerComponents: ControllerComponents,
         request.map {
           case Some(hybridAddress) =>
 
-            val address = transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybridAddress, verb, pafdefault=pafDefault))
+            val address = transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybridAddress, verb, pafdefault=pafDefault), "A")
 
             writeLog(
               formattedOutput = address.formattedAddressNag, numOfResults = "1",

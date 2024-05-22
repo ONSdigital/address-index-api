@@ -230,7 +230,8 @@ object AddressIndexClientMock {
     confidenceScore = 100f,
     underlyingScore = 1.0f,
     countryCode = "E",
-    highlights = None
+    highlights = None,
+    airRating = "A"
   )
 
   val mockAddressByUprnResponse: AddressByUprnResponse = AddressByUprnResponse(

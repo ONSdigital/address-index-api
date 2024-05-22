@@ -156,7 +156,7 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false), ""),includeFullAddress = false)
 
       // Then
       result shouldBe expected
@@ -182,7 +182,7 @@ class AddressBulkResponseAddressSpec extends AnyWordSpec with should.Matchers {
 
       // When
       val bulk = new BulkAddress("1", "some input", tokens = Map.empty[String, String], hybrid)
-      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false)),includeFullAddress = false)
+      val result = AddressBulkResponseAddress.fromBulkAddress(bulk,transformToNonIDS(AddressResponseAddress.fromHybridAddress(hybrid, verbose = false, pafdefault = false), ""),includeFullAddress = false)
 
       // Then
       result shouldBe expected
