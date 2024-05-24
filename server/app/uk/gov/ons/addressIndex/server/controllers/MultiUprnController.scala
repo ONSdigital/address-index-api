@@ -5,7 +5,7 @@ import play.api.mvc._
 import retry.Success
 import uk.gov.ons.addressIndex.model.db.index.HybridAddressCollection
 import uk.gov.ons.addressIndex.model.server.response.address.{AddressResponseAddress, FailedRequestToEsError, OkAddressResponseStatus}
-import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.addressesToNonIDS
+import uk.gov.ons.addressIndex.model.server.response.address.AddressResponseAddressNonIDS.uprnAddressesToNonIDS
 import uk.gov.ons.addressIndex.model.server.response.uprn.{AddressByMultiUprnResponse, AddressByMultiUprnResponseContainer}
 import uk.gov.ons.addressIndex.model.MultiUprnBody
 import uk.gov.ons.addressIndex.server.model.dao.{QueryValues, RequestValues}
@@ -13,10 +13,10 @@ import uk.gov.ons.addressIndex.server.modules._
 import uk.gov.ons.addressIndex.server.modules.response.UPRNControllerResponse
 import uk.gov.ons.addressIndex.server.modules.validation.UPRNControllerValidation
 import uk.gov.ons.addressIndex.server.utils.{APIThrottle, AddressAPILogger}
-import javax.inject.{Inject, Singleton}
 
-import scala.concurrent.duration.{Duration, DurationInt}
-import scala.concurrent.{Await, ExecutionContext, Future}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -31,7 +31,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
   extends PlayHelperController(versionProvider) with UPRNControllerResponse {
 
   lazy val logger = new AddressAPILogger("address-index-server:MultiUPRNController")
-  val circuitBreakerDisabled = conf.config.elasticSearch.circuitBreakerDisabled
+  val circuitBreakerDisabled: Boolean = conf.config.elasticSearch.circuitBreakerDisabled
 
   /**
     * a POST route which will process all `BulkQuery` items in the `BulkBody`
@@ -47,7 +47,6 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
     logger.info(s"#multi UPRN query with ${req.body.uprns.size} items")
     val uprnString = req.body.uprns.toString()
     val uprns = req.body.uprns.toList
-    val uprn = uprns.head
 
     val clusterid = conf.config.elasticSearch.clusterPolicies.uprn
 
@@ -112,7 +111,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
           pafDefault = pafDefault
         )
 
-        implicit val success = Success[HybridAddressCollection](_ != null)
+        implicit val success: Success[HybridAddressCollection] = Success[HybridAddressCollection](_ != null)
 
         val request: Future[HybridAddressCollection] =
           retry.Pause(3, 1.seconds).apply { ()  =>
@@ -139,7 +138,7 @@ class MultiUprnController @Inject()(val controllerComponents: ControllerComponen
                 apiVersion = apiVersion,
                 dataVersion = dataVersion,
                 response = AddressByMultiUprnResponse(
-                  addresses = addressesToNonIDS(addresses, "A"),
+                  addresses = uprnAddressesToNonIDS(addresses, "A"),
                   historical = hist,
                   epoch = epochVal,
                   verbose = verb,
