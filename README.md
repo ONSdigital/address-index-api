@@ -6,6 +6,8 @@
 
 ### What is this repository for? ###
 
+This repo will be archived soon as it has been superseded by https://github.com/ONSdigital/aims-api
+
 Address Index is a Play Framework (2.8.8) application which matches addresses. 
 
 The system works via large Elasticsearch (7.17.1) indices build primarily from AddressBase Premium data.
